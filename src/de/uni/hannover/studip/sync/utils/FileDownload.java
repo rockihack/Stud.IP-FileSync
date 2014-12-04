@@ -1,11 +1,12 @@
 package de.uni.hannover.studip.sync.utils;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
+//import java.nio.channels.Channels;
+//import java.nio.channels.ReadableByteChannel;
 
 /**
  * File download helper.
@@ -15,39 +16,38 @@ import java.nio.channels.ReadableByteChannel;
  */
 public class FileDownload {
 
-	/*
-	@SuppressWarnings("resource")
+	/*@SuppressWarnings("resource")
 	public static void get(InputStream is, String path) throws IOException {
 		ReadableByteChannel rbc = Channels.newChannel(is);
 		FileOutputStream fos = new FileOutputStream(path);
 		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
-	}
-	*/
+	}*/
 	
-	public static void get(InputStream is, String path) throws IOException {
+	private static final int BUFFER_SIZE = 8192;
+	
+	public static void get(InputStream is, File file) throws IOException {
 		BufferedInputStream in = null;
 		FileOutputStream out = null;
 		
 		try{
-			
 			in = new BufferedInputStream(is);
-			out = new FileOutputStream(path);
+			out = new FileOutputStream(file);
 			
-			final byte buffer[] = new byte[4096];
+			byte buffer[] = new byte[BUFFER_SIZE];
 			int count;
 			
-			while ((count = in.read(buffer, 0, 4096)) != -1) {
+			while ((count = in.read(buffer, 0, BUFFER_SIZE)) > 0) {
 				out.write(buffer, 0, count);
-				out.flush();
+				System.out.println(count);
 			}
 			
 		} finally {
 			if (in != null) {
-	            in.close();
-	        }
-	        if (out != null) {
-	            out.close();
-	        }
+			    in.close();
+			}
+			if (out != null) {
+			    out.close();
+			}
 		}
 	}
 	

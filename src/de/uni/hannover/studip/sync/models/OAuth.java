@@ -1,5 +1,7 @@
 package de.uni.hannover.studip.sync.models;
 
+import java.io.IOException;
+
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
@@ -7,6 +9,9 @@ import org.scribe.model.Token;
 import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 
@@ -18,38 +23,39 @@ import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 public class OAuth {
 	
 	/**
+	 * Singleton instance.
+	 */
+	private static final OAuth singletonInstance = new OAuth();
+	
+	/**
+	 * Config.
+	 */
+	private static final Config config = Config.getInstance();
+	
+	/**
 	 * OAuth consumer key and secret.
 	 */
-	private static final String API_KEY = "<api-key>";
-	private static final String API_SECRET = "<api-secret>";
+	private static final String API_KEY = "";
+	private static final String API_SECRET = "";
 	
 	/**
 	 * OAuth service callback address.
 	 */
 	private static final String API_CALLBACK = "https://elearning.uni-hannover.de/index.php";
-	
-	/**
-	 * Singleton instance.
-	 */
-	private static OAuth singletonInstance = null;
-	
+
 	/**
 	 * Singleton instance getter.
 	 * 
 	 * @return OAuth instance
 	 */
 	public static OAuth getInstance() {
-		if (singletonInstance == null) {
-			singletonInstance = new OAuth();
-		}
-		
 		return singletonInstance;
 	}
 	
 	/**
 	 * Service object.
 	 */
-	private OAuthService service;
+	private final OAuthService service;
 	
 	/**
 	 * Request token.
@@ -109,7 +115,17 @@ public class OAuth {
 		
 		accessToken = service.getAccessToken(requestToken, new Verifier(verifier));
 		
-		System.out.println("Key: " + accessToken.getToken() + "\nSecret: " + accessToken.getSecret() + "\n");
+		/* Store access token. */
+		try {
+			config.setAccessToken(accessToken);
+			
+		} catch (JsonGenerationException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -131,23 +147,31 @@ public class OAuth {
 	
 	/**
 	 * Restore a previously used access token.
+	 * 
+	 * @return True if the access token could be restored.
 	 */
-	@SuppressWarnings("unused")
 	public boolean restoreAccessToken() {
-		/* TODO: Restore access token from database. */
-		if (true) {
-			accessToken = new Token("<access-token>", "<access-secret>");
-			return true;
-		}
+		accessToken = config.getAccessToken();
 		
-		return false;
+		return accessToken != null;
 	}
 	
 	/**
-	 * Resets the stored access token.
+	 * Remove the stored access token.
 	 */
-	public void resetAccessToken() {
-		/* TODO: Delete access token from database. */
+	public void removeAccessToken() {
+		/* Store access token. */
+		try {
+			config.setAccessToken(accessToken);
+			
+		} catch (JsonGenerationException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		accessToken = null;
 	}
 	

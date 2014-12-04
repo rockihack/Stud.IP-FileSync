@@ -1,5 +1,6 @@
 package de.uni.hannover.studip.sync.models;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 
@@ -11,8 +12,14 @@ import de.uni.hannover.studip.sync.utils.FileDownload;
 
 public class RestApi {
 	
+	/**
+	 * Rest api base url.
+	 */
 	private static final String BASE_URL = "elearning.uni-hannover.de/plugins.php/restipplugin";
 	
+	/**
+	 * Debug flag.
+	 */
 	private static final boolean DEBUG = false;
 
 	/**
@@ -98,6 +105,10 @@ public class RestApi {
 	 * @throws IOException 
 	 */
 	public static Courses getAllCoursesBySemesterId(String semesterId) throws UnauthorizedException, NotFoundException, IOException {
+		if (!semesterId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid semester id!");
+		}
+		
 		Courses courses = null;
 		
 		JacksonRequest<Courses> request = new JacksonRequest<Courses>(Verb.GET,
@@ -135,6 +146,10 @@ public class RestApi {
 	 * @throws IOException 
 	 */
 	public static Course getCourseById(String courseId) throws UnauthorizedException, NotFoundException, IOException {
+		if (!courseId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid course id!");
+		}
+		
 		Course course = null;
 		
 		JacksonRequest<Course> request = new JacksonRequest<Course>(Verb.GET,
@@ -170,11 +185,19 @@ public class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static DocumentFolders getAllDocumentsByRangeId(String rangeId, String folderId) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+	public static DocumentFolders getAllDocumentsByRangeAndFolderId(String rangeId, String folderId) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+		if (!rangeId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid range id!");
+		}
+		
+		if (folderId != null && !folderId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid folder id!");
+		}
+		
 		DocumentFolders documentFolders = null;
 		
 		JacksonRequest<DocumentFolders> request = new JacksonRequest<DocumentFolders>(Verb.GET,
-				"https://" + BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId.isEmpty() ? "" : "/" + folderId), DocumentFolders.class);
+				"https://" + BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId == null ? "" : "/" + folderId), DocumentFolders.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -220,6 +243,10 @@ public class RestApi {
 	 * @throws IOException 
 	 */
 	public static Document getDocumentById(String documentId) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+		if (!documentId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid document id!");
+		}
+		
 		Document document = null;
 		
 		JacksonRequest<Document> request = new JacksonRequest<Document>(Verb.GET,
@@ -257,18 +284,22 @@ public class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static void downloadDocumentById(String documentId, String localPath) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
-		long startTime = System.currentTimeMillis();
+	public static void downloadDocumentById(String documentId, File documentFile) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+		if (!documentId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid document id!");
+		}
 		
+		long startTime = System.currentTimeMillis();
+
 		JacksonRequest<Object> request = new JacksonRequest<Object>(Verb.GET,
 				"https://" + BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
-		
+
 		switch (request.getCode()) {
 		case 200:
-			FileDownload.get(request.getStream(), localPath);
+			FileDownload.get(request.getStream(), documentFile);
 			
 			long endTime = System.currentTimeMillis();
-			System.out.println("Downloaded " + localPath + " in " + (endTime - startTime) + "ms");
+			System.out.println("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
 			break;
 			
 		case 401:
@@ -325,6 +356,10 @@ public class RestApi {
 	 * @throws IOException 
 	 */
 	public static Semester getSemesterById(String semesterId) throws UnauthorizedException, NotFoundException, IOException {
+		if (!semesterId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid semester id!");
+		}
+		
 		Semester semester = null;
 		
 		JacksonRequest<Semester> request = new JacksonRequest<Semester>(Verb.GET,
@@ -359,44 +394,15 @@ public class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static User getUser() throws UnauthorizedException, IOException {
-		User user = null;
-		
-		JacksonRequest<User> request = new JacksonRequest<User>(Verb.GET,
-				"https://" + BASE_URL + "/api/user", User.class);
-
-		switch (request.getCode()) {
-		case 200:
-			user = request.parseResponse(true);
-			
-			if (DEBUG) {
-				System.out.println(user.username + "\n");
-			}
-			
-			break;
-			
-		case 401:
-			throw new UnauthorizedException("Unauthorized!");
-		default:
-			throw new IllegalStateException("Statuscode: " + request.getCode());
+	public static User getUserById(String userId) throws UnauthorizedException, NotFoundException, IOException {
+		if (userId != null && !userId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid user id!");
 		}
 		
-		return user;
-	}
-	
-	/**
-	 * Liefert die Daten des Nutzers mit der angegebenen Id zurück. Ist keine Id angegeben, so werden die Daten des autorisierten Nutzers zurückgegeben.
-	 * 
-	 * @return
-	 * @throws UnauthorizedException 
-	 * @throws NotFoundException 
-	 * @throws IOException 
-	 */
-	public static User getUserById(String userId) throws UnauthorizedException, NotFoundException, IOException {
 		User user = null;
 		
 		JacksonRequest<User> request = new JacksonRequest<User>(Verb.GET,
-				"https://" + BASE_URL + "/api/user/" + userId, User.class);
+				"https://" + BASE_URL + "/api/user" + (userId == null ? "" : "/" + userId), User.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -417,5 +423,39 @@ public class RestApi {
 		}
 		
 		return user;
+	}
+	
+	/**
+	 * Liefert die Aktivitäten im Umfeld des autorisierten Nutzers zurück.
+	 * 
+	 * @return
+	 * @throws UnauthorizedException 
+	 * @throws IOException 
+	 */
+	public static Activities getActivities() throws UnauthorizedException, IOException {
+		Activities activities = null;
+		
+		JacksonRequest<Activities> request = new JacksonRequest<Activities>(Verb.GET,
+				"https://" + BASE_URL + "/api/activities", Activities.class);
+
+		switch (request.getCode()) {
+		case 200:
+			activities = request.parseResponse(true);
+			
+			if (DEBUG) {
+				for (Activity activity : activities.activities) {
+					System.out.println("[" + activity.category + "] " + activity.title + " - " + activity.summary + "\n");
+				}
+			}
+			
+			break;
+			
+		case 401:
+			throw new UnauthorizedException("Unauthorized!");
+		default:
+			throw new IllegalStateException("Statuscode: " + request.getCode());
+		}
+		
+		return activities;
 	}
 }

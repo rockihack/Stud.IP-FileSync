@@ -72,16 +72,7 @@ public class JacksonRequest<T> {
 		
 		return mapper.readValue(response.getBody(), datamodel);
 	}
-	
-	/**
-	 * Get input stream.
-	 * 
-	 * @return
-	 */
-	public InputStream getStream() {
-		return response.getStream();
-	}
-	
+
 	/**
 	 * Get request method.
 	 * 
@@ -116,6 +107,15 @@ public class JacksonRequest<T> {
 	 */
 	public Map<String, String> getHeaders() {
 		return response.getHeaders();
+	}
+	
+	/**
+	 * Get input stream.
+	 * 
+	 * @return
+	 */
+	public InputStream getStream() {
+		return response.getStream();
 	}
 	
 }
