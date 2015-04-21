@@ -13,6 +13,44 @@ import de.elanev.studip.android.app.backend.datamodel.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentTreeNode {
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		
+		result = prime * result + ((chdate == null) ? 0 : chdate.hashCode());
+		result = prime * result
+				+ ((document_id == null) ? 0 : document_id.hashCode());
+		
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		DocumentTreeNode other = (DocumentTreeNode) obj;
+		
+		if (chdate == null) {
+			if (other.chdate != null)
+				return false;
+		} else if (!chdate.equals(other.chdate))
+			return false;
+		
+		if (document_id == null) {
+			if (other.document_id != null)
+				return false;
+		} else if (!document_id.equals(other.document_id))
+			return false;
+		
+		return true;
+	}
+
 	public String document_id;
 	public String user_id;
 	public String name;

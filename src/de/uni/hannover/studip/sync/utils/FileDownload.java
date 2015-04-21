@@ -26,27 +26,12 @@ public class FileDownload {
 	private static final int BUFFER_SIZE = 8192;
 	
 	public static void get(InputStream is, File file) throws IOException {
-		BufferedInputStream in = null;
-		FileOutputStream out = null;
-		
-		try{
-			in = new BufferedInputStream(is);
-			out = new FileOutputStream(file);
-			
+		try (BufferedInputStream in = new BufferedInputStream(is); FileOutputStream out = new FileOutputStream(file)) {
 			byte buffer[] = new byte[BUFFER_SIZE];
 			int count;
 			
 			while ((count = in.read(buffer, 0, BUFFER_SIZE)) > 0) {
 				out.write(buffer, 0, count);
-				System.out.println(count);
-			}
-			
-		} finally {
-			if (in != null) {
-			    in.close();
-			}
-			if (out != null) {
-			    out.close();
 			}
 		}
 	}

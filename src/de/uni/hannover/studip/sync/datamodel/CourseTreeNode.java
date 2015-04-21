@@ -20,6 +20,9 @@ public class CourseTreeNode {
 	/* "1": Vorlesung, "2": Seminar, "3": Übung, "4": Projekt, "99": Studiengruppe. */
 	public int type;
 	
+	/* Last update time. */
+	public Long update_time;
+	
 	/* Child nodes. */
 	public DocumentFolderTreeNode root = new DocumentFolderTreeNode();
 	
@@ -32,6 +35,7 @@ public class CourseTreeNode {
 		this.start_time = course.startTime;
 		this.duration_time = course.durationTime;
 		this.type = course.type;
+		this.update_time = System.currentTimeMillis() / 1000L;
 	}
 
 }

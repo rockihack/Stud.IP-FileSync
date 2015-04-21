@@ -11,10 +11,9 @@ public class FileHash {
 	
 	private static final int BUFFER_SIZE = 8192;
 	
-	private static final char[] hexArray = "0123456789ABCDEF".toCharArray();
+	private static final char[] HEX = "0123456789abcdef".toCharArray();
 
 	public static String getMd5(File file) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
-		
 		try (FileInputStream in = new FileInputStream(file)) {
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			
@@ -27,7 +26,6 @@ public class FileHash {
 			
 			return bytesToHex(digest.digest());
 		}
-		
 	}
 	
 	public static String bytesToHex(byte[] bytes) {
@@ -35,8 +33,8 @@ public class FileHash {
 		
 		for ( int j = 0; j < bytes.length; j++ ) {
 			int v = bytes[j] & 0xFF;
-			hexChars[j * 2] = hexArray[v >>> 4];
-			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+			hexChars[j * 2] = HEX[v >>> 4];
+			hexChars[j * 2 + 1] = HEX[v & 0x0F];
 		}
 		
 		return new String(hexChars);

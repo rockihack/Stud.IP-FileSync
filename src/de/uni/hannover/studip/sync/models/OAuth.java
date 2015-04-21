@@ -141,6 +141,7 @@ public class OAuth {
 		}
 		
 		OAuthRequest request = new OAuthRequest(method, url);
+		request.setConnectionKeepAlive(true);
 		service.signRequest(accessToken, request);
 		return request.send();
 	}

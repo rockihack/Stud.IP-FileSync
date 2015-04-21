@@ -1,43 +1,113 @@
 package de.uni.hannover.studip.sync;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Scanner;
 
-import de.elanev.studip.android.app.backend.datamodel.User;
+import javax.swing.SwingUtilities;
+
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import de.uni.hannover.studip.sync.exceptions.ForbiddenException;
 import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
-import de.uni.hannover.studip.sync.models.FileSync;
+import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
+import de.uni.hannover.studip.sync.models.TreeBuilder;
+import de.uni.hannover.studip.sync.models.TreeSync;
 
 public class Application {
 	
-	private static final OAuth oauth = OAuth.getInstance();
-
 	public static void main(String[] args) {
+
+		/* Create and show GUI. */
+//		SwingUtilities.invokeLater(new Runnable(){
+//
+//			@Override
+//			public void run() {
+//				/* Initialize the main frame. */
+//				MainFrame.getInstance();
+//			}
+//			
+//		});
 		
-		System.out.println("Starting...");
 		
-		/*
-		oauth.getRequestToken();
-		System.out.println(oauth.getAuthUrl());
+		/*OAuth oauth = OAuth.getInstance();
 		
-		Scanner sc = new Scanner(System.in);
-		String verifier = sc.nextLine();
+		oauth.restoreAccessToken();
 		
-		oauth.getAccessToken(verifier);
-		*/
+		try {
+			
+			//RestApi.downloadDocumentById("b0b0c84a6bfcd380ab25b48d5240af01", "C:\\Users\\rocki\\Documents\\test.pdf");
+			
+			RestApi.downloadDocumentById("07047add360daa957f03a5263c295fac", "C:\\Users\\rocki\\Documents\\test.txt");
+			
+		} catch (UnauthorizedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ForbiddenException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 		
+		
+		OAuth oauth = OAuth.getInstance();
+		
+		oauth.restoreAccessToken();
+		
+		TreeBuilder tree = new TreeBuilder();
+		TreeSync sync = new TreeSync(new File("C:\\Users\\rocki\\Documents\\FileSync"));
+		
+		try {
+			File treeFile = new File(Config.getInstance().getConfigDirectory(), "tree.json");
+			
+			//tree.build(treeFile);
+			
+			tree.update(treeFile, false);
+
+			sync.sync(treeFile, false);
+			
+		} catch (JsonGenerationException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		/*OAuth oauth = OAuth.getInstance();
 		
 		oauth.restoreAccessToken();
 		
 		FileSync sync = new FileSync();
 		
-		sync.createTree();
+		sync.createTree();*/
 		
-		/*
-		try {
+		
+		
+		
+		
+		
+		
+		
+		/*oauth.getRequestToken();
+		System.out.println(oauth.getAuthUrl());
+		
+		Scanner sc = new Scanner(System.in);
+		String verifier = sc.nextLine();
+		
+		oauth.getAccessToken(verifier);*/
+		
+		/*try {
 			RestApi.discovery();
 			
 			RestApi.getAllCourses();
@@ -54,16 +124,14 @@ public class Application {
 			//RestApi.getDocumentById("56a5bcc9b93af836f24f98168da27a1b");
 			
 			// Übung: Übung zu Mathematik I für Ingenieure, WiSe 2013, Übungsblätter, ueb_1.pdf.
-			//RestApi.downloadDocumentById("56a5bcc9b93af836f24f98168da27a1b", "<path-to-file>");
+			//RestApi.downloadDocumentById("56a5bcc9b93af836f24f98168da27a1b", "C:\\Users\\rocki\\Documents\\ueb_1.pdf");
 			
 			RestApi.getAllSemesters();
 			
 			//RestApi.getSemesterById("");
 			
-			User user = RestApi.getUser();
+			User user = RestApi.getUserById("");
 			System.out.println(user.username);
-			
-			//RestApi.getUserById("");
 			
 		} catch (UnauthorizedException e) {
 			e.printStackTrace();
@@ -73,8 +141,7 @@ public class Application {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		*/
+		}*/
 		
 	}
 

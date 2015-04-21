@@ -1,9 +1,7 @@
 package de.uni.hannover.studip.sync.models;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
@@ -16,7 +14,6 @@ import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.exceptions.ForbiddenException;
 import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
-import de.uni.hannover.studip.sync.utils.FileHash;
 
 /**
  * Semester/Course/Folder/Document tree sync.
@@ -25,8 +22,14 @@ import de.uni.hannover.studip.sync.utils.FileHash;
  */
 public class TreeSync {
 	
+	/**
+	 * The sync root directory.
+	 */
 	private final File rootDirectory;
 	
+	/**
+	 * Thread pool.
+	 */
 	private final ExecutorService threadPool;
 
 	public TreeSync(File rootDirectory) {
@@ -39,6 +42,9 @@ public class TreeSync {
 		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
 	
+	/**
+	 * Shutdown thread pool.
+	 */
 	public void shutdown() {
 		threadPool.shutdown();
 	}
@@ -51,33 +57,29 @@ public class TreeSync {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized void sync(File tree) throws JsonParseException, JsonMappingException, IOException {
+	public synchronized int sync(File tree, boolean doAllSemesters) throws JsonParseException, JsonMappingException, IOException {
 		/* Read existing tree. */
 		ObjectMapper mapper = new ObjectMapper();
 		
 		SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
 		
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
-		Phaser phaser = new Phaser();
-		
-		/* Register self. */
-		phaser.register();
+		Phaser phaser = new Phaser(1); /* = self. */
 		
 		/* Current unix timestamp. */
 		long now = System.currentTimeMillis() / 1000L;
 		
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
-			/* Update only current semester. */
-			if (now > semester.begin && now < semester.end) {
-				File semesterDirectory = new File(rootDirectory, semester.title);
+			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
+				File semesterDirectory = new File(rootDirectory, removeIllegalCharacters(semester.title));
 				
 				if (!semesterDirectory.exists() && !semesterDirectory.mkdir()) {
 					throw new IllegalStateException("Could not create semester directory!");
 				}
 				
 				for (CourseTreeNode course : semester.courses) {
-					File courseDirectory = new File(semesterDirectory, course.title);
+					File courseDirectory = new File(semesterDirectory, removeIllegalCharacters(course.title));
 					
 					if (!courseDirectory.exists() && !courseDirectory.mkdir()) {
 						throw new IllegalStateException("Could not create course directory!");
@@ -92,19 +94,34 @@ public class TreeSync {
 		phaser.arriveAndAwaitAdvance();
 		
 		System.out.println("Sync done!");
+		
+		return phaser.getRegisteredParties() - 1;
+	}
+	
+	/**
+	 * Remove/replace illegal chars from path/file name.
+	 * 
+	 * @param file
+	 * @return
+	 */
+	private String removeIllegalCharacters(String file) {
+		/* Replace separators. */
+		file = file.replaceAll("[\\/]+", "-");
+		/* Remove other illegal chars. */
+		return file.replaceAll("[<>:\"|?*]+", "");
 	}
 	
 	/**
 	 * Folder node handler.
 	 * 
 	 * @param phaser
-	 * @param parentNode
-	 * @param parentDirectory
+	 * @param folderNode The folder node
+	 * @param parentDirectory The parent directory
 	 */
-	private void doFolder(Phaser phaser, DocumentFolderTreeNode parentNode, File parentDirectory) {
+	private void doFolder(Phaser phaser, DocumentFolderTreeNode folderNode, File parentDirectory) {
 		/* Traverse folder structure (recursive). */
-		for (DocumentFolderTreeNode folder : parentNode.folders) {
-			File folderDirectory = new File(parentDirectory, folder.name);
+		for (DocumentFolderTreeNode folder : folderNode.folders) {
+			File folderDirectory = new File(parentDirectory, removeIllegalCharacters(folder.name));
 			
 			if (!folderDirectory.exists() && !folderDirectory.mkdir()) {
 				throw new IllegalStateException("Could not create course directory!");
@@ -113,7 +130,7 @@ public class TreeSync {
 			doFolder(phaser, folder, folderDirectory);
 		}
 
-		for (DocumentTreeNode document : parentNode.documents) {
+		for (DocumentTreeNode document : folderNode.documents) {
 			doDocument(phaser, document, parentDirectory);
 		}
 	}
@@ -122,32 +139,21 @@ public class TreeSync {
 	 * Document node handler.
 	 * 
 	 * @param phaser
-	 * @param documentNode
-	 * @param parentDirectory
+	 * @param documentNode The document node
+	 * @param parentDirectory The parent directory
 	 */
 	private void doDocument(Phaser phaser, DocumentTreeNode documentNode, File parentDirectory) {
-		File documentFile = new File(parentDirectory, documentNode.filename);
+		File documentFile = new File(parentDirectory, removeIllegalCharacters(documentNode.filename));
 		
 		if (documentFile.exists()) {
-			try {
-				/* Compare file size and md5 hash. */
-				if (documentFile.length() != documentNode.filesize || !FileHash.getMd5(documentFile).equals(documentNode.document_id)) {
-					phaser.register();
-					
-					/* Download modified file. */
-					/* TODO: Add option to overwrite or rename file. */
-					threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
-					
-					/* Logging. */
-					System.out.println(documentNode.name);
-				}
+			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() < documentNode.mkdate) {
+				phaser.register();
 				
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				/* Download modified file. */
+				/* TODO: Add option to overwrite or rename file. */
+				threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
+
+				System.out.println("Modified: " + documentNode.name);
 			}
 			
 		} else {
@@ -155,9 +161,8 @@ public class TreeSync {
 			
 			/* Download new file. */
 			threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
-			
-			/* Logging. */
-			System.out.println(documentNode.name);
+
+			System.out.println("New: " + documentNode.name);
 		}
 	}
 	
@@ -175,14 +180,23 @@ public class TreeSync {
 		
 		/**
 		 * Document node.
+		 * The document node to download.
 		 */
 		private final DocumentTreeNode documentNode;
 		
 		/**
 		 * Document file.
+		 * The file location to store the document.
 		 */
 		private final File documentFile;
 		
+		/**
+		 * Download document job.
+		 * 
+		 * @param phaser
+		 * @param documentNode The document node to download
+		 * @param documentFile The file location to store the document
+		 */
 		public DownloadDocumentJob(Phaser phaser, DocumentTreeNode documentNode, File documentFile) {
 			this.phaser = phaser;
 			this.documentNode = documentNode;
@@ -193,9 +207,8 @@ public class TreeSync {
 		public void run() {
 			try {
 				RestApi.downloadDocumentById(documentNode.document_id, documentFile);
-				
-				/* Logging. */
-				System.out.println(documentNode.name + " done!");
+
+				System.out.println(documentNode.name + " downloaded");
 				
 			} catch (UnauthorizedException e) {
 				e.printStackTrace();
@@ -206,6 +219,7 @@ public class TreeSync {
 			} catch (IOException e) {
 				e.printStackTrace();
 			} finally {
+				/* Job done. */
 				phaser.arrive();
 			}
 		}
