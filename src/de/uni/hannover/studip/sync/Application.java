@@ -42,7 +42,7 @@ public class Application {
 		*/
 
 		if (!oauth.restoreAccessToken()) {
-			System.out.println("Kein Studip Access Token gefunden!");
+			throw new IllegalStateException("Kein Studip Access Token gefunden!");
 		}
 		
 		TreeBuilder tree = new TreeBuilder();
