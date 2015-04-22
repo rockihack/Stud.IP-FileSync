@@ -20,7 +20,6 @@ public class DocumentTreeNode {
 	public Long chdate;
 	public String filename;
 	public Long filesize;
-	public String md5;
 
 	public DocumentTreeNode() {
 	}

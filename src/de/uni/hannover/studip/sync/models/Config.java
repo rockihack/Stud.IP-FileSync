@@ -207,7 +207,9 @@ public class Config {
 	 * @param accessToken
 	 */
 	public Token getAccessToken() {
-		return new Token(oauth.token, oauth.secret);
+		return oauth.token != null && oauth.secret != null
+				? new Token(oauth.token, oauth.secret)
+				: null;
 	}
 	
 	/**
