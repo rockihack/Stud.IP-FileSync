@@ -20,10 +20,13 @@ import de.uni.hannover.studip.sync.exceptions.*;
  * @author Lennart Glauer
  */
 public class TreeBuilder {
-
-	private final ExecutorService threadPool;
 	
-	public TreeBuilder() {
+	/**
+	 * Thread pool.
+	 */
+	protected final ExecutorService threadPool;
+
+	protected TreeBuilder() {
 		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
 	

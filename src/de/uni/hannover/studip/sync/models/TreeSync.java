@@ -2,8 +2,6 @@ package de.uni.hannover.studip.sync.models;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -18,33 +16,21 @@ import de.uni.hannover.studip.sync.exceptions.*;
  * 
  * @author Lennart Glauer
  */
-public class TreeSync {
+public class TreeSync extends TreeBuilder {
 	
 	/**
 	 * The sync root directory.
 	 */
 	private final File rootDirectory;
-	
-	/**
-	 * Thread pool.
-	 */
-	private final ExecutorService threadPool;
 
 	public TreeSync(File rootDirectory) {
+		super();
+
 		if (!rootDirectory.isDirectory()) {
 			throw new IllegalStateException("Root directory does not exist!");
 		}
 		
 		this.rootDirectory = rootDirectory;
-		
-		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-	}
-	
-	/**
-	 * Shutdown thread pool.
-	 */
-	public void shutdown() {
-		threadPool.shutdown();
 	}
 	
 	/**

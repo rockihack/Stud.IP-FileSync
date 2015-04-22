@@ -45,15 +45,14 @@ public class Application {
 			throw new IllegalStateException("Kein Studip Access Token gefunden!");
 		}
 		
-		TreeBuilder tree = new TreeBuilder();
-		TreeSync sync = new TreeSync(new File("C:\\Users\\rocki\\Documents\\FileSync"));
+		TreeSync tree = new TreeSync(new File("C:\\Users\\rocki\\Documents\\FileSync"));
 		
 		try {
 			File treeFile = Config.getInstance().openTreeFile();
 			
 			tree.build(treeFile);
 
-			sync.sync(treeFile, false);
+			tree.sync(treeFile, false);
 			
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
@@ -64,6 +63,5 @@ public class Application {
 		}
 		
 		tree.shutdown();
-		sync.shutdown();
 	}
 }
