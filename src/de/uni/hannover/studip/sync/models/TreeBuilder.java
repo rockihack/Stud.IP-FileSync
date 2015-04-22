@@ -34,6 +34,8 @@ public class TreeBuilder {
 	/**
 	 * Build the semester/course/folder/document tree and store it in json format.
 	 * 
+	 * This method always creates a new tree!
+	 * 
 	 * @param tree
 	 * @throws JsonGenerationException
 	 * @throws JsonMappingException
@@ -47,7 +49,7 @@ public class TreeBuilder {
 		Phaser phaser = new Phaser(2); /* = self + first job. */
 		
 		/* Build tree with multiple threads. */
-		threadPool.execute(new UpdateSemestersJob(phaser, rootNode));
+		threadPool.execute(new BuildSemestersJob(phaser, rootNode));
 		
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
@@ -57,12 +59,11 @@ public class TreeBuilder {
 		mapper.writeValue(tree, rootNode);
 		
 		System.out.println("Build done!");
-		
 		return phaser.getRegisteredParties() - 1;
 	}
 	
 	/**
-	 * Update the semester/course/folder/document tree.
+	 * Update existing semester/course/folder/document tree.
 	 * 
 	 * @param tree
 	 * @throws JsonGenerationException
@@ -80,20 +81,20 @@ public class TreeBuilder {
 		
 		/* Current unix timestamp. */
 		long now = System.currentTimeMillis() / 1000L;
-		
-		long cache_time = now - (10*60);
+		long cache_time = now; //now - (10*60);
 		
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
+			// If doAllSemesters is false we will only update the current semester.
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (CourseTreeNode course : semester.courses) {
-					//if (course.update_time < cache_time) {
+					if (course.update_time < cache_time) {
 						course.update_time = now;
 					
 						phaser.register();
 						
-						threadPool.execute(new UpdateDocumentsJob(phaser, course, course.root));
-					//}
+						threadPool.execute(new UpdateDocumentsJob(phaser, course));
+					}
 				}
 			}
 		}
@@ -105,16 +106,15 @@ public class TreeBuilder {
 		mapper.writeValue(tree, rootNode);
 		
 		System.out.println("Update done!");
-		
 		return phaser.getRegisteredParties() - 1;
 	}
 	
 	/**
-	 * Update semesters job.
+	 * Build semesters job.
 	 * 
 	 * @author Lennart Glauer
 	 */
-	private class UpdateSemestersJob implements Runnable {
+	private class BuildSemestersJob implements Runnable {
 		
 		/**
 		 * Phaser.
@@ -126,7 +126,7 @@ public class TreeBuilder {
 		 */
 		private final SemestersTreeNode rootNode;
 		
-		public UpdateSemestersJob(Phaser phaser, SemestersTreeNode rootNode) {
+		public BuildSemestersJob(Phaser phaser, SemestersTreeNode rootNode) {
 			this.phaser = phaser;
 			this.rootNode = rootNode;
 		}
@@ -144,7 +144,7 @@ public class TreeBuilder {
 					rootNode.semesters.add(semesterNode = new SemesterTreeNode(semester));
 					
 					/* Add update courses job. */
-					threadPool.execute(new UpdateCoursesJob(phaser, semesterNode));
+					threadPool.execute(new BuildCoursesJob(phaser, semesterNode));
 
 					System.out.println(semesterNode.title);
 				}
@@ -162,11 +162,11 @@ public class TreeBuilder {
 	}
 	
 	/**
-	 * Update courses job.
+	 * Build courses job.
 	 * 
 	 * @author Lennart Glauer
 	 */
-	private class UpdateCoursesJob implements Runnable {
+	private class BuildCoursesJob implements Runnable {
 		
 		/**
 		 * Phaser.
@@ -178,7 +178,7 @@ public class TreeBuilder {
 		 */
 		private final SemesterTreeNode semesterNode;
 		
-		public UpdateCoursesJob(Phaser phaser, SemesterTreeNode semesterNode) {
+		public BuildCoursesJob(Phaser phaser, SemesterTreeNode semesterNode) {
 			this.phaser = phaser;
 			this.semesterNode = semesterNode;
 		}
@@ -196,12 +196,83 @@ public class TreeBuilder {
 					semesterNode.courses.add(courseNode = new CourseTreeNode(course));
 					
 					/* Add update files job. */
-					threadPool.execute(new UpdateDocumentsJob(phaser, courseNode, courseNode.root));
+					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root));
 					
 					System.out.println(courseNode.title);
 				}
 				
 			} catch (UnauthorizedException e) {
+				e.printStackTrace();
+			} catch (NotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				/* Job done. */
+				phaser.arrive();
+			}
+		}
+		
+	}
+	
+	/**
+	 * Build files job.
+	 * 
+	 * @author Lennart Glauer
+	 */
+	private class BuildDocumentsJob implements Runnable {
+
+		/**
+		 * Phaser.
+		 */
+		private final Phaser phaser;
+		
+		/**
+		 * Course node.
+		 */
+		private final CourseTreeNode courseNode;
+		
+		/**
+		 * Parent folder node.
+		 */
+		private final DocumentFolderTreeNode parentNode;
+		
+		public BuildDocumentsJob(Phaser phaser, CourseTreeNode courseNode, DocumentFolderTreeNode parentNode) {
+			this.phaser = phaser;
+			this.courseNode = courseNode;
+			this.parentNode = parentNode;
+		}
+
+		@Override
+		public void run() {
+			try {
+				DocumentFolderTreeNode folderNode;
+				DocumentTreeNode documentNode;
+				
+				DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.course_id, parentNode.folder_id);
+
+				phaser.bulkRegister(folders.folders.size());
+				
+				/* Folders. */
+				for (DocumentFolder folder : folders.folders) {
+					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
+					
+					/* Add update files job (recursive). */
+					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, folderNode));
+					
+					System.out.println(folderNode.name);
+				}
+
+				/* Documents. */
+				for (Document document : folders.documents) {
+					parentNode.documents.add(documentNode = new DocumentTreeNode(document));
+					
+					System.out.println(documentNode.name);
+				}
+				
+			} catch (UnauthorizedException e) {
+				e.printStackTrace();
+			} catch (ForbiddenException e) {
 				e.printStackTrace();
 			} catch (NotFoundException e) {
 				e.printStackTrace();
@@ -232,47 +303,30 @@ public class TreeBuilder {
 		 */
 		private final CourseTreeNode courseNode;
 		
-		/**
-		 * Parent folder node.
-		 */
-		private final DocumentFolderTreeNode parentNode;
-		
-		public UpdateDocumentsJob(Phaser phaser, CourseTreeNode courseNode, DocumentFolderTreeNode parentNode) {
+		public UpdateDocumentsJob(Phaser phaser, CourseTreeNode courseNode) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
-			this.parentNode = parentNode;
+		}
+		
+		private void addNewDocuments(Documents newDocuments, DocumentFolderTreeNode parentFolder) {
+			/* Folders. */
+			for (DocumentFolderTreeNode folder : parentFolder.folders) {
+				addNewDocuments(newDocuments, folder);
+			}
+			
+			/* Documents. */
+			for (Document document : newDocuments.documents) {
+				if (document.folder_id.equals(parentFolder.folder_id)) {
+					parentFolder.documents.add(new DocumentTreeNode(document));
+				}
+			}
 		}
 
 		@Override
 		public void run() {
 			try {
-				DocumentFolderTreeNode folderNode;
-				DocumentTreeNode documentNode;
-				
-				DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.course_id, parentNode.folder_id);
-
-				phaser.bulkRegister(folders.folders.size());
-				
-				/* Clear before update. */
-				parentNode.folders.clear();
-				parentNode.documents.clear();
-				
-				/* Folders. */
-				for (DocumentFolder folder : folders.folders) {
-					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
-					
-					/* Add update files job (recursive). */
-					threadPool.execute(new UpdateDocumentsJob(phaser, courseNode, folderNode));
-					
-					System.out.println(folderNode.name);
-				}
-
-				/* Documents. */
-				for (Document document : folders.documents) {
-					parentNode.documents.add(documentNode = new DocumentTreeNode(document));
-					
-					System.out.println(documentNode.name);
-				}
+				Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.course_id, courseNode.update_time);
+				addNewDocuments(newDocuments, courseNode.root);
 				
 			} catch (UnauthorizedException e) {
 				e.printStackTrace();
@@ -287,7 +341,5 @@ public class TreeBuilder {
 				phaser.arrive();
 			}
 		}
-		
 	}
-
 }

@@ -3,19 +3,10 @@ package de.uni.hannover.studip.sync;
 import java.io.File;
 import java.io.IOException;
 
-import javax.swing.SwingUtilities;
-
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.uni.hannover.studip.sync.exceptions.ForbiddenException;
-import de.uni.hannover.studip.sync.exceptions.NotFoundException;
-import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
-import de.uni.hannover.studip.sync.models.Config;
-import de.uni.hannover.studip.sync.models.OAuth;
-import de.uni.hannover.studip.sync.models.RestApi;
-import de.uni.hannover.studip.sync.models.TreeBuilder;
-import de.uni.hannover.studip.sync.models.TreeSync;
+import de.uni.hannover.studip.sync.models.*;
 
 public class Application {
 	
@@ -66,11 +57,11 @@ public class Application {
 		TreeSync sync = new TreeSync(new File("C:\\Users\\rocki\\Documents\\FileSync"));
 		
 		try {
-			File treeFile = new File(Config.getInstance().getConfigDirectory(), "tree.json");
+			File treeFile = Config.getInstance().openTreeFile();
 			
 			//tree.build(treeFile);
 			
-			tree.update(treeFile, false);
+			//tree.update(treeFile, false);
 
 			sync.sync(treeFile, false);
 			
@@ -81,6 +72,9 @@ public class Application {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		tree.shutdown();
+		sync.shutdown();
 		
 		
 		

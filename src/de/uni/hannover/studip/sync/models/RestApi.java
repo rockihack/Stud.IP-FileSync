@@ -8,14 +8,17 @@ import org.scribe.model.Verb;
 
 import de.elanev.studip.android.app.backend.datamodel.*;
 import de.uni.hannover.studip.sync.exceptions.*;
+import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileDownload;
 
+/**
+ * 
+ * @author Lennart Glauer
+ * 
+ * @see http://studip.github.io/studip-rest.ip/
+ *
+ */
 public class RestApi {
-	
-	/**
-	 * Rest api base url.
-	 */
-	private static final String BASE_URL = "elearning.uni-hannover.de/plugins.php/restipplugin";
 	
 	/**
 	 * Debug flag.
@@ -30,14 +33,12 @@ public class RestApi {
 	 * @throws IOException 
 	 */
 	public static Discovery discovery() throws UnauthorizedException, IOException {
-		Discovery discovery = null;
-		
 		JacksonRequest<Discovery> request = new JacksonRequest<Discovery>(Verb.GET,
-				"https://" + BASE_URL + "/api/discovery", Discovery.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/discovery", Discovery.class);
 		
 		switch (request.getCode()) {
 		case 200:
-			discovery = request.parseResponse(false);
+			Discovery discovery = request.parseResponse(false);
 
 			if (DEBUG) {
 				/* A set containing all possible routes. */
@@ -51,15 +52,12 @@ public class RestApi {
 				}
 			}
 			
-			break;
-			
+			return discovery;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return discovery;
 	}
 	
 	/**
@@ -70,14 +68,12 @@ public class RestApi {
 	 * @throws IOException 
 	 */
 	public static Courses getAllCourses() throws UnauthorizedException, IOException {
-		Courses courses = null;
-		
 		JacksonRequest<Courses> request = new JacksonRequest<Courses>(Verb.GET,
-				"https://" + BASE_URL + "/api/courses", Courses.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/courses", Courses.class);
 		
 		switch (request.getCode()) {
 		case 200:
-			courses = request.parseResponse(false);
+			Courses courses = request.parseResponse(false);
 			
 			if (DEBUG) {
 				for (Course course : courses.courses) {
@@ -85,15 +81,12 @@ public class RestApi {
 				}
 			}
 			
-			break;
-			
+			return courses;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return courses;
 	}
 	
 	/**
@@ -109,14 +102,12 @@ public class RestApi {
 			throw new IllegalArgumentException("Invalid semester id!");
 		}
 		
-		Courses courses = null;
-		
 		JacksonRequest<Courses> request = new JacksonRequest<Courses>(Verb.GET,
-				"https://" + BASE_URL + "/api/courses/semester/" + semesterId, Courses.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/courses/semester/" + semesterId, Courses.class);
 
 		switch (request.getCode()) {
 		case 200:
-			courses = request.parseResponse(false);
+			Courses courses = request.parseResponse(false);
 			
 			if (DEBUG) {
 				for (Course course : courses.courses) {
@@ -124,8 +115,7 @@ public class RestApi {
 				}
 			}
 			
-			break;
-			
+			return courses;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 404:
@@ -133,8 +123,6 @@ public class RestApi {
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return courses;
 	}
 	
 	/**
@@ -149,22 +137,19 @@ public class RestApi {
 		if (!courseId.matches("^[a-z0-9]{32}$")) {
 			throw new IllegalArgumentException("Invalid course id!");
 		}
-		
-		Course course = null;
-		
+
 		JacksonRequest<Course> request = new JacksonRequest<Course>(Verb.GET,
-				"https://" + BASE_URL + "/api/courses/" + courseId, Course.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/courses/" + courseId, Course.class);
 		
 		switch (request.getCode()) {
 		case 200:
-			course = request.parseResponse(true);
+			Course course = request.parseResponse(true);
 			
 			if (DEBUG) {
 				System.out.println(course.title + "\n" + course.description + "\n");
 			}
 			
-			break;
-			
+			return course;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 404:
@@ -172,8 +157,46 @@ public class RestApi {
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
+	}
+	
+	/**
+	 * Liefert die neuen Dateien einer Veranstaltung zurück. 
+	 * 
+	 * @return
+	 * @throws UnauthorizedException 
+	 * @throws ForbiddenException 
+	 * @throws NotFoundException 
+	 * @throws IOException 
+	 */
+	public static Documents getNewDocumentsByCourseId(String courseId, long timestamp) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+		if (!courseId.matches("^[a-z0-9]{32}$")) {
+			throw new IllegalArgumentException("Invalid range id!");
+		}
 		
-		return course;
+		JacksonRequest<Documents> request = new JacksonRequest<Documents>(Verb.GET,
+				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + courseId + "/new/" + timestamp, Documents.class);
+
+		switch (request.getCode()) {
+		case 200:
+			Documents newDocuments = request.parseResponse(false);
+			
+			if (DEBUG) {
+				System.out.println("Number of new documents: " + newDocuments.documents.size());
+				for (Document document : newDocuments.documents) {
+					System.out.println(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
+				}
+			}
+			
+			return newDocuments;
+		case 401:
+			throw new UnauthorizedException("Unauthorized!");
+		case 403:
+			throw new ForbiddenException("Forbidden!");
+		case 404:
+			throw new NotFoundException("Not found!");
+		default:
+			throw new IllegalStateException("Statuscode: " + request.getCode());
+		}
 	}
 	
 	/**
@@ -194,14 +217,12 @@ public class RestApi {
 			throw new IllegalArgumentException("Invalid folder id!");
 		}
 		
-		DocumentFolders documentFolders = null;
-		
 		JacksonRequest<DocumentFolders> request = new JacksonRequest<DocumentFolders>(Verb.GET,
-				"https://" + BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId == null ? "" : "/" + folderId), DocumentFolders.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId == null ? "" : "/" + folderId), DocumentFolders.class);
 
 		switch (request.getCode()) {
 		case 200:
-			documentFolders = request.parseResponse(false);
+			DocumentFolders documentFolders = request.parseResponse(false);
 			
 			if (DEBUG) {
 				System.out.println("Number of subfolders: " + documentFolders.folders.size());
@@ -215,11 +236,9 @@ public class RestApi {
 				}
 			}
 			
-			break;
-			
+			return documentFolders;
 		case 400: /* Range has no documents. */
-			documentFolders = new DocumentFolders();
-			break;
+			return new DocumentFolders();
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 403:
@@ -229,8 +248,6 @@ public class RestApi {
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return documentFolders;
 	}
 	
 	/**
@@ -246,22 +263,19 @@ public class RestApi {
 		if (!documentId.matches("^[a-z0-9]{32}$")) {
 			throw new IllegalArgumentException("Invalid document id!");
 		}
-		
-		Document document = null;
-		
+
 		JacksonRequest<Document> request = new JacksonRequest<Document>(Verb.GET,
-				"https://" + BASE_URL + "/api/documents/" + documentId, Document.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + documentId, Document.class);
 		
 		switch (request.getCode()) {
 		case 200:
-			document = request.parseResponse(false);
+			Document document = request.parseResponse(false);
 			
 			if (DEBUG) {
 				System.out.println(document.name + "\n");
 			}
 			
-			break;
-			
+			return document;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 403:
@@ -271,8 +285,6 @@ public class RestApi {
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return document;
 	}
 	
 	/**
@@ -292,7 +304,7 @@ public class RestApi {
 		long startTime = System.currentTimeMillis();
 
 		JacksonRequest<Object> request = new JacksonRequest<Object>(Verb.GET,
-				"https://" + BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -321,14 +333,12 @@ public class RestApi {
 	 * @throws IOException 
 	 */
 	public static Semesters getAllSemesters() throws UnauthorizedException, IOException {
-		Semesters semesters = null;
-		
 		JacksonRequest<Semesters> request = new JacksonRequest<Semesters>(Verb.GET,
-				"https://" + BASE_URL + "/api/courses/semester", Semesters.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/courses/semester", Semesters.class);
 		
 		switch (request.getCode()) {
 		case 200:
-			semesters = request.parseResponse(false);
+			Semesters semesters = request.parseResponse(false);
 			
 			if (DEBUG) {
 				for (Semester semester : semesters.semesters) {
@@ -336,15 +346,12 @@ public class RestApi {
 				}
 			}
 			
-			break;
-			
+			return semesters;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return semesters;
 	}
 	
 	/**
@@ -359,22 +366,19 @@ public class RestApi {
 		if (!semesterId.matches("^[a-z0-9]{32}$")) {
 			throw new IllegalArgumentException("Invalid semester id!");
 		}
-		
-		Semester semester = null;
-		
+
 		JacksonRequest<Semester> request = new JacksonRequest<Semester>(Verb.GET,
-				"https://" + BASE_URL + "/api/semesters/" + semesterId, Semester.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/semesters/" + semesterId, Semester.class);
 		
 		switch (request.getCode()) {
 		case 200:
-			semester = request.parseResponse(false);
+			Semester semester = request.parseResponse(false);
 			
 			if (DEBUG) {
 				System.out.println(semester.title + "\n");
 			}
 			
-			break;
-			
+			return semester;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 404:
@@ -382,8 +386,6 @@ public class RestApi {
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return semester;
 	}
 	
 	/**
@@ -398,22 +400,19 @@ public class RestApi {
 		if (userId != null && !userId.matches("^[a-z0-9]{32}$")) {
 			throw new IllegalArgumentException("Invalid user id!");
 		}
-		
-		User user = null;
-		
+
 		JacksonRequest<User> request = new JacksonRequest<User>(Verb.GET,
-				"https://" + BASE_URL + "/api/user" + (userId == null ? "" : "/" + userId), User.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/user" + (userId == null ? "" : "/" + userId), User.class);
 
 		switch (request.getCode()) {
 		case 200:
-			user = request.parseResponse(true);
+			User user = request.parseResponse(true);
 			
 			if (DEBUG) {
 				System.out.println(user.username + "\n");
 			}
 			
-			break;
-			
+			return user;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 404:
@@ -421,26 +420,23 @@ public class RestApi {
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return user;
 	}
 	
 	/**
 	 * Liefert die Aktivitäten im Umfeld des autorisierten Nutzers zurück.
 	 * 
+	 * @notice Beta! Funktioniert nicht mit jeder Version.
 	 * @return
 	 * @throws UnauthorizedException 
 	 * @throws IOException 
 	 */
 	public static Activities getActivities() throws UnauthorizedException, IOException {
-		Activities activities = null;
-		
 		JacksonRequest<Activities> request = new JacksonRequest<Activities>(Verb.GET,
-				"https://" + BASE_URL + "/api/activities", Activities.class);
+				"https://" + StudIPApiProvider.BASE_URL + "/api/activities", Activities.class);
 
 		switch (request.getCode()) {
 		case 200:
-			activities = request.parseResponse(true);
+			Activities activities = request.parseResponse(true);
 			
 			if (DEBUG) {
 				for (Activity activity : activities.activities) {
@@ -448,14 +444,11 @@ public class RestApi {
 				}
 			}
 			
-			break;
-			
+			return activities;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
-		
-		return activities;
 	}
 }

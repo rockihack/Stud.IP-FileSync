@@ -11,7 +11,7 @@ public class WebBrowser {
 	private static final String DIALOG_MESSAGE = "Bitte öffnen Sie den folgenden Link in Ihrem Web Browser.";
 
 	/**
-	 * Open the uri in the users default web browser.
+	 * Open uri in the users default web browser.
 	 * 
 	 * @param uri
 	 */

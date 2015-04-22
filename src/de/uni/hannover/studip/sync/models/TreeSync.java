@@ -11,9 +11,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.datamodel.*;
-import de.uni.hannover.studip.sync.exceptions.ForbiddenException;
-import de.uni.hannover.studip.sync.exceptions.NotFoundException;
-import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
+import de.uni.hannover.studip.sync.exceptions.*;
 
 /**
  * Semester/Course/Folder/Document tree sync.
@@ -60,7 +58,6 @@ public class TreeSync {
 	public synchronized int sync(File tree, boolean doAllSemesters) throws JsonParseException, JsonMappingException, IOException {
 		/* Read existing tree. */
 		ObjectMapper mapper = new ObjectMapper();
-		
 		SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
 		
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
@@ -71,6 +68,7 @@ public class TreeSync {
 		
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
+			// If doAllSemesters is false we will only update the current semester.
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				File semesterDirectory = new File(rootDirectory, removeIllegalCharacters(semester.title));
 				
@@ -146,16 +144,27 @@ public class TreeSync {
 		File documentFile = new File(parentDirectory, removeIllegalCharacters(documentNode.filename));
 		
 		if (documentFile.exists()) {
-			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() < documentNode.mkdate) {
+			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() < documentNode.chdate) {
 				phaser.register();
 				
+				if (Config.getInstance().getRenameModifiedFiles()) {
+					File rename;
+					int i = 1;
+					
+					// Append file version number.
+					do {
+						rename = new File(documentFile.getAbsolutePath() + "_" + i++);
+					} while(rename.exists());
+
+					documentFile.renameTo(rename);
+				}
+
 				/* Download modified file. */
-				/* TODO: Add option to overwrite or rename file. */
 				threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
 
 				System.out.println("Modified: " + documentNode.name);
 			}
-			
+		
 		} else {
 			phaser.register();
 			

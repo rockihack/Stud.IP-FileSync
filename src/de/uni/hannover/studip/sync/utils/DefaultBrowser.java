@@ -7,8 +7,8 @@ import javax.swing.JOptionPane;
 
 public class DefaultBrowser {
 	
-	private static final String DIALOG_TITLE = "Bitte öffnen Sie den folgenden Link in Ihrem Browser.";
-	private static final String DIALOG_MESSAGE = "Bitte öffnen Sie den folgenden Link in Ihrem Browser.";
+	private static final String DIALOG_TITLE = "Bitte Ã¶ffnen Sie den folgenden Link in Ihrem Browser.";
+	private static final String DIALOG_MESSAGE = "Bitte Ã¶ffnen Sie den folgenden Link in Ihrem Browser.";
 
 	/**
 	 * Open the uri in the users default browser.

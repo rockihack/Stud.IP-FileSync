@@ -31,17 +31,6 @@ public class OAuth {
 	 * Config.
 	 */
 	private static final Config config = Config.getInstance();
-	
-	/**
-	 * OAuth consumer key and secret.
-	 */
-	private static final String API_KEY = "";
-	private static final String API_SECRET = "";
-	
-	/**
-	 * OAuth service callback address.
-	 */
-	private static final String API_CALLBACK = "https://elearning.uni-hannover.de/index.php";
 
 	/**
 	 * Singleton instance getter.
@@ -78,9 +67,9 @@ public class OAuth {
 	private OAuth() {
 		service = new ServiceBuilder()
 			.provider(StudIPApiProvider.class)
-			.apiKey(API_KEY)
-			.apiSecret(API_SECRET)
-			.callback(API_CALLBACK)
+			.apiKey(StudIPApiProvider.API_KEY)
+			.apiSecret(StudIPApiProvider.API_SECRET)
+			.callback(StudIPApiProvider.API_CALLBACK)
 			.build();
 	}
 	
@@ -153,7 +142,6 @@ public class OAuth {
 	 */
 	public boolean restoreAccessToken() {
 		accessToken = config.getAccessToken();
-		
 		return accessToken != null;
 	}
 	
@@ -161,9 +149,9 @@ public class OAuth {
 	 * Remove the stored access token.
 	 */
 	public void removeAccessToken() {
-		/* Store access token. */
 		try {
-			config.setAccessToken(accessToken);
+			config.setAccessToken(new Token("", ""));
+			accessToken = null;
 			
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
@@ -172,8 +160,6 @@ public class OAuth {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		accessToken = null;
 	}
 	
 }

@@ -21,7 +21,12 @@ public class Config {
 	private static final Config singletonInstance = new Config();
 	
 	/**
-	 * Global config file name.
+	 * Config directory.
+	 */
+	private static final String CONFIG_DIR = ".studip-sync";
+	
+	/**
+	 * Config file name.
 	 */
 	private static final String CONFIG_FILE_NAME = "config.json";
 	
@@ -29,16 +34,21 @@ public class Config {
 	 * OAuth config file name.
 	 */
 	private static final String OAUTH_FILE_NAME = "oauth.json";
+	
+	/**
+	 * Tree file name.
+	 */
+	private static final String TREE_FILE_NAME = "tree.json";
 
 	/**
 	 * Global config file.
 	 */
-	private ConfigFile configFile;
+	private ConfigFile config;
 	
 	/**
 	 * OAuth config file.
 	 */
-	private OAuthFile oauthFile;
+	private OAuthFile oauth;
 	
 	/**
 	 * Singleton instance getter.
@@ -72,21 +82,8 @@ public class Config {
 	 * @return
 	 */
 	public String getHomeDirectory() {
-		String homePath = System.getProperty("user.home");
-		return homePath;
+		return System.getProperty("user.home");
 	}
-	
-	/**
-	 * Get the config directory.
-	 * 
-	 * @return
-	 */
-	public String getConfigDirectory() {
-		String configPath = getHomeDirectory() + File.separator + ".studip-sync";
-		return configPath;
-	}
-
-
 
 	/**
 	 * Open global config file.
@@ -95,18 +92,16 @@ public class Config {
 	 * @throws IOException
 	 */
 	private File openConfigFile() throws IOException {
-		String configPath = getConfigDirectory();
-		
-		File configDir = new File(configPath);
+		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
 		configDir.mkdir();
 		
-		File config = new File(configPath + File.separator + CONFIG_FILE_NAME);
-		if (config.createNewFile()) {
-			configFile = new ConfigFile();
+		File configFile = new File(configDir, CONFIG_FILE_NAME);
+		if (configFile.createNewFile()) {
+			config = new ConfigFile();
 			writeConfigFile();
 		}
 		
-		return config;
+		return configFile;
 	}
 	
 	/**
@@ -118,8 +113,7 @@ public class Config {
 	 */
 	private void readConfigFile() throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-
-		configFile = mapper.readValue(openConfigFile(), ConfigFile.class);
+		config = mapper.readValue(openConfigFile(), ConfigFile.class);
 	}
 	
 	/**
@@ -131,11 +125,8 @@ public class Config {
 	 */
 	private void writeConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-
-		mapper.writeValue(openConfigFile(), configFile);
+		mapper.writeValue(openConfigFile(), config);
 	}
-
-
 
 	/**
 	 * Open oauth config file.
@@ -144,18 +135,16 @@ public class Config {
 	 * @throws IOException
 	 */
 	private File openOAuthFile() throws IOException {
-		String configPath = getConfigDirectory();
-		
-		File configDir = new File(configPath);
+		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
 		configDir.mkdir();
 		
-		File oauth = new File(configPath + File.separator + OAUTH_FILE_NAME);
-		if (oauth.createNewFile()) {
-			oauthFile = new OAuthFile();
+		File oauthFile = new File(configDir, OAUTH_FILE_NAME);
+		if (oauthFile.createNewFile()) {
+			oauth = new OAuthFile();
 			writeOAuthFile();
 		}
 		
-		return oauth;
+		return oauthFile;
 	}
 	
 	/**
@@ -167,8 +156,7 @@ public class Config {
 	 */
 	private void readOAuthFile() throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-
-		oauthFile = mapper.readValue(openOAuthFile(), OAuthFile.class);
+		oauth = mapper.readValue(openOAuthFile(), OAuthFile.class);
 	}
 	
 	/**
@@ -180,11 +168,38 @@ public class Config {
 	 */
 	private void writeOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
-
-		mapper.writeValue(openOAuthFile(), oauthFile);
+		mapper.writeValue(openOAuthFile(), oauth);
+	}
+	
+	/**
+	 * Open tree file.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public File openTreeFile() throws IOException {
+		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
+		configDir.mkdir();
+		
+		File treeFile = new File(configDir, TREE_FILE_NAME);
+		treeFile.createNewFile();
+		
+		return treeFile;
 	}
 
-
+	/**
+	 * Get root directoy.
+	 */
+	public String getRootDirectory() {
+		return config.root_dir;
+	}
+	
+	/**
+	 * Get root directoy.
+	 */
+	public boolean getRenameModifiedFiles() {
+		return config.rename_modified_files;
+	}
 
 	/**
 	 * Get the OAuth access token.
@@ -192,7 +207,7 @@ public class Config {
 	 * @param accessToken
 	 */
 	public Token getAccessToken() {
-		return new Token(oauthFile.token, oauthFile.secret);
+		return new Token(oauth.token, oauth.secret);
 	}
 	
 	/**
@@ -204,9 +219,9 @@ public class Config {
 	 * @throws JsonGenerationException 
 	 */
 	public void setAccessToken(Token accessToken) throws JsonGenerationException, JsonMappingException, IOException {
-		oauthFile.token = accessToken.getToken();
-		oauthFile.secret = accessToken.getSecret();
-		
+		oauth.token = accessToken.getToken();
+		oauth.secret = accessToken.getSecret();
+
 		writeOAuthFile();
 	}
 }

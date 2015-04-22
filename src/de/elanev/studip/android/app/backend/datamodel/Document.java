@@ -29,6 +29,8 @@ public class Document {
 	public Boolean file_protected;
 	public String mime_type;
 	public String icon;
+	
+	public String folder_id;
 
 	public Document() {
 	}
@@ -50,7 +52,7 @@ public class Document {
 	public Document(String document_id, String user_id, String name,
 			String description, Long mkdate, Long chdate, String filename,
 			Long filesize, Integer downloads, Boolean file_protected,
-			String mime_type, String icon) {
+			String mime_type, String icon, String folder_id) {
 		this.document_id = document_id;
 		this.user_id = user_id;
 		this.name = name;
@@ -63,5 +65,6 @@ public class Document {
 		this.file_protected = file_protected;
 		this.mime_type = mime_type;
 		this.icon = icon;
+		this.folder_id = folder_id;
 	}
 }

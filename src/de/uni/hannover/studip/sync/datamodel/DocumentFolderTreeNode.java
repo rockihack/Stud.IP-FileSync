@@ -16,44 +16,6 @@ import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentFolderTreeNode {
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		
-		result = prime * result + ((chdate == null) ? 0 : chdate.hashCode());
-		result = prime * result
-				+ ((folder_id == null) ? 0 : folder_id.hashCode());
-		
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		
-		DocumentFolderTreeNode other = (DocumentFolderTreeNode) obj;
-		
-		if (chdate == null) {
-			if (other.chdate != null)
-				return false;
-		} else if (!chdate.equals(other.chdate))
-			return false;
-		
-		if (folder_id == null) {
-			if (other.folder_id != null)
-				return false;
-		} else if (!folder_id.equals(other.folder_id))
-			return false;
-		
-		return true;
-	}
 
 	public String folder_id;
 	public String user_id;

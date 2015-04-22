@@ -12,6 +12,8 @@ public class ConfigFile {
 
 	public String root_dir;
 	
+	public boolean rename_modified_files;
+	
 	public ConfigFile() {
 	}
 	

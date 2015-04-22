@@ -10,28 +10,37 @@ import org.scribe.model.Token;
  */
 public class StudIPApiProvider extends DefaultApi10a
 {
-	/* TODO: Allow other universities. */
-	private static final String BASE_URL = "elearning.uni-hannover.de/plugins.php/restipplugin";
+	/**
+	 * Studip rest api plugin base url.
+	 */
+	public static final String BASE_URL = "elearning.uni-hannover.de/plugins.php/restipplugin";
 	
-	private static final String AUTHORIZE_URL = BASE_URL + "/oauth/authorize?oauth_token=%s";
-	private static final String REQUEST_TOKEN_RESOURCE = BASE_URL + "/oauth/request_token";
-	private static final String ACCESS_TOKEN_RESOURCE = BASE_URL + "/oauth/access_token";
+	/**
+	 * OAuth consumer key and secret.
+	 */
+	public static final String API_KEY = "";
+	public static final String API_SECRET = "";
+	
+	/**
+	 * OAuth service callback address.
+	 */
+	public static final String API_CALLBACK = "https://elearning.uni-hannover.de/index.php";
 
 	@Override
 	public String getAccessTokenEndpoint()
 	{
-		return "https://" + ACCESS_TOKEN_RESOURCE;
+		return "https://" + BASE_URL + "/oauth/access_token";
 	}
 
 	@Override
 	public String getRequestTokenEndpoint()
 	{
-		return "https://" + REQUEST_TOKEN_RESOURCE;
+		return "https://" + BASE_URL + "/oauth/request_token";
 	}
 
 	@Override
 	public String getAuthorizationUrl(Token requestToken)
 	{
-		return "https://" + String.format(AUTHORIZE_URL, requestToken.getToken());
+		return "https://" + BASE_URL + "/oauth/authorize?oauth_token=" + requestToken.getToken();
 	}
 }

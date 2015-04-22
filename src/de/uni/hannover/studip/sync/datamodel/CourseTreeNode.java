@@ -21,7 +21,7 @@ public class CourseTreeNode {
 	public int type;
 	
 	/* Last update time. */
-	public Long update_time;
+	public long update_time;
 	
 	/* Child nodes. */
 	public DocumentFolderTreeNode root = new DocumentFolderTreeNode();
