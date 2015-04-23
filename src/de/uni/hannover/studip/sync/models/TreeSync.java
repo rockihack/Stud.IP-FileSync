@@ -78,7 +78,6 @@ public class TreeSync extends TreeBuilder {
 		phaser.arriveAndAwaitAdvance();
 		
 		System.out.println("Sync done!");
-		
 		return phaser.getRegisteredParties() - 1;
 	}
 	
@@ -134,15 +133,8 @@ public class TreeSync extends TreeBuilder {
 				phaser.register();
 				
 				if (Config.getInstance().getRenameModifiedFiles()) {
-					File rename;
-					int i = 1;
-					
-					// Append file version number.
-					do {
-						rename = new File(documentFile.getAbsolutePath() + "_" + i++);
-					} while(rename.exists());
-
-					documentFile.renameTo(rename);
+					// TODO: Rename old file.
+					throw new UnsupportedOperationException();
 				}
 
 				/* Download modified file. */
@@ -202,17 +194,17 @@ public class TreeSync extends TreeBuilder {
 		public void run() {
 			try {
 				RestApi.downloadDocumentById(documentNode.document_id, documentFile);
-
-				System.out.println(documentNode.name + " downloaded");
 				
 			} catch (UnauthorizedException e) {
-				e.printStackTrace();
-			} catch (ForbiddenException e) {
-				e.printStackTrace();
-			} catch (NotFoundException e) {
-				e.printStackTrace();
+				// Invalid oauth access token.
+				OAuth.getInstance().removeAccessToken();
+			} catch (ForbiddenException | NotFoundException e) {
+				// User does not have the required permissions
+				// or document does not exist.
+				// TODO: Remove document from tree file.
+				throw new UnsupportedOperationException(e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			} finally {
 				/* Job done. */
 				phaser.arrive();

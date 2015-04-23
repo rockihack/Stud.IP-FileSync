@@ -23,7 +23,7 @@ public class JacksonRequest<T> {
 	/**
 	 * OAuth service.
 	 */
-	private final OAuth oauth = OAuth.getInstance();
+	private static final OAuth oauth = OAuth.getInstance();
 	
 	/**
 	 * Request method.

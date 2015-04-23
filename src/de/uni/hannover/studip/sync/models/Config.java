@@ -10,8 +10,11 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.elanev.studip.android.app.backend.datamodel.User;
 import de.uni.hannover.studip.sync.datamodel.ConfigFile;
 import de.uni.hannover.studip.sync.datamodel.OAuthFile;
+import de.uni.hannover.studip.sync.exceptions.NotFoundException;
+import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 
 public class Config {
 	
@@ -64,15 +67,17 @@ public class Config {
 	 */
 	private Config() {
 		try {
-			readOAuthFile();
 			readConfigFile();
-			
-		} catch (JsonParseException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
+
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException(e);
+		}
+
+		try {
+			readOAuthFile();
+
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 	
@@ -97,11 +102,15 @@ public class Config {
 		
 		File configFile = new File(configDir, CONFIG_FILE_NAME);
 		if (configFile.createNewFile()) {
-			config = new ConfigFile();
-			writeConfigFile();
+			initConfigFile();
 		}
 		
 		return configFile;
+	}
+
+	public void initConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
+		config = new ConfigFile();
+		writeConfigFile();
 	}
 	
 	/**
@@ -111,9 +120,19 @@ public class Config {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	private void readConfigFile() throws JsonParseException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		config = mapper.readValue(openConfigFile(), ConfigFile.class);
+	private synchronized void readConfigFile() throws IOException {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			config = mapper.readValue(openConfigFile(), ConfigFile.class);
+
+		} catch (JsonParseException | JsonMappingException e) {
+			// Invalid config file.
+			try {
+				initConfigFile();
+			} catch (IOException e1) {
+				throw new IllegalStateException(e1);
+			}
+		}
 	}
 	
 	/**
@@ -123,7 +142,7 @@ public class Config {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	private void writeConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
+	private synchronized void writeConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(openConfigFile(), config);
 	}
@@ -140,13 +159,17 @@ public class Config {
 		
 		File oauthFile = new File(configDir, OAUTH_FILE_NAME);
 		if (oauthFile.createNewFile()) {
-			oauth = new OAuthFile();
-			writeOAuthFile();
+			initOAuthFile();
 		}
 		
 		return oauthFile;
 	}
 	
+	public void initOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
+		oauth = new OAuthFile();
+		writeOAuthFile();
+	}
+
 	/**
 	 * Read OAuth config file.
 	 * 
@@ -154,9 +177,19 @@ public class Config {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	private void readOAuthFile() throws JsonParseException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		oauth = mapper.readValue(openOAuthFile(), OAuthFile.class);
+	private synchronized void readOAuthFile() throws IOException {
+		try {
+			ObjectMapper mapper = new ObjectMapper();
+			oauth = mapper.readValue(openOAuthFile(), OAuthFile.class);
+
+		} catch (JsonParseException | JsonMappingException e) {
+			// Invalid oauth config file.
+			try {
+				initOAuthFile();
+			} catch (IOException e1) {
+				throw new IllegalStateException(e1);
+			}
+		}
 	}
 	
 	/**
@@ -166,7 +199,7 @@ public class Config {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	private void writeOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
+	private synchronized void writeOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(openOAuthFile(), oauth);
 	}
@@ -202,25 +235,47 @@ public class Config {
 	}
 
 	/**
+	 * Get logged in user name.
+	 */
+	public String getUserName() {
+		return oauth.user_name;
+	}
+
+	/**
+	 * Get logged in user id.
+	 */
+	public String getUserId() {
+		return oauth.user_id;
+	}
+
+	/**
 	 * Get the OAuth access token.
 	 * 
+	 * @see OAuth.restoreAccessToken()
 	 * @param accessToken
 	 */
 	public Token getAccessToken() {
-		return oauth.token != null && oauth.secret != null
-				? new Token(oauth.token, oauth.secret)
-				: null;
+		return new Token(oauth.token, oauth.secret);
 	}
 	
 	/**
 	 * Set the OAuth access token.
 	 * 
 	 * @param accessToken
+	 * @throws NotFoundException 
+	 * @throws UnauthorizedException 
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setAccessToken(Token accessToken) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setAccessToken(Token accessToken) throws UnauthorizedException, NotFoundException, IOException {
+		// Test if access token is valid.
+		User current_user = RestApi.getUserById(null);
+
+		oauth.first_name = current_user.forename;
+		oauth.last_name = current_user.lastname;
+		oauth.user_name = current_user.username;
+		oauth.user_id = current_user.user_id;
 		oauth.token = accessToken.getToken();
 		oauth.secret = accessToken.getSecret();
 

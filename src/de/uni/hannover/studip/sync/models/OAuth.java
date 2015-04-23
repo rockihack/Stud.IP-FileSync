@@ -10,9 +10,8 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
+import de.uni.hannover.studip.sync.exceptions.NotFoundException;
+import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 
 /**
@@ -52,11 +51,6 @@ public class OAuth {
 	private Token requestToken;
 	
 	/**
-	 * Auth url.
-	 */
-	private String authUrl;
-	
-	/**
 	 * Access token.
 	 */
 	private Token accessToken;
@@ -88,33 +82,23 @@ public class OAuth {
 			throw new IllegalStateException("Request token not found!");
 		}
 		
-		authUrl = service.getAuthorizationUrl(requestToken);
-		return authUrl;
+		return service.getAuthorizationUrl(requestToken);
 	}
 	
 	/**
 	 * Step 4: Get the access Token.
 	 * 
 	 * @param verifier Provided by the service and entered by the user
+	 * @throws IOException 
+	 * @throws NotFoundException 
+	 * @throws UnauthorizedException 
 	 */
-	public void getAccessToken(String verifier) {
+	public void getAccessToken(String verifier) throws UnauthorizedException, NotFoundException, IOException {
 		if (requestToken == null) {
 			throw new IllegalStateException("Request token not found!");
 		}
-		
-		accessToken = service.getAccessToken(requestToken, new Verifier(verifier));
-		
-		/* Store access token. */
-		try {
-			config.setAccessToken(accessToken);
-			
-		} catch (JsonGenerationException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+
+		config.setAccessToken(accessToken = service.getAccessToken(requestToken, new Verifier(verifier)));
 	}
 	
 	/**
@@ -140,26 +124,19 @@ public class OAuth {
 	 * 
 	 * @return True if the access token could be restored.
 	 */
-	public boolean restoreAccessToken() {
+	public void restoreAccessToken() {
 		accessToken = config.getAccessToken();
-		return accessToken != null;
 	}
 	
 	/**
-	 * Remove the stored access token.
+	 * Remove access token.
 	 */
 	public void removeAccessToken() {
 		try {
-			config.setAccessToken(new Token("", ""));
+			Config.getInstance().initOAuthFile();
 			accessToken = null;
-			
-		} catch (JsonGenerationException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException e1) {
+			throw new IllegalStateException(e1);
 		}
 	}
-	
 }

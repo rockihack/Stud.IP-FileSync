@@ -20,7 +20,7 @@ public class CourseTreeNode {
 	/* "1": Vorlesung, "2": Seminar, "3": Übung, "4": Projekt, "99": Studiengruppe. */
 	public int type;
 	
-	/* Last update time. */
+	/* Last update time used for request caching. */
 	public long update_time;
 	
 	/* Child nodes. */

@@ -2,6 +2,7 @@ package de.uni.hannover.studip.sync.models;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
@@ -153,9 +154,10 @@ public class TreeBuilder {
 				}
 
 			} catch (UnauthorizedException e) {
-				e.printStackTrace();
+				// Invalid oauth access token.
+				OAuth.getInstance().removeAccessToken();
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			} finally {
 				/* Job done. */
 				phaser.arrive();
@@ -205,11 +207,14 @@ public class TreeBuilder {
 				}
 				
 			} catch (UnauthorizedException e) {
-				e.printStackTrace();
+				// Invalid oauth access token.
+				OAuth.getInstance().removeAccessToken();
 			} catch (NotFoundException e) {
-				e.printStackTrace();
+				// Course does not exist.
+				// TODO: Remove course from tree file.
+				throw new UnsupportedOperationException(e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			} finally {
 				/* Job done. */
 				phaser.arrive();
@@ -274,13 +279,15 @@ public class TreeBuilder {
 				}
 				
 			} catch (UnauthorizedException e) {
-				e.printStackTrace();
-			} catch (ForbiddenException e) {
-				e.printStackTrace();
-			} catch (NotFoundException e) {
-				e.printStackTrace();
+				// Invalid oauth access token.
+				OAuth.getInstance().removeAccessToken();
+			} catch (ForbiddenException | NotFoundException e) {
+				// User does not have the required permissions
+				// or document does not exist.
+				// TODO: Remove document from tree file.
+				throw new UnsupportedOperationException(e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			} finally {
 				/* Job done. */
 				phaser.arrive();
@@ -310,35 +317,54 @@ public class TreeBuilder {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
 		}
-		
-		private void addNewDocuments(Documents newDocuments, DocumentFolderTreeNode parentFolder) {
-			/* Folders. */
+
+		/**
+		 * Build folder index, so we can access the folder nodes in constant time.
+		 * 
+		 * @param parentFolder
+		 * @return
+		 */
+		private HashMap<String, DocumentFolderTreeNode> buildFolderIndex(DocumentFolderTreeNode parentFolder) {
+			HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
+			folderIndex.put(parentFolder.folder_id, parentFolder);
+
 			for (DocumentFolderTreeNode folder : parentFolder.folders) {
-				addNewDocuments(newDocuments, folder);
+				folderIndex.putAll(buildFolderIndex(folder));
 			}
-			
-			/* Documents. */
-			for (Document document : newDocuments.documents) {
-				if (document.folder_id.equals(parentFolder.folder_id)) {
-					parentFolder.documents.add(new DocumentTreeNode(document));
-				}
-			}
+
+			return folderIndex;
 		}
 
 		@Override
 		public void run() {
 			try {
+				DocumentFolderTreeNode folderNode;
 				Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.course_id, courseNode.update_time);
-				addNewDocuments(newDocuments, courseNode.root);
-				
+				HashMap<String, DocumentFolderTreeNode> folderIndex = buildFolderIndex(courseNode.root);
+
+				for (Document document : newDocuments.documents) {
+					folderNode = folderIndex.get(document.folder_id);
+					if (folderNode == null) {
+						// Folder does not exist, we need to resync the folders.
+						phaser.register();
+						threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode()));
+						break;
+					}
+
+					// Add document to existing folder.
+					folderNode.documents.add(new DocumentTreeNode(document));
+				}
+
 			} catch (UnauthorizedException e) {
-				e.printStackTrace();
-			} catch (ForbiddenException e) {
-				e.printStackTrace();
-			} catch (NotFoundException e) {
-				e.printStackTrace();
+				// Invalid oauth access token.
+				OAuth.getInstance().removeAccessToken();
+			} catch (ForbiddenException | NotFoundException e) {
+				// User does not have the required permissions
+				// or document does not exist.
+				// TODO: Remove document from tree file.
+				throw new UnsupportedOperationException(e);
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			} finally {
 				/* Job done. */
 				phaser.arrive();

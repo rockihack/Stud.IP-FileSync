@@ -7,6 +7,8 @@ import java.util.Scanner;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.uni.hannover.studip.sync.exceptions.NotFoundException;
+import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.models.*;
 
 public class Application {
@@ -35,15 +37,23 @@ public class Application {
 		oauth.getRequestToken();
 		System.out.println(oauth.getAuthUrl());
 		
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		String verifier = sc.nextLine();
-		
-		oauth.getAccessToken(verifier);
+
+		try {
+			oauth.getAccessToken(verifier);
+
+		} catch (UnauthorizedException e) {
+			e.printStackTrace();
+		} catch (NotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		*/
 
-		if (!oauth.restoreAccessToken()) {
-			throw new IllegalStateException("Kein Studip Access Token gefunden!");
-		}
+		oauth.restoreAccessToken();
 		
 		TreeSync tree = new TreeSync(new File("C:\\Users\\rocki\\Documents\\FileSync"));
 		

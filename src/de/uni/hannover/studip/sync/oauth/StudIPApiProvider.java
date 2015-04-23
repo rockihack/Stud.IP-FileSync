@@ -16,15 +16,15 @@ public class StudIPApiProvider extends DefaultApi10a
 	public static final String BASE_URL = "elearning.uni-hannover.de/plugins.php/restipplugin";
 	
 	/**
+	 * OAuth service callback address.
+	 */
+	public static final String API_CALLBACK = "https://elearning.uni-hannover.de/index.php";
+	
+	/**
 	 * OAuth consumer key and secret.
 	 */
 	public static final String API_KEY = "";
 	public static final String API_SECRET = "";
-	
-	/**
-	 * OAuth service callback address.
-	 */
-	public static final String API_CALLBACK = "https://elearning.uni-hannover.de/index.php";
 
 	@Override
 	public String getAccessTokenEndpoint()
