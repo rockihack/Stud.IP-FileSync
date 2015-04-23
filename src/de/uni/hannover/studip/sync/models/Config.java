@@ -108,7 +108,7 @@ public class Config {
 		return configFile;
 	}
 
-	public void initConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
+	protected void initConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
 		config = new ConfigFile();
 		writeConfigFile();
 	}
@@ -165,7 +165,7 @@ public class Config {
 		return oauthFile;
 	}
 	
-	public void initOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
+	protected void initOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
 		oauth = new OAuthFile();
 		writeOAuthFile();
 	}
@@ -254,7 +254,7 @@ public class Config {
 	 * @see OAuth.restoreAccessToken()
 	 * @param accessToken
 	 */
-	public Token getAccessToken() {
+	protected Token getAccessToken() {
 		return new Token(oauth.token, oauth.secret);
 	}
 	
@@ -268,7 +268,7 @@ public class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setAccessToken(Token accessToken) throws UnauthorizedException, NotFoundException, IOException {
+	protected void setAccessToken(Token accessToken) throws UnauthorizedException, NotFoundException, IOException {
 		// Test if access token is valid.
 		User current_user = RestApi.getUserById(null);
 
