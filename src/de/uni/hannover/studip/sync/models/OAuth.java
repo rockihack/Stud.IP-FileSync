@@ -135,8 +135,8 @@ public class OAuth {
 		try {
 			Config.getInstance().initOAuthFile();
 			accessToken = null;
-		} catch (IOException e1) {
-			throw new IllegalStateException(e1);
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 }

@@ -16,7 +16,7 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="150.0" prefHeight="150.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
         </rowConstraints>
@@ -24,7 +24,7 @@
             <ProgressIndicator fx:id="progress" progress="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button mnemonicParsing="false" onMouseClicked="#handleSync" prefHeight="35.0" prefWidth="150.0" text="Sync" BorderPane.alignment="CENTER">
+                  <Button fx:id="sync" mnemonicParsing="false" onMouseClicked="#handleSync" prefHeight="35.0" prefWidth="150.0" text="Sync" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>

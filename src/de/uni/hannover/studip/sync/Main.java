@@ -14,13 +14,13 @@ import javafx.scene.layout.BorderPane;
 public class Main extends Application {
 
 	// App name (titlebar).
-	private static final String APP_NAME = "Stud.IP FileSync";
+	private static final String APP_NAME = "Stud.IP FileSync **Beta**";
 
 	public static final String OVERVIEW = "Overview";
 	public static final String OAUTH = "OAuth";
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
-
+	public static final String ABOUT = "About";
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -31,7 +31,6 @@ public class Main extends Application {
 
 		initRootLayout();
 
-		// TODO: If logged in redirect to overview.
 		setView(OAUTH);
 	}
 
@@ -39,6 +38,9 @@ public class Main extends Application {
 		try {
 			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/RootLayout.fxml"));
 			this.rootLayout = (BorderPane) loader.load();
+
+			AbstractController controller = loader.getController();
+			controller.setMain(this);
 
 			// Init primary stage.
 			primaryStage.setScene(new Scene(this.rootLayout));

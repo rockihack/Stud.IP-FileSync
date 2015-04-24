@@ -33,19 +33,19 @@ public class OAuthWebviewController extends AbstractController {
 				@Override
 				public void changed(ObservableValue arg0, State oldState, State newState) {
 					if (newState == State.SUCCEEDED) {
+						webEngine.executeScript("window.scrollTo(200,150);");
 						onload(webEngine.getLocation());
 					}
 				}
-				
+
 			});
-		
+
 		// Open oauth authentication url.
 		OAuth oauth = OAuth.getInstance();
-		// TODO: Exception (next, prev, next)!
 		oauth.getRequestToken();
 		webEngine.load(oauth.getAuthUrl());
 	}
-	
+
 	/**
 	 * WebEngine window onload callback.
 	 * 
@@ -57,27 +57,26 @@ public class OAuthWebviewController extends AbstractController {
 		Matcher matcher = pattern.matcher(url);
 
 		if (matcher.find()) {
-			// Get oauth access token.
+			// Authentication succeeded, get the oauth access token.
 			try {
 				OAuth oauth = OAuth.getInstance();
 				oauth.getAccessToken(matcher.group(1));
 
-			} catch (UnauthorizedException e) {
-				// TODO
-				e.printStackTrace();
-			} catch (NotFoundException e) {
-				// TODO
-				e.printStackTrace();
+				// Redirect to oauth complete.
+				getMain().setView(Main.OAUTH_COMPLETE);
+
+			} catch (UnauthorizedException | NotFoundException e) {
+				OAuth.getInstance().removeAccessToken();
+
+				// Redirect to login.
+				getMain().setView(Main.OAUTH);
+
 			} catch (IOException e) {
-				// TODO
-				e.printStackTrace();
+				throw new IllegalStateException(e);
 			}
-			
-			// Redirect to overview.
-			getMain().setView(Main.OAUTH_COMPLETE);
 		}
 	}
-	
+
 	@FXML
 	public void handlePrev() {
 		getMain().setView(Main.OAUTH);

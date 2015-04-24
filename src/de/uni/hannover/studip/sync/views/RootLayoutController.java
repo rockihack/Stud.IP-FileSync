@@ -1,5 +1,7 @@
 package de.uni.hannover.studip.sync.views;
 
+import de.uni.hannover.studip.sync.Main;
+import de.uni.hannover.studip.sync.models.OAuth;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 
@@ -17,7 +19,10 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleLogout() {
-		// TODO
+		OAuth.getInstance().removeAccessToken();
+
+		// Redirect to login.
+		getMain().setView(Main.OAUTH);
 	}
 
 	/**
@@ -33,7 +38,7 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleAbout() {
-		// TODO
+		getMain().setView(Main.ABOUT);
 	}
 	
 }

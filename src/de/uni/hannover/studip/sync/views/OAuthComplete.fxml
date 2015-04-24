@@ -24,7 +24,7 @@
          <children>
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <center>
-                  <Button mnemonicParsing="false" onMouseClicked="#handleNext" prefHeight="35.0" prefWidth="150.0" text="Weiter" BorderPane.alignment="CENTER">
+                  <Button fx:id="next" disable="true" mnemonicParsing="false" onMouseClicked="#handleNext" prefHeight="35.0" prefWidth="150.0" text="Weiter" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -38,7 +38,7 @@
             </Label>
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button mnemonicParsing="false" onMouseClicked="#handleNext" prefHeight="35.0" prefWidth="150.0" text="Ziel wählen" BorderPane.alignment="CENTER">
+                  <Button mnemonicParsing="false" onMouseClicked="#handleDest" prefHeight="35.0" prefWidth="150.0" text="Ziel wählen" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>

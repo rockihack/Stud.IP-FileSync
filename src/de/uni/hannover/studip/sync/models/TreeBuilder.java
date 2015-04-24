@@ -7,6 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 
+import javafx.application.Platform;
+import javafx.scene.control.ProgressIndicator;
+
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,21 +23,24 @@ import de.uni.hannover.studip.sync.exceptions.*;
  * 
  * @author Lennart Glauer
  */
-public class TreeBuilder {
+public class TreeBuilder implements AutoCloseable {
 	
 	/**
 	 * Thread pool.
 	 */
 	protected final ExecutorService threadPool;
 
+	private ProgressIndicator progressIndicator;
+
 	protected TreeBuilder() {
 		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
-	
-	public void shutdown() {
+
+	@Override
+	public void close() {
 		threadPool.shutdown();
 	}
-	
+
 	/**
 	 * Build the semester/course/folder/document tree and store it in json format.
 	 * 
@@ -161,6 +167,7 @@ public class TreeBuilder {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
+				//updateProgress(phaser);
 			}
 		}
 		
@@ -218,6 +225,7 @@ public class TreeBuilder {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
+				updateProgress(phaser);
 			}
 		}
 		
@@ -291,6 +299,7 @@ public class TreeBuilder {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
+				updateProgress(phaser);
 			}
 		}
 		
@@ -368,7 +377,23 @@ public class TreeBuilder {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
+				updateProgress(phaser);
 			}
 		}
+	}
+
+	public void setProgress(ProgressIndicator progress) {
+		progressIndicator = progress;
+	}
+
+	protected void updateProgress(Phaser phaser) {
+		Platform.runLater(new Runnable() {
+
+			@Override
+			public void run() {
+				progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
+			}
+
+		});
 	}
 }

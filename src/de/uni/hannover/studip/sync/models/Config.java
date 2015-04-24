@@ -226,7 +226,20 @@ public class Config {
 	public String getRootDirectory() {
 		return config.root_dir;
 	}
-	
+
+	/**
+	 * Set root directoy.
+	 * 
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
+	 */
+	public void setRootDirectory(String root_dir) throws JsonGenerationException, JsonMappingException, IOException {
+		config.root_dir = root_dir;
+
+		writeConfigFile();
+	}
+
 	/**
 	 * Get root directoy.
 	 */
