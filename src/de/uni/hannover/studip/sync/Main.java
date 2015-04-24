@@ -19,6 +19,8 @@ public class Main extends Application {
 	public static final String OVERVIEW = "Overview";
 	public static final String OAUTH = "OAuth";
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
+	public static final String OAUTH_COMPLETE = "OAuthComplete";
+
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -41,8 +43,8 @@ public class Main extends Application {
 			// Init primary stage.
 			primaryStage.setScene(new Scene(this.rootLayout));
 			primaryStage.setTitle(APP_NAME);
-			primaryStage.setMinWidth(600);
-			primaryStage.setMinHeight(400);
+			primaryStage.setMinWidth(640);
+			primaryStage.setMinHeight(480);
 			primaryStage.show();
 
 		} catch (IOException e) {

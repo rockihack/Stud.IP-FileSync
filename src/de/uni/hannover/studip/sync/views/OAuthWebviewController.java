@@ -1,6 +1,12 @@
 package de.uni.hannover.studip.sync.views;
 
+import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import de.uni.hannover.studip.sync.Main;
+import de.uni.hannover.studip.sync.exceptions.*;
+import de.uni.hannover.studip.sync.models.OAuth;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -34,8 +40,10 @@ public class OAuthWebviewController extends AbstractController {
 			});
 		
 		// Open oauth authentication url.
-		// TODO: Use auth url.
-		webEngine.load("https://elearning.uni-hannover.de/index.php?again=yes");
+		OAuth oauth = OAuth.getInstance();
+		// TODO: Exception (next, prev, next)!
+		oauth.getRequestToken();
+		webEngine.load(oauth.getAuthUrl());
 	}
 	
 	/**
@@ -44,12 +52,29 @@ public class OAuthWebviewController extends AbstractController {
 	 * @param url 
 	 */
 	private void onload(String url) {
-		if (url.contains("oauth_verifier=")) {
-			// OAuth authentication succeeded!
-			// TODO: Get access token.
+		// Parse oauth verifier.
+		Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
+		Matcher matcher = pattern.matcher(url);
+
+		if (matcher.find()) {
+			// Get oauth access token.
+			try {
+				OAuth oauth = OAuth.getInstance();
+				oauth.getAccessToken(matcher.group(1));
+
+			} catch (UnauthorizedException e) {
+				// TODO
+				e.printStackTrace();
+			} catch (NotFoundException e) {
+				// TODO
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO
+				e.printStackTrace();
+			}
 			
 			// Redirect to overview.
-			getMain().setView(Main.OVERVIEW);
+			getMain().setView(Main.OAUTH_COMPLETE);
 		}
 	}
 	
