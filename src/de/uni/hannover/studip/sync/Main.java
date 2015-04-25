@@ -1,6 +1,7 @@
 package de.uni.hannover.studip.sync;
 	
 import java.io.IOException;
+import java.util.LinkedList;
 
 import de.uni.hannover.studip.sync.views.AbstractController;
 import javafx.application.Application;
@@ -16,11 +17,14 @@ public class Main extends Application {
 	// App name (titlebar).
 	private static final String APP_NAME = "Stud.IP FileSync **Beta**";
 
+	// Views.
 	public static final String OVERVIEW = "Overview";
 	public static final String OAUTH = "OAuth";
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
 	public static final String ABOUT = "About";
+
+	private LinkedList<String> viewHistory = new LinkedList<String>();
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -56,17 +60,33 @@ public class Main extends Application {
 	}
 
 	public void setView(String fxml) {
-		try {
-			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + fxml + ".fxml"));
+		synchronized (viewHistory) {
+			try {
+				FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + fxml + ".fxml"));
+				rootLayout.setCenter((AnchorPane) loader.load());
 
-			rootLayout.setCenter((AnchorPane) loader.load());
+				AbstractController controller = loader.getController();
+				controller.setMain(this);
 
-			AbstractController controller = loader.getController();
-			controller.setMain(this);
+				// Push view.
+				viewHistory.push(fxml);
 
-		} catch (IOException e) {
-			// View fxml file not found!
-			throw new IllegalStateException(e);
+			} catch (IOException e) {
+				// View fxml file not found!
+				throw new IllegalStateException(e);
+			}
+		}
+	}
+
+	public void setPrevView() {
+		synchronized (viewHistory) {
+			if (viewHistory.size() >= 2) {
+				// Pop current view.
+				viewHistory.pop();
+
+				// Set previous view.
+				setView(viewHistory.pop());
+			}
 		}
 	}
 

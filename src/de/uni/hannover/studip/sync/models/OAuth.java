@@ -3,6 +3,7 @@ package de.uni.hannover.studip.sync.models;
 import java.io.IOException;
 
 import org.scribe.builder.ServiceBuilder;
+import org.scribe.exceptions.OAuthConnectionException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
@@ -70,14 +71,16 @@ public class OAuth {
 	/**
 	 * Step 2: Get the request token.
 	 */
-	public void getRequestToken() {
-		requestToken = service.getRequestToken();
+	public synchronized void getRequestToken() throws OAuthConnectionException {
+		if (requestToken == null) {
+			requestToken = service.getRequestToken();
+		}
 	}
 	
 	/**
 	 * Step 3: Making the user validate your request token.
 	 */
-	public String getAuthUrl() {
+	public synchronized String getAuthUrl() {
 		if (requestToken == null) {
 			throw new IllegalStateException("Request token not found!");
 		}
@@ -93,12 +96,16 @@ public class OAuth {
 	 * @throws NotFoundException 
 	 * @throws UnauthorizedException 
 	 */
-	public void getAccessToken(String verifier) throws UnauthorizedException, NotFoundException, IOException {
+	public synchronized void getAccessToken(String verifier) throws UnauthorizedException, NotFoundException, IOException {
 		if (requestToken == null) {
 			throw new IllegalStateException("Request token not found!");
 		}
 
+		// Get access token and store it in oauth config file.
 		config.setAccessToken(accessToken = service.getAccessToken(requestToken, new Verifier(verifier)));
+
+		// Request token was used and is no longer valid.
+		requestToken = null;
 	}
 	
 	/**
@@ -124,17 +131,25 @@ public class OAuth {
 	 * 
 	 * @return True if the access token could be restored.
 	 */
-	public void restoreAccessToken() {
-		accessToken = config.getAccessToken();
+	public synchronized boolean restoreAccessToken() {
+		try {
+			accessToken = config.getAccessToken();
+			return true;
+
+		} catch(IllegalArgumentException e) {
+			// Token can't be null.
+			return false;
+		}
 	}
 	
 	/**
 	 * Remove access token.
 	 */
-	public void removeAccessToken() {
+	public synchronized void removeAccessToken() {
 		try {
 			Config.getInstance().initOAuthFile();
 			accessToken = null;
+
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}

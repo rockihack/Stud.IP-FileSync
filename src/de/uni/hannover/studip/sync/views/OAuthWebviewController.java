@@ -1,11 +1,13 @@
 package de.uni.hannover.studip.sync.views;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.exceptions.*;
+import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -15,7 +17,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 public class OAuthWebviewController extends AbstractController {
-	
+
 	@FXML
 	private WebView webView;
 
@@ -62,8 +64,11 @@ public class OAuthWebviewController extends AbstractController {
 				OAuth oauth = OAuth.getInstance();
 				oauth.getAccessToken(matcher.group(1));
 
-				// Redirect to oauth complete.
-				getMain().setView(Main.OAUTH_COMPLETE);
+				String rootDir = Config.getInstance().getRootDirectory();
+				getMain().setView(
+						rootDir != null && new File(rootDir).exists()
+						? Main.OVERVIEW
+						: Main.OAUTH_COMPLETE);
 
 			} catch (UnauthorizedException | NotFoundException e) {
 				OAuth.getInstance().removeAccessToken();
@@ -79,6 +84,6 @@ public class OAuthWebviewController extends AbstractController {
 
 	@FXML
 	public void handlePrev() {
-		getMain().setView(Main.OAUTH);
+		getMain().setPrevView();
 	}
 }

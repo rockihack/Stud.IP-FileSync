@@ -6,6 +6,7 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
+import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.TreeSync;
@@ -39,10 +40,9 @@ public class OverviewController extends AbstractController {
 			@Override
 			public void run() {
 				OAuth oauth = OAuth.getInstance();
-				oauth.restoreAccessToken();
 
 				String rootDir = Config.getInstance().getRootDirectory();
-				if (rootDir != null) {
+				if (rootDir != null && oauth.restoreAccessToken()) {
 					try (TreeSync tree = new TreeSync(new File(rootDir))) {
 						File treeFile = Config.getInstance().openTreeFile();
 
@@ -71,7 +71,17 @@ public class OverviewController extends AbstractController {
 					}
 
 				} else {
-					// TODO: Error.
+					OAuth.getInstance().removeAccessToken();
+
+					Platform.runLater(new Runnable() {
+
+						@Override
+						public void run() {
+							// Redirect to login.
+							getMain().setView(Main.OAUTH);
+						}
+
+					});
 				}
 
 				// Update progress and sync button.

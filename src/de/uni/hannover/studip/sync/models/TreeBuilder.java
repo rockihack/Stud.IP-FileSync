@@ -386,7 +386,7 @@ public class TreeBuilder implements AutoCloseable {
 		progressIndicator = progress;
 	}
 
-	protected void updateProgress(Phaser phaser) {
+	protected void updateProgress(final Phaser phaser) {
 		Platform.runLater(new Runnable() {
 
 			@Override

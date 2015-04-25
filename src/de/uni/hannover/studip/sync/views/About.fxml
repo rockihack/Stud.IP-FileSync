@@ -30,7 +30,7 @@
                   </Button>
                </center>
             </BorderPane>
-            <Label alignment="TOP_LEFT" prefHeight="305.0" prefWidth="560.0" text="About:&#10;&#10;bla bla&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label alignment="CENTER" prefHeight="305.0" prefWidth="560.0" text="Stud.IP FileSync&#10;&#10;Data: &lt;DATE&gt;&#10;Version: 0.1.0 Beta&#10;Revision: &lt;GIT&gt;&#10;&#10;GitHub:&#10;https://github.com/rockihack/Stud.IP-FileSync&#10;&#10;Developer:&#10;Lennart Glauer &lt;glauer@elsa.uni-hannover.de&gt;" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <font>
                   <Font size="14.0" />
                </font>

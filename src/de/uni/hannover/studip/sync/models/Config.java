@@ -108,7 +108,7 @@ public class Config {
 		return configFile;
 	}
 
-	protected void initConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
+	protected synchronized void initConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
 		config = new ConfigFile();
 		writeConfigFile();
 	}
@@ -165,7 +165,7 @@ public class Config {
 		return oauthFile;
 	}
 	
-	protected void initOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
+	protected synchronized void initOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
 		oauth = new OAuthFile();
 		writeOAuthFile();
 	}
