@@ -9,6 +9,7 @@ import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.exceptions.*;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
+import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -44,7 +45,7 @@ public class OAuthWebviewController extends AbstractController {
 											+ "scrollLeft: login.offset().left - 100"
 									+ "}, 500);");
 
-						onload(webEngine.getLocation());
+						onload(webEngine);
 					}
 				}
 
@@ -61,10 +62,10 @@ public class OAuthWebviewController extends AbstractController {
 	 * 
 	 * @param url 
 	 */
-	private void onload(String url) {
+	private void onload(WebEngine engine) {
 		// Parse oauth verifier.
 		Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
-		Matcher matcher = pattern.matcher(url);
+		Matcher matcher = pattern.matcher(engine.getLocation());
 
 		if (matcher.find()) {
 			// Authentication succeeded, get the oauth access token.
@@ -77,6 +78,9 @@ public class OAuthWebviewController extends AbstractController {
 						rootDir != null && new File(rootDir).exists()
 						? Main.OVERVIEW
 						: Main.OAUTH_COMPLETE);
+
+				// End login session.
+				engine.load(StudIPApiProvider.LOGOUT);
 
 			} catch (UnauthorizedException | NotFoundException e) {
 				OAuth.getInstance().removeAccessToken();

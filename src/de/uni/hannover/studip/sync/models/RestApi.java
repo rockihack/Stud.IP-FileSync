@@ -34,7 +34,7 @@ public class RestApi {
 	 */
 	public static Discovery discovery() throws UnauthorizedException, IOException {
 		JacksonRequest<Discovery> request = new JacksonRequest<Discovery>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/discovery", Discovery.class);
+				StudIPApiProvider.BASE_URL + "/api/discovery", Discovery.class);
 		
 		switch (request.getCode()) {
 		case 200:
@@ -69,7 +69,7 @@ public class RestApi {
 	 */
 	public static Courses getAllCourses() throws UnauthorizedException, IOException {
 		JacksonRequest<Courses> request = new JacksonRequest<Courses>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/courses", Courses.class);
+				StudIPApiProvider.BASE_URL + "/api/courses", Courses.class);
 		
 		switch (request.getCode()) {
 		case 200:
@@ -103,7 +103,7 @@ public class RestApi {
 		}
 		
 		JacksonRequest<Courses> request = new JacksonRequest<Courses>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/courses/semester/" + semesterId, Courses.class);
+				StudIPApiProvider.BASE_URL + "/api/courses/semester/" + semesterId, Courses.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -139,7 +139,7 @@ public class RestApi {
 		}
 
 		JacksonRequest<Course> request = new JacksonRequest<Course>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/courses/" + courseId, Course.class);
+				StudIPApiProvider.BASE_URL + "/api/courses/" + courseId, Course.class);
 		
 		switch (request.getCode()) {
 		case 200:
@@ -174,7 +174,7 @@ public class RestApi {
 		}
 		
 		JacksonRequest<Documents> request = new JacksonRequest<Documents>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + courseId + "/new/" + timestamp, Documents.class);
+				StudIPApiProvider.BASE_URL + "/api/documents/" + courseId + "/new/" + timestamp, Documents.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -218,7 +218,7 @@ public class RestApi {
 		}
 		
 		JacksonRequest<DocumentFolders> request = new JacksonRequest<DocumentFolders>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId == null ? "" : "/" + folderId), DocumentFolders.class);
+				StudIPApiProvider.BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId == null ? "" : "/" + folderId), DocumentFolders.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -265,7 +265,7 @@ public class RestApi {
 		}
 
 		JacksonRequest<Document> request = new JacksonRequest<Document>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + documentId, Document.class);
+				StudIPApiProvider.BASE_URL + "/api/documents/" + documentId, Document.class);
 		
 		switch (request.getCode()) {
 		case 200:
@@ -304,7 +304,7 @@ public class RestApi {
 		long startTime = System.currentTimeMillis();
 
 		JacksonRequest<Object> request = new JacksonRequest<Object>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
+				StudIPApiProvider.BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -334,7 +334,7 @@ public class RestApi {
 	 */
 	public static Semesters getAllSemesters() throws UnauthorizedException, IOException {
 		JacksonRequest<Semesters> request = new JacksonRequest<Semesters>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/courses/semester", Semesters.class);
+				StudIPApiProvider.BASE_URL + "/api/courses/semester", Semesters.class);
 		
 		switch (request.getCode()) {
 		case 200:
@@ -368,7 +368,7 @@ public class RestApi {
 		}
 
 		JacksonRequest<Semester> request = new JacksonRequest<Semester>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/semesters/" + semesterId, Semester.class);
+				StudIPApiProvider.BASE_URL + "/api/semesters/" + semesterId, Semester.class);
 		
 		switch (request.getCode()) {
 		case 200:
@@ -402,7 +402,7 @@ public class RestApi {
 		}
 
 		JacksonRequest<User> request = new JacksonRequest<User>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/user" + (userId == null ? "" : "/" + userId), User.class);
+				StudIPApiProvider.BASE_URL + "/api/user" + (userId == null ? "" : "/" + userId), User.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -432,7 +432,7 @@ public class RestApi {
 	 */
 	public static Activities getActivities() throws UnauthorizedException, IOException {
 		JacksonRequest<Activities> request = new JacksonRequest<Activities>(Verb.GET,
-				"https://" + StudIPApiProvider.BASE_URL + "/api/activities", Activities.class);
+				StudIPApiProvider.BASE_URL + "/api/activities", Activities.class);
 
 		switch (request.getCode()) {
 		case 200:
