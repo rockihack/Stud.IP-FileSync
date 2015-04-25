@@ -1,14 +1,15 @@
 package de.uni.hannover.studip.sync.views;
 
 import java.io.File;
-import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import javax.swing.JOptionPane;
 
 import de.uni.hannover.studip.sync.Main;
+import de.uni.hannover.studip.sync.exceptions.NotFoundException;
+import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
+import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeSync;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -32,38 +33,40 @@ public class OverviewController extends AbstractController {
 
 			@Override
 			public void run() {
-				OAuth oauth = OAuth.getInstance();
+				try {
+					OAuth oauth = OAuth.getInstance();
+					oauth.restoreAccessToken();
 
-				String rootDir = Config.getInstance().getRootDirectory();
-				if (rootDir != null && oauth.restoreAccessToken()) {
-					try (TreeSync tree = new TreeSync(new File(rootDir))) {
-						File treeFile = Config.getInstance().openTreeFile();
+					// Test access token.
+					RestApi.getUserById(null);
 
-						tree.setProgress(progress);
+					String rootDir = Config.getInstance().getRootDirectory();
+					if (rootDir != null) {
+						try (TreeSync tree = new TreeSync(new File(rootDir))) {
+							File treeFile = Config.getInstance().openTreeFile();
 
-						// Update documents.
-						tree.build(treeFile);
+							tree.setProgress(progress);
 
-						// Update sync button.
-						Platform.runLater(new Runnable() {
+							// Update documents.
+							tree.build(treeFile);
 
-							@Override
-							public void run() {
-								sync.setText("Downloading...");
-							}
+							// Update sync button.
+							Platform.runLater(new Runnable() {
 
-						});
+								@Override
+								public void run() {
+									sync.setText("Downloading...");
+								}
 
-						// Download documents.
-						tree.sync(treeFile, false);
+							});
 
-					} catch (JsonGenerationException | JsonMappingException e) {
-						throw new IllegalStateException(e);
-					} catch (IOException e) {
-						throw new IllegalStateException(e);
+							// Download documents.
+							tree.sync(treeFile, false);
+						}
+
 					}
 
-				} else {
+				} catch (UnauthorizedException | NotFoundException e) {
 					OAuth.getInstance().removeAccessToken();
 
 					Platform.runLater(new Runnable() {
@@ -75,6 +78,9 @@ public class OverviewController extends AbstractController {
 						}
 
 					});
+
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null, e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 				}
 
 				// Update progress and sync button.

@@ -67,7 +67,7 @@
                      </font>
                   </Label>
                   <CheckBox mnemonicParsing="false" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-                  <Label text="Ausloggen:" GridPane.columnIndex="1">
+                  <Label text="Stud.IP Account:" GridPane.columnIndex="1">
                      <font>
                         <Font size="14.0" />
                      </font>
@@ -77,6 +77,10 @@
                         <Font size="14.0" />
                      </font>
                   </Button>
+                  <Label fx:id="user" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <font>
+                        <Font size="14.0" />
+                     </font></Label>
                </children>
             </GridPane>
          </children>

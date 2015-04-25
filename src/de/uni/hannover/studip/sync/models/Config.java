@@ -248,6 +248,20 @@ public class Config {
 	}
 
 	/**
+	 * Get logged in user firstname.
+	 */
+	public String getFirstName() {
+		return oauth.first_name;
+	}
+
+	/**
+	 * Get logged in user lastname.
+	 */
+	public String getLastName() {
+		return oauth.last_name;
+	}
+
+	/**
 	 * Get logged in user name.
 	 */
 	public String getUserName() {
@@ -266,9 +280,15 @@ public class Config {
 	 * 
 	 * @see OAuth.restoreAccessToken()
 	 * @param accessToken
+	 * @throws UnauthorizedException 
 	 */
-	protected Token getAccessToken() {
-		return new Token(oauth.token, oauth.secret);
+	protected Token getAccessToken() throws UnauthorizedException {
+		try {
+			return new Token(oauth.token, oauth.secret);
+
+		} catch (IllegalArgumentException e) {
+			throw new UnauthorizedException(e.getMessage());
+		}
 	}
 	
 	/**

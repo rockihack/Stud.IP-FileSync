@@ -130,19 +130,10 @@ public class OAuth {
 	 * Restore a previously used access token.
 	 * 
 	 * @return True if the access token could be restored.
+	 * @throws UnauthorizedException 
 	 */
-	public synchronized boolean restoreAccessToken() {
-		try {
-			accessToken = config.getAccessToken();
-
-			// Test access token.
-			RestApi.getUserById(null);
-
-			return true;
-
-		} catch(Exception e) {
-			return false;
-		}
+	public synchronized void restoreAccessToken() throws UnauthorizedException {
+		accessToken = config.getAccessToken();
 	}
 	
 	/**
