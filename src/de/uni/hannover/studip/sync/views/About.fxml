@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.web.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
@@ -17,11 +18,12 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
-          <RowConstraints minHeight="200.0" prefHeight="200.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="250.0" prefHeight="250.0" vgrow="NEVER" />
+            <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <center>
                   <Button mnemonicParsing="false" onMouseClicked="#handlePrev" prefHeight="35.0" prefWidth="150.0" text="Zurück" BorderPane.alignment="CENTER">
                      <font>
@@ -30,7 +32,7 @@
                   </Button>
                </center>
             </BorderPane>
-            <Label alignment="CENTER" prefHeight="305.0" prefWidth="560.0" text="Stud.IP FileSync&#10;&#10;Data: &lt;DATE&gt;&#10;Version: 0.1.0 Beta&#10;Revision: &lt;GIT&gt;&#10;&#10;GitHub:&#10;https://github.com/rockihack/Stud.IP-FileSync&#10;&#10;Developer:&#10;Lennart Glauer &lt;glauer@elsa.uni-hannover.de&gt;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label alignment="CENTER" prefHeight="305.0" prefWidth="560.0" text="Stud.IP FileSync&#10;&#10;Version: 0.1.0 Beta&#10;Release Date: &lt;DATE&gt;&#10;Revision: &lt;GIT&gt;&#10;&#10;GitHub:&#10;https://github.com/rockihack/Stud.IP-FileSync&#10;&#10;Developer:&#10;Lennart Glauer &lt;glauer@elsa.uni-hannover.de&gt;" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <font>
                   <Font size="14.0" />
                </font>

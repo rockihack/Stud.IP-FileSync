@@ -17,11 +17,12 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
-          <RowConstraints minHeight="200.0" prefHeight="200.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="250.0" prefHeight="250.0" vgrow="NEVER" />
+            <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
                <center>
                   <Button mnemonicParsing="false" onMouseClicked="#handleNext" prefHeight="35.0" prefWidth="150.0" text="Weiter" BorderPane.alignment="CENTER">
                      <font>
@@ -30,7 +31,7 @@
                   </Button>
                </center>
             </BorderPane>
-            <Label alignment="TOP_LEFT" prefHeight="305.0" prefWidth="560.0" text="Stud.IP FileSync&#10;&#10;bla bla ... how to ...&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label alignment="TOP_LEFT" prefHeight="305.0" prefWidth="560.0" text="Stud.IP FileSync&#10;&#10;Für die Nutzung der Stud.IP FileSync Application, müssen Sie sich zuerst&#10;Authentifizieren.&#10;&#10;1) Loggen Sie sich in Ihren Stud.IP Account ein&#10;2) Bestätigen Sie den Zugriff auf Ihre Accountdaten&#10;3) Warten Sie bis die Authenfizierung abgeschlossen ist,&#10;    Sie werden danach automatisch weitergeleitet.&#10;&#10;Klicken Sie auf &quot;Weiter&quot;, um die Authentifizierung zu starten.&#10;&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <font>
                   <Font size="14.0" />
                </font>

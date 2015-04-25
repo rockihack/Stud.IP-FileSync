@@ -22,6 +22,7 @@ public class Main extends Application {
 	public static final String OAUTH = "OAuth";
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
+	public static final String SETTINGS = "Settings";
 	public static final String ABOUT = "About";
 
 	private LinkedList<String> viewHistory = new LinkedList<String>();
@@ -61,6 +62,11 @@ public class Main extends Application {
 
 	public void setView(String fxml) {
 		synchronized (viewHistory) {
+			if (viewHistory.peek() == fxml) {
+				// Same as the current view.
+				return;
+			}
+
 			try {
 				FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + fxml + ".fxml"));
 				rootLayout.setCenter((AnchorPane) loader.load());

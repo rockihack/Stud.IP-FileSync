@@ -9,15 +9,15 @@
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="File">
+          <Menu mnemonicParsing="false" text="Datei">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
-                  <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Close" />
+              <MenuItem mnemonicParsing="false" onAction="#handleSettings" text="Einstellungen" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Beenden" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+          <Menu mnemonicParsing="false" text="Hilfe">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About" />
+              <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="Über FileSync" />
             </items>
           </Menu>
         </menus>

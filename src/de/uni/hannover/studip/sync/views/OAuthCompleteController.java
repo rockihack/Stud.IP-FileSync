@@ -19,13 +19,6 @@ public class OAuthCompleteController extends AbstractController {
 	@FXML
 	private Button next;
 
-	/**
-	 * The initialize method is automatically invoked by the FXMLLoader.
-	 */
-	@FXML
-	public void initialize() {
-	}
-
 	@FXML
 	public void handleDest() {
 		DirectoryChooser chooser = new DirectoryChooser();

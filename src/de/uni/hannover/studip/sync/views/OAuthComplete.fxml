@@ -17,12 +17,13 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
-          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
+          <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
+            <RowConstraints vgrow="SOMETIMES" />
             <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <center>
                   <Button fx:id="next" disable="true" mnemonicParsing="false" onMouseClicked="#handleNext" prefHeight="35.0" prefWidth="150.0" text="Weiter" BorderPane.alignment="CENTER">
                      <font>
@@ -31,7 +32,7 @@
                   </Button>
                </center>
             </BorderPane>
-            <Label alignment="TOP_LEFT" prefHeight="153.0" prefWidth="560.0" text="Authentication complete...&#10;&#10;Now choose your sync folder:&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label alignment="TOP_LEFT" prefHeight="153.0" prefWidth="560.0" text="Authentifizierung erfolgreich!&#10;&#10;Bitte wähle den Ziel Ordner.&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <font>
                   <Font size="14.0" />
                </font>

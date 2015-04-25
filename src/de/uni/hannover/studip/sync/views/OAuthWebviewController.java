@@ -35,7 +35,15 @@ public class OAuthWebviewController extends AbstractController {
 				@Override
 				public void changed(ObservableValue arg0, State oldState, State newState) {
 					if (newState == State.SUCCEEDED) {
-						webEngine.executeScript("window.scrollTo(200,150);");
+						// Scroll to login box.
+						webEngine.executeScript(
+								"var login = $('form[name=\"login\"]');" +
+								"if (login.length)" +
+									"$('html, body').animate({"
+											+ "scrollTop: login.offset().top - 150,"
+											+ "scrollLeft: login.offset().left - 100"
+									+ "}, 500);");
+
 						onload(webEngine.getLocation());
 					}
 				}

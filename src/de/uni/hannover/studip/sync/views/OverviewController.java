@@ -23,13 +23,6 @@ public class OverviewController extends AbstractController {
 	@FXML
 	private Button sync;
 
-	/**
-	 * The initialize method is automatically invoked by the FXMLLoader.
-	 */
-	@FXML
-	public void initialize() {
-	}
-
 	@FXML
 	public void handleSync() {
 		sync.setDisable(true);
