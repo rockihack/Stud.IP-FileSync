@@ -134,10 +134,13 @@ public class OAuth {
 	public synchronized boolean restoreAccessToken() {
 		try {
 			accessToken = config.getAccessToken();
+
+			// Test access token.
+			RestApi.getUserById(null);
+
 			return true;
 
-		} catch(IllegalArgumentException e) {
-			// Token can't be null.
+		} catch(Exception e) {
 			return false;
 		}
 	}

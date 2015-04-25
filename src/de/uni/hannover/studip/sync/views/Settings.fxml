@@ -72,7 +72,7 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Button disable="true" mnemonicParsing="false" onMouseClicked="#handleLogout" text="Ausloggen" GridPane.columnIndex="3">
+                  <Button fx:id="logout" disable="true" mnemonicParsing="false" onMouseClicked="#handleLogout" text="Ausloggen" GridPane.columnIndex="3">
                      <font>
                         <Font size="14.0" />
                      </font>

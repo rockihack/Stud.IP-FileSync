@@ -36,7 +36,7 @@ public class Main extends Application {
 
 		initRootLayout();
 
-		setView(OAUTH);
+		setView(OVERVIEW);
 	}
 
 	private void initRootLayout() {

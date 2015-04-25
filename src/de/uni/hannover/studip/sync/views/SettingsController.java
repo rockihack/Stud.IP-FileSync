@@ -10,18 +10,24 @@ import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.stage.DirectoryChooser;
 
 public class SettingsController extends AbstractController {
 	
+	@FXML
+	private Button logout;
+
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
 	 */
 	@FXML
 	public void initialize() {
-		// TODO: Enable logout button, if logged in
+		if (OAuth.getInstance().restoreAccessToken()) {
+			logout.setDisable(false);
+		}
 	}
-	
+
 	@FXML
 	public void handleLogout() {
 		OAuth.getInstance().removeAccessToken();
