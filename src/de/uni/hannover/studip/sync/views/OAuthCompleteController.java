@@ -3,9 +3,6 @@ package de.uni.hannover.studip.sync.views;
 import java.io.File;
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
 import javafx.fxml.FXML;
@@ -37,8 +34,6 @@ public class OAuthCompleteController extends AbstractController {
 			// Redirect to overview.
 			getMain().setView(Main.OVERVIEW);
 
-		} catch (JsonGenerationException | JsonMappingException e) {
-			throw new IllegalStateException(e);
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}

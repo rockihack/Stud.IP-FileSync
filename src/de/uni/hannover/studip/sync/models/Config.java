@@ -68,12 +68,6 @@ public class Config {
 	private Config() {
 		try {
 			readConfigFile();
-
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
-
-		try {
 			readOAuthFile();
 
 		} catch (IOException e) {

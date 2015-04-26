@@ -3,8 +3,7 @@ package de.uni.hannover.studip.sync.views;
 import java.io.File;
 import java.io.IOException;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import javax.swing.JOptionPane;
 
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
@@ -16,32 +15,44 @@ import javafx.scene.control.Label;
 import javafx.stage.DirectoryChooser;
 
 public class SettingsController extends AbstractController {
-	
-	@FXML
-	private Button logout;
 
 	@FXML
-	private Label user;
+	private Button logoutButton;
+
+	@FXML
+	private Label userLabel;
+
+	@FXML
+	private Label rootDirLabel;
 
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
 	 */
 	@FXML
 	public void initialize() {
+		Config config = Config.getInstance();
+
+		// Stud.IP Account.
 		try {
-			Config config = Config.getInstance();
 			OAuth oauth = OAuth.getInstance();
 			oauth.restoreAccessToken();
-			user.setText("( Eingeloggt als " + config.getFirstName() + " " + config.getLastName() + ", " + config.getUserName() + " )");
-			logout.setDisable(false);
+
+			// User has an access token, we do not check if it's valid here.
+			userLabel.setText("( Eingeloggt als " + config.getFirstName() + " " + config.getLastName() + ", " + config.getUserName() + " )");
+			logoutButton.setDisable(false);
 
 		} catch (UnauthorizedException e) {}
+
+		// Root dir.
+		setRootDirLabel(config.getRootDirectory());
 	}
 
 	@FXML
 	public void handleLogout() {
+		// Delete access token and update oauth config file.
 		OAuth.getInstance().removeAccessToken();
 
+		// Redirect to login.
 		getMain().setView(Main.OAUTH);
 	}
 
@@ -52,21 +63,31 @@ public class SettingsController extends AbstractController {
 
 		File rootDir = chooser.showDialog(null);
 		if (rootDir != null) {
-			// Store new root directory.
 			try {
 				Config.getInstance().setRootDirectory(rootDir.getAbsolutePath());
+				setRootDirLabel(rootDir.getAbsolutePath());
 
-			} catch (JsonGenerationException | JsonMappingException e) {
-				throw new IllegalStateException(e);
 			} catch (IOException e) {
-				throw new IllegalStateException(e);
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
 	
 	@FXML
+	public void handleSyncOptions() {
+		// Redirect to sync settings.
+		getMain().setView(Main.SYNC_SETTINGS);
+	}
+
+	@FXML
 	public void handlePrev() {
 		getMain().setPrevView();
+	}
+
+	private void setRootDirLabel(String rootDir) {
+		if (rootDir != null && new File(rootDir).exists()) {
+			rootDirLabel.setText("( " + rootDir + " )");
+		}
 	}
 
 }

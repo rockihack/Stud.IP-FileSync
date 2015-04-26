@@ -11,13 +11,15 @@
         <menus>
           <Menu mnemonicParsing="false" text="Datei">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#handleSettings" text="Einstellungen" />
+              <MenuItem mnemonicParsing="false" onAction="#handleOpen" text="Ordner öffnen" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleSettings" text="Einstellungen" />
                   <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Beenden" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Hilfe">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="Über FileSync" />
+              <MenuItem mnemonicParsing="false" onAction="#handleUpdateSeminars" text="Neue Veranstaltungen suchen" />
+                  <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="Über FileSync" />
             </items>
           </Menu>
         </menus>

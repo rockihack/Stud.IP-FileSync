@@ -24,7 +24,7 @@
             <ProgressIndicator fx:id="progress" progress="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button fx:id="sync" mnemonicParsing="false" onMouseClicked="#handleSync" prefHeight="35.0" prefWidth="150.0" text="Sync" BorderPane.alignment="CENTER">
+                  <Button fx:id="syncButton" mnemonicParsing="false" onMouseClicked="#handleSync" prefHeight="35.0" prefWidth="150.0" text="Sync" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>

@@ -68,7 +68,7 @@ public class OAuthWebviewController extends AbstractController {
 		Matcher matcher = pattern.matcher(engine.getLocation());
 
 		if (matcher.find()) {
-			// Authentication succeeded, get the oauth access token.
+			// Authentication succeeded, now get the oauth access token.
 			try {
 				OAuth oauth = OAuth.getInstance();
 				oauth.getAccessToken(matcher.group(1));

@@ -99,11 +99,11 @@ public class TreeBuilder implements AutoCloseable {
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (CourseTreeNode course : semester.courses) {
 					if (course.update_time < cache_time) {
-						course.update_time = now;
-					
 						phaser.register();
 						
-						threadPool.execute(new UpdateDocumentsJob(phaser, course));
+						// TODO
+						threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
+						//threadPool.execute(new UpdateDocumentsJob(phaser, course));
 					}
 				}
 			}
@@ -344,6 +344,15 @@ public class TreeBuilder implements AutoCloseable {
 			return folderIndex;
 		}
 
+		private void removeDocument(DocumentFolderTreeNode folder, Document document) {
+			for (DocumentTreeNode d : folder.documents) {
+				if (d.document_id.equals(document.document_id)) {
+					folder.documents.remove(d);
+					break;
+				}
+			}
+		}
+
 		@Override
 		public void run() {
 			try {
@@ -360,9 +369,14 @@ public class TreeBuilder implements AutoCloseable {
 						break;
 					}
 
+					// Remove document if it exists.
+					removeDocument(folderNode, document);
+
 					// Add document to existing folder.
 					folderNode.documents.add(new DocumentTreeNode(document));
 				}
+
+				courseNode.update_time = System.currentTimeMillis() / 1000L;
 
 			} catch (UnauthorizedException e) {
 				// Invalid oauth access token.

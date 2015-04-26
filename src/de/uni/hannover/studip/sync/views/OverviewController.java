@@ -4,6 +4,9 @@ import java.io.File;
 
 import javax.swing.JOptionPane;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
@@ -22,12 +25,12 @@ public class OverviewController extends AbstractController {
 	private ProgressIndicator progress;
 
 	@FXML
-	private Button sync;
+	private Button syncButton;
 
 	@FXML
 	public void handleSync() {
-		sync.setDisable(true);
-		sync.setText("Updating...");
+		syncButton.setDisable(true);
+		syncButton.setText("Updating...");
 
 		new Thread(new Runnable() {
 
@@ -48,14 +51,20 @@ public class OverviewController extends AbstractController {
 							tree.setProgress(progress);
 
 							// Update documents.
-							tree.build(treeFile);
+							try {
+								tree.update(treeFile, false);
+
+							} catch (JsonParseException | JsonMappingException e) {
+								// Invalid tree file, lets build a new one.
+								tree.build(treeFile);
+							}
 
 							// Update sync button.
 							Platform.runLater(new Runnable() {
 
 								@Override
 								public void run() {
-									sync.setText("Downloading...");
+									syncButton.setText("Downloading...");
 								}
 
 							});
@@ -89,8 +98,8 @@ public class OverviewController extends AbstractController {
 					@Override
 					public void run() {
 						progress.setProgress(1);
-						sync.setText("Sync");
-						sync.setDisable(false);
+						syncButton.setText("Sync");
+						syncButton.setDisable(false);
 					}
 
 				});

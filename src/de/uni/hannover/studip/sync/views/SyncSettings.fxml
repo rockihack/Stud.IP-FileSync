@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.SettingsController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.SyncSettingsController">
    <children>
       <GridPane layoutX="0" layoutY="0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
@@ -51,45 +51,16 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Ziel Ordner:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  <Label text="Geänderte Dateien nicht überschreiben:" GridPane.columnIndex="1">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Button mnemonicParsing="false" onMouseClicked="#handleRootDir" text="Ordner wählen" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                  <CheckBox mnemonicParsing="false" GridPane.columnIndex="3">
                      <font>
                         <Font size="14.0" />
                      </font>
-                  </Button>
-                  <Label text="Sync:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Label text="Stud.IP Account:" underline="true" GridPane.columnIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Button fx:id="logoutButton" disable="true" mnemonicParsing="false" onMouseClicked="#handleLogout" text="Ausloggen" GridPane.columnIndex="3">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
-                  <Label fx:id="userLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font></Label>
-                  <Label fx:id="rootDirLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="3">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <Button mnemonicParsing="false" onMouseClicked="#handleSyncOptions" text="Optionen" GridPane.columnIndex="3" GridPane.rowIndex="4">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Button>
+                  </CheckBox>
                </children>
             </GridPane>
          </children>

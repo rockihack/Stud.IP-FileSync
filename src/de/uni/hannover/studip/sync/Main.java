@@ -23,12 +23,14 @@ public class Main extends Application {
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
 	public static final String SETTINGS = "Settings";
+	public static final String SYNC_SETTINGS = "SyncSettings";
 	public static final String ABOUT = "About";
 
 	private LinkedList<String> viewHistory = new LinkedList<String>();
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
+	private AbstractController controller;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -71,7 +73,7 @@ public class Main extends Application {
 				FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + fxml + ".fxml"));
 				rootLayout.setCenter((AnchorPane) loader.load());
 
-				AbstractController controller = loader.getController();
+				controller = loader.getController();
 				controller.setMain(this);
 
 				// Push view.
@@ -106,6 +108,10 @@ public class Main extends Application {
 
 	public BorderPane getRootLayout() {
 		return rootLayout;
+	}
+
+	public AbstractController getController() {
+		return controller;
 	}
 
 }
