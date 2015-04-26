@@ -235,10 +235,22 @@ public class Config {
 	}
 
 	/**
-	 * Get root directoy.
+	 * 
 	 */
-	public boolean getRenameModifiedFiles() {
-		return config.rename_modified_files;
+	public boolean getOverwriteFiles() {
+		return config.overwrite_files;
+	}
+
+	/**
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
+	 * 
+	 */
+	public void setOverwriteFiles(boolean value) throws JsonGenerationException, JsonMappingException, IOException {
+		config.overwrite_files = value;
+
+		writeConfigFile();
 	}
 
 	/**

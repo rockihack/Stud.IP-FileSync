@@ -20,6 +20,7 @@ public class OAuthCompleteController extends AbstractController {
 	public void handleDest() {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ziel Ordner wählen");
+		chooser.setInitialDirectory(new File(Config.getInstance().getHomeDirectory()));
 
 		rootDir = chooser.showDialog(null);
 		next.setDisable(rootDir == null);

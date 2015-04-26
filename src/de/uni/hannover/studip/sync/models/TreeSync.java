@@ -130,17 +130,14 @@ public class TreeSync extends TreeBuilder {
 		
 		if (documentFile.exists()) {
 			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() < documentNode.chdate) {
-				phaser.register();
-				
-				if (Config.getInstance().getRenameModifiedFiles()) {
-					// TODO: Rename old file.
-					throw new UnsupportedOperationException();
+				if (Config.getInstance().getOverwriteFiles()) {
+					phaser.register();
+
+					/* Download modified file. */
+					threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
+
+					System.out.println("Modified: " + documentNode.name);
 				}
-
-				/* Download modified file. */
-				threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
-
-				System.out.println("Modified: " + documentNode.name);
 			}
 		
 		} else {

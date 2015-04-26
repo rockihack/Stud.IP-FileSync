@@ -64,7 +64,7 @@ public class Main extends Application {
 
 	public void setView(String fxml) {
 		synchronized (viewHistory) {
-			if (viewHistory.peek() == fxml) {
+			if (fxml.equals(viewHistory.peek())) {
 				// Same as the current view.
 				return;
 			}

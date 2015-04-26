@@ -70,9 +70,11 @@ public class OverviewController extends AbstractController {
 							});
 
 							// Download documents.
-							tree.sync(treeFile, false);
+							tree.sync(treeFile, true);
 						}
 
+					} else {
+						JOptionPane.showMessageDialog(null, "Kein Ziel Ordner gewählt.", "Fehler", JOptionPane.ERROR_MESSAGE);
 					}
 
 				} catch (UnauthorizedException | NotFoundException e) {

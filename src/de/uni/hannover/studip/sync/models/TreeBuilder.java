@@ -85,22 +85,22 @@ public class TreeBuilder implements AutoCloseable {
 		ObjectMapper mapper = new ObjectMapper();
 
 		SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
-		
+
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		Phaser phaser = new Phaser(1); /* = self. */
-		
+
 		/* Current unix timestamp. */
 		long now = System.currentTimeMillis() / 1000L;
-		long cache_time = now; //now - (10*60);
-		
+
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			// If doAllSemesters is false we will only update the current semester.
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (CourseTreeNode course : semester.courses) {
-					if (course.update_time < cache_time) {
+					// Cache requests.
+					if (now - course.update_time > 10 * 60) {
 						phaser.register();
-						
+
 						// TODO
 						threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
 						//threadPool.execute(new UpdateDocumentsJob(phaser, course));
@@ -108,13 +108,13 @@ public class TreeBuilder implements AutoCloseable {
 				}
 			}
 		}
-		
+
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
-		
+
 		/* Serialize the tree to json. */
 		mapper.writeValue(tree, rootNode);
-		
+
 		System.out.println("Update done!");
 		return phaser.getRegisteredParties() - 1;
 	}
@@ -285,7 +285,9 @@ public class TreeBuilder implements AutoCloseable {
 					
 					System.out.println(documentNode.name);
 				}
-				
+
+				courseNode.update_time = System.currentTimeMillis() / 1000L;
+
 			} catch (UnauthorizedException e) {
 				// Invalid oauth access token.
 				OAuth.getInstance().removeAccessToken();
@@ -365,6 +367,7 @@ public class TreeBuilder implements AutoCloseable {
 					if (folderNode == null) {
 						// Folder does not exist, we need to resync the folders.
 						phaser.register();
+
 						threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode()));
 						break;
 					}

@@ -32,7 +32,7 @@
                   </Button>
                </center>
             </BorderPane>
-            <Label alignment="TOP_LEFT" prefHeight="153.0" prefWidth="560.0" text="Authentifizierung erfolgreich!&#10;&#10;Bitte wählen Sie den Ziel Ordner.&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label alignment="TOP_LEFT" prefHeight="153.0" prefWidth="560.0" text="Authentifizierung war erfolgreich!&#10;&#10;Bitte wählen Sie den Ziel Ordner.&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <font>
                   <Font size="14.0" />
                </font>

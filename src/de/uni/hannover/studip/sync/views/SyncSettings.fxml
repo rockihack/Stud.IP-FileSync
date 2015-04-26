@@ -51,12 +51,12 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Geänderte Dateien nicht überschreiben:" GridPane.columnIndex="1">
+                  <Label text="Geänderte Dateien überschreiben:" GridPane.columnIndex="1">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <CheckBox mnemonicParsing="false" GridPane.columnIndex="3">
+                  <CheckBox fx:id="overwriteCheckBox" mnemonicParsing="false" onMouseClicked="#handleChange" GridPane.columnIndex="3">
                      <font>
                         <Font size="14.0" />
                      </font>

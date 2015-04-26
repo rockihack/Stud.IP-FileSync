@@ -14,9 +14,9 @@ public class ConfigFile {
 	// Default: null
 	public String root_dir;
 	
-	// If true existing files will be renamed instead of overwritten.
-	// Default: false
-	public boolean rename_modified_files;
+	// If true existing files will be overwritten.
+	// Default: true
+	public boolean overwrite_files = true;
 	
 	public ConfigFile() {
 	}

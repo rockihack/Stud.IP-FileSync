@@ -60,6 +60,7 @@ public class SettingsController extends AbstractController {
 	public void handleRootDir() {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ziel Ordner wählen");
+		chooser.setInitialDirectory(new File(Config.getInstance().getHomeDirectory()));
 
 		File rootDir = chooser.showDialog(null);
 		if (rootDir != null) {
