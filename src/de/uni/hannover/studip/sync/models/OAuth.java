@@ -21,12 +21,12 @@ import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
  * @author Lennart Glauer
  */
 public class OAuth {
-	
+
 	/**
 	 * Singleton instance.
 	 */
 	private static final OAuth singletonInstance = new OAuth();
-	
+
 	/**
 	 * Config.
 	 */
@@ -40,21 +40,32 @@ public class OAuth {
 	public static OAuth getInstance() {
 		return singletonInstance;
 	}
-	
+
 	/**
 	 * Service object.
 	 */
 	private final OAuthService service;
-	
+
 	/**
 	 * Request token.
 	 */
 	private Token requestToken;
-	
+
 	/**
 	 * Access token.
 	 */
 	private Token accessToken;
+
+	/**
+	 * Current state.
+	 */
+	private OAuthState state;
+
+	private enum OAuthState {
+		GET_REQUEST_TOKEN,
+		GET_ACCESS_TOKEN,
+		READY
+	}
 
 	/**
 	 * Step 1: Create the OAuthService object.
@@ -66,28 +77,31 @@ public class OAuth {
 			.apiSecret(StudIPApiProvider.API_SECRET)
 			.callback(StudIPApiProvider.API_CALLBACK)
 			.build();
+
+		state = OAuthState.GET_REQUEST_TOKEN;
 	}
 	
 	/**
 	 * Step 2: Get the request token.
 	 */
 	public synchronized void getRequestToken() throws OAuthConnectionException {
-		if (requestToken == null) {
+		if (state == OAuthState.GET_REQUEST_TOKEN) {
 			requestToken = service.getRequestToken();
+			state = OAuthState.GET_ACCESS_TOKEN;
 		}
 	}
-	
+
 	/**
 	 * Step 3: Making the user validate your request token.
 	 */
 	public synchronized String getAuthUrl() {
-		if (requestToken == null) {
+		if (state != OAuthState.GET_ACCESS_TOKEN) {
 			throw new IllegalStateException("Request token not found!");
 		}
-		
+
 		return service.getAuthorizationUrl(requestToken);
 	}
-	
+
 	/**
 	 * Step 4: Get the access Token.
 	 * 
@@ -97,15 +111,15 @@ public class OAuth {
 	 * @throws UnauthorizedException 
 	 */
 	public synchronized void getAccessToken(String verifier) throws UnauthorizedException, NotFoundException, IOException {
-		if (requestToken == null) {
+		if (state != OAuthState.GET_ACCESS_TOKEN) {
 			throw new IllegalStateException("Request token not found!");
 		}
 
 		// Get access token and store it in oauth config file.
-		config.setAccessToken(accessToken = service.getAccessToken(requestToken, new Verifier(verifier)));
+		accessToken = service.getAccessToken(requestToken, new Verifier(verifier));
+		state = OAuthState.READY;
 
-		// Request token was used and is no longer valid.
-		requestToken = null;
+		config.setAccessToken(accessToken);
 	}
 	
 	/**
@@ -116,16 +130,16 @@ public class OAuth {
 	 * @return New OAuthRequest
 	 */
 	public Response sendRequest(Verb method, String url) {
-		if (accessToken == null) {
+		if (state != OAuthState.READY) {
 			throw new IllegalStateException("Access token not found!");
 		}
-		
+
 		OAuthRequest request = new OAuthRequest(method, url);
 		request.setConnectionKeepAlive(true);
 		service.signRequest(accessToken, request);
 		return request.send();
 	}
-	
+
 	/**
 	 * Restore a previously used access token.
 	 * 
@@ -134,17 +148,18 @@ public class OAuth {
 	 */
 	public synchronized void restoreAccessToken() throws UnauthorizedException {
 		accessToken = config.getAccessToken();
+		state = OAuthState.READY;
 	}
-	
+
 	/**
 	 * Remove access token.
 	 */
 	public synchronized void removeAccessToken() {
 		try {
 			Config.getInstance().initOAuthFile();
-			accessToken = null;
+			state = OAuthState.GET_REQUEST_TOKEN;
 
-		} catch (IOException e) {
+		} catch (IOException | InstantiationException | IllegalAccessException e) {
 			throw new IllegalStateException(e);
 		}
 	}

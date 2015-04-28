@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
@@ -21,10 +22,10 @@
           <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ProgressIndicator fx:id="progress" progress="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <ProgressIndicator fx:id="progress" progress="0.0" styleClass="sync-indicator" stylesheets="@style.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button fx:id="syncButton" mnemonicParsing="false" onMouseClicked="#handleSync" prefHeight="35.0" prefWidth="150.0" text="Sync" BorderPane.alignment="CENTER">
+                  <Button fx:id="syncButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSync" prefHeight="35.0" prefWidth="180.0" styleClass="blue-button" stylesheets="@style.css" text="Sync" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>

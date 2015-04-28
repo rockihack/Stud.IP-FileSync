@@ -3,6 +3,7 @@ package de.uni.hannover.studip.sync.models;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
@@ -24,12 +25,15 @@ import de.uni.hannover.studip.sync.exceptions.*;
  * @author Lennart Glauer
  */
 public class TreeBuilder implements AutoCloseable {
-	
+
 	/**
 	 * Thread pool.
 	 */
 	protected final ExecutorService threadPool;
 
+	/**
+	 * Gui progress indicator.
+	 */
 	private ProgressIndicator progressIndicator;
 
 	protected TreeBuilder() {
@@ -38,7 +42,7 @@ public class TreeBuilder implements AutoCloseable {
 
 	@Override
 	public void close() {
-		threadPool.shutdown();
+		threadPool.shutdownNow();
 	}
 
 	/**
@@ -64,7 +68,7 @@ public class TreeBuilder implements AutoCloseable {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 		
-		/* Serialize the tree to json. */
+		/* Serialize the tree to json and store it in the tree file. */
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(tree, rootNode);
 		
@@ -83,7 +87,6 @@ public class TreeBuilder implements AutoCloseable {
 	public synchronized int update(File tree, boolean doAllSemesters) throws JsonGenerationException, JsonMappingException, IOException {
 		/* Read existing tree. */
 		ObjectMapper mapper = new ObjectMapper();
-
 		SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
 
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
@@ -94,11 +97,13 @@ public class TreeBuilder implements AutoCloseable {
 
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
-			// If doAllSemesters is false we will only update the current semester.
+			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (CourseTreeNode course : semester.courses) {
-					// Cache requests.
+					/* Cache requests for 10min. */
 					if (now - course.update_time > 10 * 60) {
+						course.update_time = now;
+
 						phaser.register();
 
 						// TODO
@@ -112,7 +117,7 @@ public class TreeBuilder implements AutoCloseable {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
-		/* Serialize the tree to json. */
+		/* Serialize the tree to json and store it in the tree file. */
 		mapper.writeValue(tree, rootNode);
 
 		System.out.println("Update done!");
@@ -146,6 +151,7 @@ public class TreeBuilder implements AutoCloseable {
 			try {
 				SemesterTreeNode semesterNode;
 				
+				/* Get all visible semesters. */
 				Semesters semesters = RestApi.getAllSemesters();
 				
 				phaser.bulkRegister(semesters.semesters.size());
@@ -160,7 +166,7 @@ public class TreeBuilder implements AutoCloseable {
 				}
 
 			} catch (UnauthorizedException e) {
-				// Invalid oauth access token.
+				/* Invalid oauth access token. */
 				OAuth.getInstance().removeAccessToken();
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
@@ -199,7 +205,8 @@ public class TreeBuilder implements AutoCloseable {
 		public void run() {
 			try {
 				CourseTreeNode courseNode;
-				
+
+				/* Get subscribed courses. */
 				Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semester_id);
 
 				phaser.bulkRegister(courses.courses.size());
@@ -214,12 +221,10 @@ public class TreeBuilder implements AutoCloseable {
 				}
 				
 			} catch (UnauthorizedException e) {
-				// Invalid oauth access token.
+				/* Invalid oauth access token. */
 				OAuth.getInstance().removeAccessToken();
 			} catch (NotFoundException e) {
-				// Course does not exist.
-				// TODO: Remove course from tree file.
-				throw new UnsupportedOperationException(e);
+				/* Course does not exist. */
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {
@@ -264,38 +269,59 @@ public class TreeBuilder implements AutoCloseable {
 			try {
 				DocumentFolderTreeNode folderNode;
 				DocumentTreeNode documentNode;
-				
+
+				HashSet<String> fileNames = new HashSet<String>();
+
+				/* Get course folder content. */
 				DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.course_id, parentNode.folder_id);
 
 				phaser.bulkRegister(folders.folders.size());
-				
+
 				/* Folders. */
 				for (DocumentFolder folder : folders.folders) {
+					/*
+					 * Maybe the folder contains multiple folders with same name,
+					 * we need to assign a unique name in this case.
+					 */
+					if (fileNames.contains(folder.name)) {
+						System.out.println("Duplicate foldername: " + folder.name);
+						folder.name = appendFilename(folder.name, "_" + folder.folder_id);
+					}
+
 					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
-					
+					fileNames.add(folderNode.name);
+
 					/* Add update files job (recursive). */
 					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, folderNode));
-					
+
 					System.out.println(folderNode.name);
 				}
 
 				/* Documents. */
 				for (Document document : folders.documents) {
+					/*
+					 * Maybe the folder contains multiple documents with same filename,
+					 * we need to assign a unique filename in this case.
+					 */
+					if (fileNames.contains(document.filename)) {
+						System.out.println("Duplicate filename: " + document.filename);
+						document.filename = appendFilename(document.filename, "_" + document.document_id);
+					}
+
 					parentNode.documents.add(documentNode = new DocumentTreeNode(document));
-					
+					fileNames.add(document.filename);
+
 					System.out.println(documentNode.name);
 				}
 
-				courseNode.update_time = System.currentTimeMillis() / 1000L;
-
 			} catch (UnauthorizedException e) {
-				// Invalid oauth access token.
+				/* Invalid oauth access token. */
 				OAuth.getInstance().removeAccessToken();
 			} catch (ForbiddenException | NotFoundException e) {
-				// User does not have the required permissions
-				// or document does not exist.
-				// TODO: Remove document from tree file.
-				throw new UnsupportedOperationException(e);
+				/*
+				 * User does not have the required permissions
+				 * or folder does not exist.
+				 */
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {
@@ -346,49 +372,93 @@ public class TreeBuilder implements AutoCloseable {
 			return folderIndex;
 		}
 
-		private void removeDocument(DocumentFolderTreeNode folder, Document document) {
+		/**
+		 * Remove document node if it exists.
+		 * 
+		 * @param folder
+		 * @param document
+		 * @return
+		 */
+		private boolean removeDocument(DocumentFolderTreeNode folder, Document document) {
+			// TODO: Use iterator?
 			for (DocumentTreeNode d : folder.documents) {
 				if (d.document_id.equals(document.document_id)) {
 					folder.documents.remove(d);
-					break;
+					return true;
 				}
 			}
+
+			return false;
+		}
+
+		/**
+		 * Test if the folder contains multiple documents with same filename.
+		 * 
+		 * @param folder
+		 * @param document
+		 * @return
+		 */
+		private boolean hasDuplicates(DocumentFolderTreeNode folder, Document document) {
+			for (DocumentTreeNode d : folder.documents) {
+				if (d.filename.equals(document.filename)
+						&& !d.document_id.equals(document.document_id)) {
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		@Override
 		public void run() {
 			try {
 				DocumentFolderTreeNode folderNode;
+				DocumentTreeNode documentNode;
+
+				/* Get all course documents with newer change date than course update time. */
 				Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.course_id, courseNode.update_time);
+				/* Build a folder index for this course, so we can easily access the folders. */
 				HashMap<String, DocumentFolderTreeNode> folderIndex = buildFolderIndex(courseNode.root);
 
 				for (Document document : newDocuments.documents) {
 					folderNode = folderIndex.get(document.folder_id);
 					if (folderNode == null) {
-						// Folder does not exist, we need to resync the folders.
+						/* Folder does not exist locally, we need to re-sync all course folders. */
 						phaser.register();
 
 						threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode()));
 						break;
 					}
 
-					// Remove document if it exists.
+					/*
+					 * Maybe the document was updated and the node already exists,
+					 * we need to replace the document node (remove + add).
+					 */
 					removeDocument(folderNode, document);
 
-					// Add document to existing folder.
-					folderNode.documents.add(new DocumentTreeNode(document));
+					/*
+					 * Maybe the folder contains multiple documents with same filename,
+					 * we need to assign a unique filename in this case.
+					 */
+					if (hasDuplicates(folderNode, document)) {
+						System.out.println("Duplicate filename: " + document.filename);
+						document.filename = appendFilename(document.filename, "_" + document.document_id);
+					}
+
+					/* Add document to existing folder. */
+					folderNode.documents.add(documentNode = new DocumentTreeNode(document));
+
+					System.out.println(documentNode.name);
 				}
 
-				courseNode.update_time = System.currentTimeMillis() / 1000L;
-
 			} catch (UnauthorizedException e) {
-				// Invalid oauth access token.
+				/* Invalid oauth access token. */
 				OAuth.getInstance().removeAccessToken();
 			} catch (ForbiddenException | NotFoundException e) {
-				// User does not have the required permissions
-				// or document does not exist.
-				// TODO: Remove document from tree file.
-				throw new UnsupportedOperationException(e);
+				/*
+				 * User does not have the required permissions
+				 * or course does not exist.
+				 */
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {
@@ -399,18 +469,46 @@ public class TreeBuilder implements AutoCloseable {
 		}
 	}
 
+	/**
+	 * Appends the suffix to the filename (before file extension).
+	 * 
+	 * @param filename
+	 * @param suffix
+	 * @return
+	 */
+	protected String appendFilename(String filename, String suffix) {
+		int ext = filename.lastIndexOf(".");
+		if (ext == -1) {
+			ext = filename.length();
+		}
+
+		return filename.substring(0, ext) + suffix + filename.substring(ext);
+	}
+
+	/**
+	 * Set gui progress indicator.
+	 * 
+	 * @param progress
+	 */
 	public void setProgress(ProgressIndicator progress) {
 		progressIndicator = progress;
 	}
 
+	/**
+	 * Update gui progress indicator.
+	 * 
+	 * @param phaser
+	 */
 	protected void updateProgress(final Phaser phaser) {
-		Platform.runLater(new Runnable() {
+		if (progressIndicator != null) {
+			Platform.runLater(new Runnable() {
 
-			@Override
-			public void run() {
-				progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
-			}
+				@Override
+				public void run() {
+					progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
+				}
 
-		});
+			});
+		}
 	}
 }

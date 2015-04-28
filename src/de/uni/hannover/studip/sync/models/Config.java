@@ -6,12 +6,10 @@ import java.io.IOException;
 import org.scribe.model.Token;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.elanev.studip.android.app.backend.datamodel.User;
-import de.uni.hannover.studip.sync.datamodel.ConfigFile;
+import de.uni.hannover.studip.sync.datamodel.SettingsFile;
 import de.uni.hannover.studip.sync.datamodel.OAuthFile;
 import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
@@ -31,7 +29,7 @@ public class Config {
 	/**
 	 * Config file name.
 	 */
-	private static final String CONFIG_FILE_NAME = "config.json";
+	private static final String SETTINGS_FILE_NAME = "config.json";
 	
 	/**
 	 * OAuth config file name.
@@ -46,12 +44,12 @@ public class Config {
 	/**
 	 * Global config file.
 	 */
-	private ConfigFile config;
+	private final ConfigFile<SettingsFile> settings;
 	
 	/**
 	 * OAuth config file.
 	 */
-	private OAuthFile oauth;
+	private final ConfigFile<OAuthFile> oauth;
 	
 	/**
 	 * Singleton instance getter.
@@ -67,137 +65,36 @@ public class Config {
 	 */
 	private Config() {
 		try {
-			readConfigFile();
-			readOAuthFile();
+			settings = new ConfigFile<SettingsFile>(CONFIG_DIR, SETTINGS_FILE_NAME, SettingsFile.class);
+			oauth = new ConfigFile<OAuthFile>(CONFIG_DIR, OAUTH_FILE_NAME, OAuthFile.class);
 
-		} catch (IOException e) {
+		} catch (InstantiationException | IllegalAccessException | IOException e) {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	/**
 	 * Get the user home directory.
 	 * 
 	 * @return
 	 */
-	public String getHomeDirectory() {
+	public static String getHomeDirectory() {
 		return System.getProperty("user.home");
 	}
 
 	/**
-	 * Open global config file.
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	private File openConfigFile() throws IOException {
-		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
-		configDir.mkdir();
-		
-		File configFile = new File(configDir, CONFIG_FILE_NAME);
-		if (configFile.createNewFile()) {
-			initConfigFile();
-		}
-		
-		return configFile;
-	}
-
-	protected synchronized void initConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
-		config = new ConfigFile();
-		writeConfigFile();
-	}
-	
-	/**
-	 * Read global config file.
-	 * 
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
-	private synchronized void readConfigFile() throws IOException {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			config = mapper.readValue(openConfigFile(), ConfigFile.class);
-
-		} catch (JsonParseException | JsonMappingException e) {
-			// Invalid config file.
-			try {
-				initConfigFile();
-			} catch (IOException e1) {
-				throw new IllegalStateException(e1);
-			}
-		}
-	}
-	
-	/**
-	 * Write global config file.
+	 * Init oauth config file.
 	 * 
 	 * @throws JsonGenerationException
 	 * @throws JsonMappingException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	private synchronized void writeConfigFile() throws JsonGenerationException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(openConfigFile(), config);
+	public void initOAuthFile() throws JsonGenerationException, JsonMappingException, InstantiationException, IllegalAccessException, IOException {
+		oauth.init();
 	}
 
-	/**
-	 * Open oauth config file.
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	private File openOAuthFile() throws IOException {
-		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
-		configDir.mkdir();
-		
-		File oauthFile = new File(configDir, OAUTH_FILE_NAME);
-		if (oauthFile.createNewFile()) {
-			initOAuthFile();
-		}
-		
-		return oauthFile;
-	}
-	
-	protected synchronized void initOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
-		oauth = new OAuthFile();
-		writeOAuthFile();
-	}
-
-	/**
-	 * Read OAuth config file.
-	 * 
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
-	private synchronized void readOAuthFile() throws IOException {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			oauth = mapper.readValue(openOAuthFile(), OAuthFile.class);
-
-		} catch (JsonParseException | JsonMappingException e) {
-			// Invalid oauth config file.
-			try {
-				initOAuthFile();
-			} catch (IOException e1) {
-				throw new IllegalStateException(e1);
-			}
-		}
-	}
-	
-	/**
-	 * Write OAuth config file.
-	 * 
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
-	 * @throws IOException
-	 */
-	private synchronized void writeOAuthFile() throws JsonGenerationException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(openOAuthFile(), oauth);
-	}
-	
 	/**
 	 * Open tree file.
 	 * 
@@ -218,7 +115,7 @@ public class Config {
 	 * Get root directoy.
 	 */
 	public String getRootDirectory() {
-		return config.root_dir;
+		return settings.data.root_dir;
 	}
 
 	/**
@@ -229,16 +126,15 @@ public class Config {
 	 * @throws JsonGenerationException 
 	 */
 	public void setRootDirectory(String root_dir) throws JsonGenerationException, JsonMappingException, IOException {
-		config.root_dir = root_dir;
-
-		writeConfigFile();
+		settings.data.root_dir = root_dir;
+		settings.write();
 	}
 
 	/**
 	 * 
 	 */
 	public boolean getOverwriteFiles() {
-		return config.overwrite_files;
+		return settings.data.overwrite_files;
 	}
 
 	/**
@@ -248,37 +144,54 @@ public class Config {
 	 * 
 	 */
 	public void setOverwriteFiles(boolean value) throws JsonGenerationException, JsonMappingException, IOException {
-		config.overwrite_files = value;
+		settings.data.overwrite_files = value;
+		settings.write();
+	}
 
-		writeConfigFile();
+	/**
+	 * 
+	 */
+	public boolean getDownloadAllSemesters() {
+		return settings.data.download_all_semesters;
+	}
+
+	/**
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
+	 * 
+	 */
+	public void setDownloadAllSemesters(boolean value) throws JsonGenerationException, JsonMappingException, IOException {
+		settings.data.download_all_semesters = value;
+		settings.write();
 	}
 
 	/**
 	 * Get logged in user firstname.
 	 */
 	public String getFirstName() {
-		return oauth.first_name;
+		return oauth.data.first_name;
 	}
 
 	/**
 	 * Get logged in user lastname.
 	 */
 	public String getLastName() {
-		return oauth.last_name;
+		return oauth.data.last_name;
 	}
 
 	/**
 	 * Get logged in user name.
 	 */
 	public String getUserName() {
-		return oauth.user_name;
+		return oauth.data.user_name;
 	}
 
 	/**
 	 * Get logged in user id.
 	 */
 	public String getUserId() {
-		return oauth.user_id;
+		return oauth.data.user_id;
 	}
 
 	/**
@@ -290,13 +203,13 @@ public class Config {
 	 */
 	protected Token getAccessToken() throws UnauthorizedException {
 		try {
-			return new Token(oauth.token, oauth.secret);
+			return new Token(oauth.data.token, oauth.data.secret);
 
 		} catch (IllegalArgumentException e) {
 			throw new UnauthorizedException(e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Set the OAuth access token.
 	 * 
@@ -311,13 +224,12 @@ public class Config {
 		// Test if access token is valid.
 		User current_user = RestApi.getUserById(null);
 
-		oauth.first_name = current_user.forename;
-		oauth.last_name = current_user.lastname;
-		oauth.user_name = current_user.username;
-		oauth.user_id = current_user.user_id;
-		oauth.token = accessToken.getToken();
-		oauth.secret = accessToken.getSecret();
-
-		writeOAuthFile();
+		oauth.data.first_name = current_user.forename;
+		oauth.data.last_name = current_user.lastname;
+		oauth.data.user_name = current_user.username;
+		oauth.data.user_id = current_user.user_id;
+		oauth.data.token = accessToken.getToken();
+		oauth.data.secret = accessToken.getSecret();
+		oauth.write();
 	}
 }

@@ -1,13 +1,21 @@
 package de.uni.hannover.studip.sync;
 	
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.LinkedList;
 
 import de.uni.hannover.studip.sync.views.AbstractController;
+import de.uni.hannover.studip.sync.views.RootLayoutController;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
@@ -30,7 +38,26 @@ public class Main extends Application {
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
+	private RootLayoutController rootLayoutController;
 	private AbstractController controller;
+
+	@SuppressWarnings("unused")
+	private static ServerSocket globalAppMutex;
+
+	static {
+		// Acquire system wide app mutex to allow only one running instance.
+		try {
+			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
+
+		} catch (Exception e) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("FileSync läuft bereits.");
+			alert.showAndWait();
+			System.exit(0);
+		}
+	}
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -46,14 +73,26 @@ public class Main extends Application {
 			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/RootLayout.fxml"));
 			this.rootLayout = (BorderPane) loader.load();
 
-			AbstractController controller = loader.getController();
-			controller.setMain(this);
+			rootLayoutController = loader.getController();
+			rootLayoutController.setMain(this);
 
 			// Init primary stage.
 			primaryStage.setScene(new Scene(this.rootLayout));
 			primaryStage.setTitle(APP_NAME);
 			primaryStage.setMinWidth(640);
 			primaryStage.setMinHeight(480);
+
+			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+				@Override
+				public void handle(WindowEvent e) {
+					Platform.exit();
+
+					// Terminate worker threads.
+					// TODO: More graceful
+					System.exit(0);
+				}
+			});
+
 			primaryStage.show();
 
 		} catch (IOException e) {
@@ -108,6 +147,10 @@ public class Main extends Application {
 
 	public BorderPane getRootLayout() {
 		return rootLayout;
+	}
+
+	public RootLayoutController getRootLayoutController() {
+		return rootLayoutController;
 	}
 
 	public AbstractController getController() {

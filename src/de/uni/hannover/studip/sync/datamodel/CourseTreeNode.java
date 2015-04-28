@@ -21,7 +21,7 @@ public class CourseTreeNode {
 	public int type;
 	
 	/* Last update time used for request caching. */
-	public long update_time = 0;
+	public long update_time;
 	
 	/* Child nodes. */
 	public DocumentFolderTreeNode root = new DocumentFolderTreeNode();
@@ -35,6 +35,7 @@ public class CourseTreeNode {
 		this.start_time = course.startTime;
 		this.duration_time = course.durationTime;
 		this.type = course.type;
+		this.update_time = System.currentTimeMillis() / 1000L;
 	}
 
 }

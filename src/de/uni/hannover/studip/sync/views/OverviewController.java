@@ -2,8 +2,6 @@ package de.uni.hannover.studip.sync.views;
 
 import java.io.File;
 
-import javax.swing.JOptionPane;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -16,8 +14,10 @@ import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeSync;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Alert.AlertType;
 
 public class OverviewController extends AbstractController {
 
@@ -29,6 +29,7 @@ public class OverviewController extends AbstractController {
 
 	@FXML
 	public void handleSync() {
+		getMain().getRootLayoutController().getMenu().setDisable(true);
 		syncButton.setDisable(true);
 		syncButton.setText("Updating...");
 
@@ -40,7 +41,7 @@ public class OverviewController extends AbstractController {
 					OAuth oauth = OAuth.getInstance();
 					oauth.restoreAccessToken();
 
-					// Test access token.
+					// Test if access token is valid.
 					RestApi.getUserById(null);
 
 					String rootDir = Config.getInstance().getRootDirectory();
@@ -70,40 +71,55 @@ public class OverviewController extends AbstractController {
 							});
 
 							// Download documents.
-							tree.sync(treeFile, true);
+							tree.sync(treeFile, Config.getInstance().getDownloadAllSemesters());
 						}
 
 					} else {
-						JOptionPane.showMessageDialog(null, "Kein Ziel Ordner gewählt.", "Fehler", JOptionPane.ERROR_MESSAGE);
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								Alert alert = new Alert(AlertType.ERROR);
+								alert.setTitle("Fehler");
+								alert.setHeaderText(null);
+								alert.setContentText("Kein Ziel Ordner gewählt.");
+								alert.showAndWait();
+							}
+						});
 					}
 
 				} catch (UnauthorizedException | NotFoundException e) {
 					OAuth.getInstance().removeAccessToken();
 
 					Platform.runLater(new Runnable() {
-
 						@Override
 						public void run() {
 							// Redirect to login.
 							getMain().setView(Main.OAUTH);
 						}
-
 					});
 
 				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							Alert alert = new Alert(AlertType.ERROR);
+							alert.setTitle("Fehler");
+							alert.setHeaderText(null);
+							alert.setContentText(e.getMessage());
+							alert.showAndWait();
+						}
+					});
 				}
 
 				// Update progress and sync button.
 				Platform.runLater(new Runnable() {
-
 					@Override
 					public void run() {
 						progress.setProgress(1);
 						syncButton.setText("Sync");
 						syncButton.setDisable(false);
+						getMain().getRootLayoutController().getMenu().setDisable(false);
 					}
-
 				});
 			}
 

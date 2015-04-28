@@ -1,34 +1,55 @@
 package de.uni.hannover.studip.sync.views;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-
-import javax.swing.JOptionPane;
+import java.util.Optional;
 
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
+import de.uni.hannover.studip.sync.utils.FileBrowser;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.Alert.AlertType;
 
 public class RootLayoutController extends AbstractController {
+
+	@FXML
+	private MenuBar menu;
+
+	/**
+	 * Get menu instance.
+	 * 
+	 * @return
+	 */
+	public MenuBar getMenu() {
+		return menu;
+	}
 
 	/**
 	 * File -> Open.
 	 */
 	@FXML
 	public void handleOpen() {
-		try {
-			String rootDir = Config.getInstance().getRootDirectory();
-			if (rootDir != null) {
-				Desktop.getDesktop().open(new File(rootDir));
-
-			} else {
-				JOptionPane.showMessageDialog(null, "Kein Ziel Ordner gewählt.", "Fehler", JOptionPane.ERROR_MESSAGE);
+		String rootDir = Config.getInstance().getRootDirectory();
+		if (rootDir != null) {
+			if (!FileBrowser.open(new File(rootDir))) {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Fehler");
+				alert.setHeaderText(null);
+				alert.setContentText("Not supported.");
+				alert.showAndWait();
 			}
 
-		} catch (IOException | UnsupportedOperationException e) {
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+		} else {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("Kein Ziel Ordner gewählt.");
+			alert.showAndWait();
 		}
 	}
 
@@ -54,16 +75,38 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleUpdateSeminars() {
-		try {
-			Config.getInstance().openTreeFile().delete();
+		Alert confirm = new Alert(AlertType.CONFIRMATION);
+		confirm.setTitle("Bestätigen");
+		confirm.setHeaderText(null);
+		confirm.setContentText("Diese Funktion sollte nur zu Beginn eines Semesters genutzt werden, "
+				+ "nachdem Sie sich in neue Veranstaltungen eingeschrieben haben. "
+				+ "Möchten Sie fortfahren?");
+		Button yesButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.OK);
+		yesButton.setDefaultButton(false);
+		Button cancelButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.CANCEL);
+		cancelButton.setDefaultButton(true);
+		Optional<ButtonType> result = confirm.showAndWait();
 
-			getMain().setView(Main.OVERVIEW);
+		if (result.get() == ButtonType.OK) {
+			try {
+				// Delete the tree file to signal the sync routine,
+				// to rebuild the tree.
+				Config.getInstance().openTreeFile().delete();
 
-			OverviewController overview = (OverviewController) getMain().getController();
-			overview.handleSync();
+				// Redirect to overview.
+				getMain().setView(Main.OVERVIEW);
 
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null, e.getMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
+				// Start the sync.
+				OverviewController overview = (OverviewController) getMain().getController();
+				overview.handleSync();
+
+			} catch (IOException e) {
+				Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Fehler");
+				alert.setHeaderText(null);
+				alert.setContentText(e.getMessage());
+				alert.showAndWait();
+			}
 		}
 	}
 

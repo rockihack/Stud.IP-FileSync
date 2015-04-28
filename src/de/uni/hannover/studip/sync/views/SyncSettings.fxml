@@ -20,12 +20,12 @@
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
           <RowConstraints minHeight="200.0" prefHeight="200.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
+          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button mnemonicParsing="false" onMouseClicked="#handlePrev" prefHeight="35.0" prefWidth="150.0" text="Zurück" BorderPane.alignment="CENTER">
+                  <Button mnemonicParsing="false" onAction="#handlePrev" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -35,32 +35,51 @@
             <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
               <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="350.0" prefWidth="350.0" />
+                  <ColumnConstraints hgrow="NEVER" minWidth="400.0" prefWidth="400.0" />
                   <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Geänderte Dateien überschreiben:" GridPane.columnIndex="1">
+                  <Label prefHeight="40.0" prefWidth="405.0" text="[ x ] Überschreiben&#10;[    ] Versionsnummer anhängen" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <CheckBox fx:id="overwriteCheckBox" mnemonicParsing="false" onMouseClicked="#handleChange" GridPane.columnIndex="3">
+                  <CheckBox fx:id="overwriteCheckBox" mnemonicParsing="false" onMouseClicked="#handleChange" GridPane.columnIndex="3" GridPane.rowIndex="1">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </CheckBox>
+                  <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <CheckBox fx:id="downloadAllSemestersCheckBox" mnemonicParsing="false" onMouseClicked="#handleChange" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </CheckBox>
+                  <Label text="Sollen geänderte Dateien überschrieben werden?" GridPane.columnIndex="1">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+                  <Label prefHeight="40.0" prefWidth="405.0" text="[ x ] Alle Semester&#10;[    ] Aktuelles Semester" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
                </children>
             </GridPane>
          </children>

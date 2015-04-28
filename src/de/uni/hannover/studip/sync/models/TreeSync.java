@@ -54,7 +54,7 @@ public class TreeSync extends TreeBuilder {
 		
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
-			// If doAllSemesters is false we will only update the current semester.
+			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				File semesterDirectory = new File(rootDirectory, removeIllegalCharacters(semester.title));
 				
@@ -129,20 +129,31 @@ public class TreeSync extends TreeBuilder {
 		File documentFile = new File(parentDirectory, removeIllegalCharacters(documentNode.filename));
 		
 		if (documentFile.exists()) {
-			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() < documentNode.chdate) {
-				if (Config.getInstance().getOverwriteFiles()) {
-					phaser.register();
+			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() != documentNode.chdate * 1000L) {
+				/* Document has changed, we will download it again. */
 
-					/* Download modified file. */
-					threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
+				if (!Config.getInstance().getOverwriteFiles()) {
+					/* Overwrite files is disabled, we append a version number to the filename. */
+					int i = 0;
+					String originalName = removeIllegalCharacters(documentNode.filename);
 
-					System.out.println("Modified: " + documentNode.name);
+					do {
+						i++;
+						documentFile = new File(parentDirectory, appendFilename(originalName, "_" + i));
+					} while(documentFile.exists());
 				}
+
+				phaser.register();
+
+				/* Download modified file. */
+				threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
+
+				System.out.println("Modified: " + documentNode.name);
 			}
 		
 		} else {
 			phaser.register();
-			
+
 			/* Download new file. */
 			threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
 
@@ -190,16 +201,26 @@ public class TreeSync extends TreeBuilder {
 		@Override
 		public void run() {
 			try {
+				long startTime = System.currentTimeMillis();
 				RestApi.downloadDocumentById(documentNode.document_id, documentFile);
-				
+				long endTime = System.currentTimeMillis();
+				System.out.println("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
+
+				/*
+				 * We use the last modified timestamp to detect file changes.
+				 * The timestamp must be the same as in the document node,
+				 * otherwise the file will be downloaded again.
+				 */
+				documentFile.setLastModified(documentNode.chdate * 1000L);
+
 			} catch (UnauthorizedException e) {
-				// Invalid oauth access token.
+				/* Invalid oauth access token. */
 				OAuth.getInstance().removeAccessToken();
 			} catch (ForbiddenException | NotFoundException e) {
-				// User does not have the required permissions
-				// or document does not exist.
-				// TODO: Remove document from tree file.
-				throw new UnsupportedOperationException(e);
+				/*
+				 * User does not have the required permissions
+				 * or document does not exist.
+				 */
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {

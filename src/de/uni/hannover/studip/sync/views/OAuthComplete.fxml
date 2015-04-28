@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.web.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
@@ -20,12 +21,12 @@
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
           <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
             <RowConstraints vgrow="SOMETIMES" />
-            <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
+            <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="4">
                <center>
-                  <Button fx:id="next" disable="true" mnemonicParsing="false" onMouseClicked="#handleNext" prefHeight="35.0" prefWidth="150.0" text="Weiter" BorderPane.alignment="CENTER">
+                  <Button fx:id="next" disable="true" mnemonicParsing="false" onAction="#handleNext" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Weiter" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -39,7 +40,7 @@
             </Label>
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button mnemonicParsing="false" onMouseClicked="#handleDest" prefHeight="35.0" prefWidth="150.0" text="Ordner wählen" BorderPane.alignment="CENTER">
+                  <Button mnemonicParsing="false" onAction="#handleDest" prefHeight="35.0" prefWidth="150.0" text="Ordner wählen" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>

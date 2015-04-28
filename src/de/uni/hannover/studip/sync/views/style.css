@@ -1,0 +1,47 @@
+.menu:hover, .menu:showing, .menu-item:focused {
+	/* LUH blau. */
+	-fx-background-color: #3d71b8;
+}
+
+.sync-indicator {
+	/* LUH blau. */
+	-fx-progress-color: #3d71b8;
+}
+
+.blue-button {
+    -fx-padding: 8 15 15 15;
+    -fx-background-insets: 0,0 0 5 0, 0 0 6 0, 0 0 7 0;
+    -fx-background-radius: 8;
+    -fx-background-color: 
+        #005090,
+        #2080d0,
+        radial-gradient(center 50% 50%, radius 100%, #2989d8, #1e5799);
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.5) , 3,0,0,1 );
+    -fx-font-weight: bold;
+    -fx-font-size: 1.6em;
+}
+
+.blue-button:hover {
+    -fx-background-color: 
+        #005090,
+        #2080d0,
+        radial-gradient(center 50% 50%, radius 100%, #3999f8, #1e5799);
+}
+
+.blue-button:pressed {
+    -fx-padding: 10 15 13 15;
+    -fx-background-insets: 2 0 0 0,2 0 3 0, 2 0 4 0, 2 0 5 0;
+}
+
+.blue-button .text {
+    -fx-fill: white;
+    -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.2) , 0,0,0,2 );
+}
+
+.blue-button:disabled {
+	-fx-opacity: 1;
+}
+
+.blue-button:disabled .text {
+    -fx-fill: rgba(255,255,255,0.8);
+}

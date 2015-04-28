@@ -8,20 +8,23 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @author Lennart Glauer
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ConfigFile {
+public class SettingsFile {
 
 	// Path to studip sync root dir.
-	// Default: null
-	public String root_dir;
+	public String root_dir = null;
 	
-	// If true existing files will be overwritten.
-	// Default: true
+	// If true, existing files will be overwritten,
+	// otherwise a version number is appended.
 	public boolean overwrite_files = true;
+
+	// If true, documents from all visible semesters
+	// will be downloaded.
+	public boolean download_all_semesters = false;
 	
-	public ConfigFile() {
+	public SettingsFile() {
 	}
 	
-	public ConfigFile(String root_dir) {
+	public SettingsFile(String root_dir) {
 		this.root_dir = root_dir;
 	}
 }

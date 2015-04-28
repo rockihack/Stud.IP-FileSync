@@ -11,6 +11,9 @@ public class SyncSettingsController extends AbstractController {
 	@FXML
 	private CheckBox overwriteCheckBox;
 
+	@FXML
+	private CheckBox downloadAllSemestersCheckBox;
+
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
 	 */
@@ -19,6 +22,7 @@ public class SyncSettingsController extends AbstractController {
 		Config config = Config.getInstance();
 
 		overwriteCheckBox.setSelected(config.getOverwriteFiles());
+		downloadAllSemestersCheckBox.setSelected(config.getDownloadAllSemesters());
 	}
 
 	@FXML
@@ -27,6 +31,7 @@ public class SyncSettingsController extends AbstractController {
 
 		try {
 			config.setOverwriteFiles(overwriteCheckBox.isSelected());
+			config.setDownloadAllSemesters(downloadAllSemestersCheckBox.isSelected());
 
 		} catch (IOException e) {
 			throw new IllegalStateException(e);

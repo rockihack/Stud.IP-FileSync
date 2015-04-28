@@ -18,12 +18,12 @@
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
           <RowConstraints minHeight="200.0" prefHeight="200.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
+          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button mnemonicParsing="false" onMouseClicked="#handlePrev" prefHeight="35.0" prefWidth="150.0" text="Zurück" BorderPane.alignment="CENTER">
+                  <Button mnemonicParsing="false" onAction="#handlePrev" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
                      <font>
                         <Font size="18.0" />
                      </font>

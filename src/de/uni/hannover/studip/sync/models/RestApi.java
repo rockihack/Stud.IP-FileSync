@@ -26,7 +26,7 @@ public class RestApi {
 	private static final boolean DEBUG = false;
 
 	/**
-	 * Liefert Informationen Ã¼ber die in der Instanz unterstÃ¼tzten Routen, ihrer Methoden und den jeweiligen Zugriffsberechtigungen zurÃ¼ck.
+	 * Liefert Informationen über die in der Instanz unterstützten Routen, ihrer Methoden und den jeweiligen Zugriffsberechtigungen zurück.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException
@@ -61,7 +61,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die Veranstaltungen zurÃ¼ck, in die der Nutzer eingetragen ist. 
+	 * Liefert die Veranstaltungen zurück, in die der Nutzer eingetragen ist. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -90,7 +90,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert alle Semester zurÃ¼ck, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
+	 * Liefert alle Semester zurück, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -126,7 +126,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten der angegebenen Veranstaltung zurÃ¼ck. 
+	 * Liefert die Daten der angegebenen Veranstaltung zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -160,7 +160,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die neuen Dateien einer Veranstaltung zurÃ¼ck. 
+	 * Liefert die neuen Dateien einer Veranstaltung zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -200,7 +200,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die Dateien und Ordner eines angegebenen Ordners einer Veranstaltung zurÃ¼ck. 
+	 * Liefert die Dateien und Ordner eines angegebenen Ordners einer Veranstaltung zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -251,7 +251,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten eines Dokuments zurÃ¼ck. 
+	 * Liefert die Daten eines Dokuments zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -288,7 +288,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert das Dokument als solches zurÃ¼ck. 
+	 * Liefert das Dokument als solches zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -300,8 +300,6 @@ public class RestApi {
 		if (!documentId.matches("^[a-z0-9]{32}$")) {
 			throw new IllegalArgumentException("Invalid document id!");
 		}
-		
-		long startTime = System.currentTimeMillis();
 
 		JacksonRequest<Object> request = new JacksonRequest<Object>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
@@ -309,11 +307,8 @@ public class RestApi {
 		switch (request.getCode()) {
 		case 200:
 			FileDownload.get(request.getStream(), documentFile);
-			
-			long endTime = System.currentTimeMillis();
-			System.out.println("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
+
 			break;
-			
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 403:
@@ -326,7 +321,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert alle Semester zurÃ¼ck, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
+	 * Liefert alle Semester zurück, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -355,7 +350,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten des angegebenen Semesters zurÃ¼ck.
+	 * Liefert die Daten des angegebenen Semesters zurück.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -389,7 +384,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten des Nutzers mit der angegebenen Id zurÃ¼ck. Ist keine Id angegeben, so werden die Daten des autorisierten Nutzers zurÃ¼ckgegeben.
+	 * Liefert die Daten des Nutzers mit der angegebenen Id zurück. Ist keine Id angegeben, so werden die Daten des autorisierten Nutzers zurückgegeben.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -423,7 +418,7 @@ public class RestApi {
 	}
 	
 	/**
-	 * Liefert die AktivitÃ¤ten im Umfeld des autorisierten Nutzers zurÃ¼ck.
+	 * Liefert die Aktivitäten im Umfeld des autorisierten Nutzers zurück.
 	 * 
 	 * @notice Beta! Funktioniert nicht mit jeder Version.
 	 * @return
