@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.effect.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.web.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
-<?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import javafx.collections.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.SyncSettingsController">
    <children>
@@ -35,51 +32,47 @@
             <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
               <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
-                  <ColumnConstraints hgrow="NEVER" minWidth="400.0" prefWidth="400.0" />
+                  <ColumnConstraints hgrow="NEVER" minWidth="350.0" prefWidth="350.0" />
                   <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
               </columnConstraints>
               <rowConstraints>
-                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label prefHeight="40.0" prefWidth="405.0" text="[ x ] Überschreiben&#10;[    ] Versionsnummer anhängen" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <CheckBox fx:id="overwriteCheckBox" mnemonicParsing="false" onMouseClicked="#handleChange" GridPane.columnIndex="3" GridPane.rowIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </CheckBox>
-                  <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </Label>
-                  <CheckBox fx:id="downloadAllSemestersCheckBox" mnemonicParsing="false" onMouseClicked="#handleChange" GridPane.columnIndex="3" GridPane.rowIndex="3">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
-                  </CheckBox>
                   <Label text="Sollen geänderte Dateien überschrieben werden?" GridPane.columnIndex="1">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <Label prefHeight="40.0" prefWidth="405.0" text="[ x ] Alle Semester&#10;[    ] Aktuelles Semester" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                  <ChoiceBox fx:id="overwriteChoicebox" prefWidth="150.0" GridPane.columnIndex="3">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Überschreiben" />
+                           <String fx:value="Versionsnummer anhängen" />
+                        </FXCollections>
+                     </items>
+                  </ChoiceBox>
+                  <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
+                  <ChoiceBox fx:id="downloadAllSemestersChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Alle Semester" />
+                           <String fx:value="Aktuelles Semester" />
+                        </FXCollections>
+                     </items>
+                  </ChoiceBox>
                </children>
             </GridPane>
          </children>

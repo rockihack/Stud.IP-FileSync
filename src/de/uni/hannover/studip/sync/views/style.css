@@ -1,3 +1,7 @@
+.menu .label, .choice-box .label {
+	-fx-font-size: 14px;
+}
+
 .menu:hover, .menu:showing, .menu-item:focused {
 	/* LUH blau. */
 	-fx-background-color: #3d71b8;

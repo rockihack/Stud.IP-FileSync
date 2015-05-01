@@ -3,16 +3,18 @@ package de.uni.hannover.studip.sync.views;
 import java.io.IOException;
 
 import de.uni.hannover.studip.sync.models.Config;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 
 public class SyncSettingsController extends AbstractController {
 
 	@FXML
-	private CheckBox overwriteCheckBox;
+	private ChoiceBox<String> overwriteChoicebox;
 
 	@FXML
-	private CheckBox downloadAllSemestersCheckBox;
+	private ChoiceBox<String> downloadAllSemestersChoicebox;
 
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
@@ -21,21 +23,36 @@ public class SyncSettingsController extends AbstractController {
 	public void initialize() {
 		Config config = Config.getInstance();
 
-		overwriteCheckBox.setSelected(config.getOverwriteFiles());
-		downloadAllSemestersCheckBox.setSelected(config.getDownloadAllSemesters());
-	}
+		overwriteChoicebox.getSelectionModel().select(config.getOverwriteFiles() ? 0 : 1);
+		downloadAllSemestersChoicebox.getSelectionModel().select(config.getDownloadAllSemesters() ? 0 : 1);
 
-	@FXML
-	public void handleChange() {
-		Config config = Config.getInstance();
+		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				if (!oldValue.equals(newValue)) {
+					try {
+						config.setOverwriteFiles(newValue.intValue() == 0);
 
-		try {
-			config.setOverwriteFiles(overwriteCheckBox.isSelected());
-			config.setDownloadAllSemesters(downloadAllSemestersCheckBox.isSelected());
+					} catch (IOException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+		});
 
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-		}
+		downloadAllSemestersChoicebox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				if (!oldValue.equals(newValue)) {
+					try {
+						config.setDownloadAllSemesters(newValue.intValue() == 0);
+
+					} catch (IOException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+		});
 	}
 
 	@FXML
