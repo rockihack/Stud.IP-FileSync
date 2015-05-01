@@ -26,9 +26,9 @@ public class FileBrowser {
 			return runCommand(String.format("xdg-open %s", file.getAbsolutePath()))			// All
 					|| runCommand(String.format("kde-open %s", file.getAbsolutePath()))		// KDE
 					|| runCommand(String.format("exo-open %s", file.getAbsolutePath()))		// Xfce
-																							// TODO: LXDE
 					|| runCommand(String.format("gvfs-open %s", file.getAbsolutePath()))	// GNOME
-					|| runCommand(String.format("gnome-open %s", file.getAbsolutePath()));	// GNOME (deprecated)
+					|| runCommand(String.format("gnome-open %s", file.getAbsolutePath()))	// GNOME (deprecated)
+					|| runCommand(String.format("pcmanfm %s", file.getAbsolutePath()));		// LXDE
 
 		} else {
 			return false;
