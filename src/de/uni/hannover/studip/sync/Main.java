@@ -71,16 +71,16 @@ public class Main extends Application {
 	private void initRootLayout() {
 		try {
 			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/RootLayout.fxml"));
-			this.rootLayout = (BorderPane) loader.load();
+			rootLayout = (BorderPane) loader.load();
 
 			rootLayoutController = loader.getController();
 			rootLayoutController.setMain(this);
 
 			// Init primary stage.
-			primaryStage.setScene(new Scene(this.rootLayout));
+			primaryStage.setScene(new Scene(rootLayout));
 			primaryStage.setTitle(APP_NAME);
-			primaryStage.setMinWidth(640);
-			primaryStage.setMinHeight(480);
+			//primaryStage.setMinWidth(640);
+			//primaryStage.setMinHeight(480);
 
 			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 				@Override

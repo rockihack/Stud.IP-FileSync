@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.SettingsController">
    <children>
@@ -14,16 +13,13 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
-          <RowConstraints minHeight="200.0" prefHeight="200.0" vgrow="SOMETIMES" />
+          <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
                   <Button mnemonicParsing="false" onAction="#handlePrev" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
                   </Button>
                </center>
             </BorderPane>
@@ -40,51 +36,24 @@
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label text="Stud.IP Account:" underline="true" GridPane.columnIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Label>
                   <Button fx:id="logoutButton" disable="true" mnemonicParsing="false" onAction="#handleLogout" onMouseClicked="#handleLogout" text="Ausloggen" GridPane.columnIndex="3">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Button>
                   <Label fx:id="userLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Label>
                   <Label text="Ziel Ordner:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Label>
                   <Button mnemonicParsing="false" onAction="#handleRootDir" onMouseClicked="#handleRootDir" text="Ordner wählen" GridPane.columnIndex="3" GridPane.rowIndex="2">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Button>
                   <Label fx:id="rootDirLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="3">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Label>
                   <Label text="Sync:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Label>
                   <Button mnemonicParsing="false" onAction="#handleSyncOptions" onMouseClicked="#handleSyncOptions" text="Optionen" GridPane.columnIndex="3" GridPane.rowIndex="4">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Button>
                </children>
             </GridPane>

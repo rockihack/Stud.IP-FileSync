@@ -41,7 +41,7 @@ public class OAuthWebviewController extends AbstractController {
 								"var login = $('form[name=\"login\"]');" +
 								"if (login.length)" +
 									"$('html, body').animate({"
-											+ "scrollTop: login.offset().top - 135,"
+											+ "scrollTop: login.offset().top - 100,"
 											+ "scrollLeft: login.offset().left - 100"
 									+ "}, 500);");
 

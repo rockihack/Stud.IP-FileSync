@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.AboutController">
    <children>
@@ -22,16 +21,10 @@
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="3">
                <center>
                   <Button mnemonicParsing="false" onAction="#handlePrev" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
                   </Button>
                </center>
             </BorderPane>
             <Label alignment="CENTER" prefHeight="305.0" prefWidth="560.0" text="Stud.IP FileSync&#10;&#10;Version: 0.1.0&#10;Release Date: 25.04.2015&#10;Revision: 0297984&#10;&#10;GitHub:&#10;https://github.com/rockihack/Stud.IP-FileSync&#10;&#10;Developer:&#10;Lennart Glauer &lt;glauer@elsa.uni-hannover.de&gt;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-               <font>
-                  <Font size="14.0" />
-               </font>
             </Label>
          </children>
       </GridPane>

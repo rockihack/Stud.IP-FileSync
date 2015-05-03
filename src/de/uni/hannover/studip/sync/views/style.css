@@ -1,4 +1,4 @@
-.menu .label, .choice-box .label {
+* {
 	-fx-font-size: 14px;
 }
 
@@ -22,7 +22,6 @@
         radial-gradient(center 50% 50%, radius 100%, #2989d8, #1e5799);
     -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.5) , 3,0,0,1 );
     -fx-font-weight: bold;
-    -fx-font-size: 1.6em;
 }
 
 .blue-button:hover {
@@ -38,6 +37,7 @@
 }
 
 .blue-button .text {
+    -fx-font-size: 20px;
     -fx-fill: white;
     -fx-effect: dropshadow( gaussian , rgba(0,0,0,0.2) , 0,0,0,2 );
 }

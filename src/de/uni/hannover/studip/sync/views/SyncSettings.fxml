@@ -2,7 +2,6 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import javafx.collections.*?>
 
@@ -16,16 +15,13 @@
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
-          <RowConstraints minHeight="200.0" prefHeight="200.0" vgrow="SOMETIMES" />
+          <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
                   <Button mnemonicParsing="false" onAction="#handlePrev" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
                   </Button>
                </center>
             </BorderPane>
@@ -41,16 +37,10 @@
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label text="Sollen geänderte Dateien überschrieben werden?" GridPane.columnIndex="1">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Label>
                   <ChoiceBox fx:id="overwriteChoicebox" prefWidth="150.0" GridPane.columnIndex="3">
                      <items>
@@ -61,9 +51,6 @@
                      </items>
                   </ChoiceBox>
                   <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                     <font>
-                        <Font size="14.0" />
-                     </font>
                   </Label>
                   <ChoiceBox fx:id="downloadAllSemestersChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
                      <items>
