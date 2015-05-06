@@ -47,7 +47,7 @@ public class OverviewController extends AbstractController {
 					String rootDir = Config.getInstance().getRootDirectory();
 					if (rootDir != null) {
 						try (TreeSync tree = new TreeSync(new File(rootDir))) {
-							File treeFile = Config.getInstance().openTreeFile();
+							File treeFile = Config.openTreeFile();
 
 							tree.setProgress(progress);
 
@@ -81,7 +81,7 @@ public class OverviewController extends AbstractController {
 								Alert alert = new Alert(AlertType.ERROR);
 								alert.setTitle("Fehler");
 								alert.setHeaderText(null);
-								alert.setContentText("Kein Ziel Ordner gew‰hlt.");
+								alert.setContentText("Kein Ziel Ordner gew√§hlt.");
 								alert.showAndWait();
 							}
 						});

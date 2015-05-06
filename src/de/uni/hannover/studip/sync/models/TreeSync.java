@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.exceptions.*;
+import de.uni.hannover.studip.sync.utils.FileBrowser;
 
 /**
  * Semester/Course/Folder/Document tree sync.
@@ -56,14 +57,14 @@ public class TreeSync extends TreeBuilder {
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
-				File semesterDirectory = new File(rootDirectory, removeIllegalCharacters(semester.title));
+				File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
 				
 				if (!semesterDirectory.exists() && !semesterDirectory.mkdir()) {
 					throw new IllegalStateException("Could not create semester directory!");
 				}
 				
 				for (CourseTreeNode course : semester.courses) {
-					File courseDirectory = new File(semesterDirectory, removeIllegalCharacters(course.title));
+					File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
 					
 					if (!courseDirectory.exists() && !courseDirectory.mkdir()) {
 						throw new IllegalStateException("Could not create course directory!");
@@ -80,20 +81,7 @@ public class TreeSync extends TreeBuilder {
 		System.out.println("Sync done!");
 		return phaser.getRegisteredParties() - 1;
 	}
-	
-	/**
-	 * Remove/replace illegal chars from path/file name.
-	 * 
-	 * @param file
-	 * @return
-	 */
-	private String removeIllegalCharacters(String file) {
-		/* Replace separators. */
-		file = file.replaceAll("[\\/]+", "-");
-		/* Remove other illegal chars. */
-		return file.replaceAll("[<>:\"|?*]+", "");
-	}
-	
+
 	/**
 	 * Folder node handler.
 	 * 
@@ -104,7 +92,7 @@ public class TreeSync extends TreeBuilder {
 	private void doFolder(Phaser phaser, DocumentFolderTreeNode folderNode, File parentDirectory) {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			File folderDirectory = new File(parentDirectory, removeIllegalCharacters(folder.name));
+			File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
 			
 			if (!folderDirectory.exists() && !folderDirectory.mkdir()) {
 				throw new IllegalStateException("Could not create course directory!");
@@ -126,7 +114,7 @@ public class TreeSync extends TreeBuilder {
 	 * @param parentDirectory The parent directory
 	 */
 	private void doDocument(Phaser phaser, DocumentTreeNode documentNode, File parentDirectory) {
-		File documentFile = new File(parentDirectory, removeIllegalCharacters(documentNode.filename));
+		File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(documentNode.filename));
 		
 		if (documentFile.exists()) {
 			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() != documentNode.chdate * 1000L) {
@@ -135,7 +123,7 @@ public class TreeSync extends TreeBuilder {
 				if (!Config.getInstance().getOverwriteFiles()) {
 					/* Overwrite files is disabled, we append a version number to the filename. */
 					int i = 0;
-					String originalName = removeIllegalCharacters(documentNode.filename);
+					String originalName = FileBrowser.removeIllegalCharacters(documentNode.filename);
 
 					do {
 						i++;

@@ -100,7 +100,7 @@ public class RootLayoutController extends AbstractController {
 			try {
 				// Delete the tree file to signal the sync routine,
 				// to rebuild the tree.
-				Config.getInstance().openTreeFile().delete();
+				Config.openTreeFile().delete();
 
 				// Redirect to overview.
 				getMain().setView(Main.OVERVIEW);

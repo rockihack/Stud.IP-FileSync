@@ -43,4 +43,17 @@ public class FileBrowser {
 			return false;
 		}
 	}
+
+	/**
+	 * Remove/replace illegal chars from path/file name.
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static String removeIllegalCharacters(String file) {
+		/* Replace separators. */
+		file = file.replaceAll("[\\/]+", "-");
+		/* Remove other illegal chars. */
+		return file.replaceAll("[<>:\"|?*]+", "");
+	}
 }

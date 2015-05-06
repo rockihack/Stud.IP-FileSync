@@ -83,6 +83,22 @@ public class Config {
 	}
 
 	/**
+	 * Open tree file.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
+	public static File openTreeFile() throws IOException {
+		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
+		configDir.mkdir();
+		
+		File treeFile = new File(configDir, TREE_FILE_NAME);
+		treeFile.createNewFile();
+		
+		return treeFile;
+	}
+
+	/**
 	 * Init oauth config file.
 	 * 
 	 * @throws JsonGenerationException
@@ -93,22 +109,6 @@ public class Config {
 	 */
 	public void initOAuthFile() throws JsonGenerationException, JsonMappingException, InstantiationException, IllegalAccessException, IOException {
 		oauth.init();
-	}
-
-	/**
-	 * Open tree file.
-	 * 
-	 * @return
-	 * @throws IOException
-	 */
-	public File openTreeFile() throws IOException {
-		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
-		configDir.mkdir();
-		
-		File treeFile = new File(configDir, TREE_FILE_NAME);
-		treeFile.createNewFile();
-		
-		return treeFile;
 	}
 
 	/**
