@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.OverviewController">
    <children>
@@ -15,15 +16,22 @@
             <RowConstraints minHeight="20.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="180.0" prefHeight="180.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
-          <RowConstraints minHeight="20.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <ProgressIndicator fx:id="progress" progress="0.0" styleClass="sync-indicator" stylesheets="@style.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
                   <Button fx:id="syncButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSync" prefHeight="35.0" prefWidth="180.0" styleClass="blue-button" stylesheets="@style.css" text="Sync" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets top="3.0" />
+                     </BorderPane.margin>
                   </Button>
                </center>
+               <bottom>
+                  <Label fx:id="progressLabel" BorderPane.alignment="CENTER">
+                  </Label>
+               </bottom>
             </BorderPane>
          </children>
       </GridPane>

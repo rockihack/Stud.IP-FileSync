@@ -214,7 +214,7 @@ public class TreeSync extends TreeBuilder {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
-				updateProgress(phaser);
+				updateProgress(phaser, documentNode.name);
 			}
 		}
 		

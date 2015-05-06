@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.Alert.AlertType;
 
@@ -23,6 +24,9 @@ public class OverviewController extends AbstractController {
 
 	@FXML
 	private ProgressIndicator progress;
+
+	@FXML
+	private Label progressLabel;
 
 	@FXML
 	private Button syncButton;
@@ -49,7 +53,7 @@ public class OverviewController extends AbstractController {
 						try (TreeSync tree = new TreeSync(new File(rootDir))) {
 							File treeFile = Config.openTreeFile();
 
-							tree.setProgress(progress);
+							tree.setProgress(progress, progressLabel);
 
 							// Update documents.
 							try {
@@ -116,6 +120,7 @@ public class OverviewController extends AbstractController {
 					@Override
 					public void run() {
 						progress.setProgress(1);
+						progressLabel.setText("");
 						syncButton.setText("Sync");
 						syncButton.setDisable(false);
 						getMain().getRootLayoutController().getMenu().setDisable(false);

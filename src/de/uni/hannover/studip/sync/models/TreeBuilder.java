@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -35,6 +36,8 @@ public class TreeBuilder implements AutoCloseable {
 	 * Gui progress indicator.
 	 */
 	private ProgressIndicator progressIndicator;
+
+	private Label progressLabel;
 
 	protected TreeBuilder() {
 		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -230,7 +233,7 @@ public class TreeBuilder implements AutoCloseable {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
-				updateProgress(phaser);
+				updateProgress(phaser, semesterNode.title);
 			}
 		}
 		
@@ -327,7 +330,7 @@ public class TreeBuilder implements AutoCloseable {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
-				updateProgress(phaser);
+				updateProgress(phaser, courseNode.title);
 			}
 		}
 		
@@ -464,7 +467,7 @@ public class TreeBuilder implements AutoCloseable {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
-				updateProgress(phaser);
+				updateProgress(phaser, courseNode.title);
 			}
 		}
 	}
@@ -490,8 +493,9 @@ public class TreeBuilder implements AutoCloseable {
 	 * 
 	 * @param progress
 	 */
-	public void setProgress(ProgressIndicator progress) {
+	public void setProgress(ProgressIndicator progress, Label label) {
 		progressIndicator = progress;
+		progressLabel = label;
 	}
 
 	/**
@@ -499,13 +503,14 @@ public class TreeBuilder implements AutoCloseable {
 	 * 
 	 * @param phaser
 	 */
-	protected void updateProgress(final Phaser phaser) {
+	protected void updateProgress(final Phaser phaser, final String text) {
 		if (progressIndicator != null) {
 			Platform.runLater(new Runnable() {
 
 				@Override
 				public void run() {
 					progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
+					progressLabel.setText(text);
 				}
 
 			});
