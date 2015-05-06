@@ -30,10 +30,19 @@ public class RootLayoutController extends AbstractController {
 	}
 
 	/**
-	 * File -> Open.
+	 * File -> New documents.
 	 */
 	@FXML
-	public void handleOpen() {
+	public void handleNewDocuments() {
+		// Redirect to new documents.
+		getMain().setView(Main.NEW_DOCUMENTS);
+	}
+
+	/**
+	 * File -> Open folder.
+	 */
+	@FXML
+	public void handleOpenFolder() {
 		String rootDir = Config.getInstance().getRootDirectory();
 		if (rootDir != null) {
 			if (!FileBrowser.open(new File(rootDir))) {
@@ -48,7 +57,7 @@ public class RootLayoutController extends AbstractController {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Fehler");
 			alert.setHeaderText(null);
-			alert.setContentText("Kein Ziel Ordner gewählt.");
+			alert.setContentText("Kein Ziel Ordner gewÃ¤hlt.");
 			alert.showAndWait();
 		}
 	}
@@ -76,11 +85,11 @@ public class RootLayoutController extends AbstractController {
 	@FXML
 	public void handleUpdateSeminars() {
 		Alert confirm = new Alert(AlertType.CONFIRMATION);
-		confirm.setTitle("Bestätigen");
+		confirm.setTitle("BestÃ¤tigen");
 		confirm.setHeaderText(null);
 		confirm.setContentText("Diese Funktion sollte nur zu Beginn eines Semesters genutzt werden, "
 				+ "nachdem Sie sich in neue Veranstaltungen eingeschrieben haben. "
-				+ "Möchten Sie fortfahren?");
+				+ "MÃ¶chten Sie fortfahren?");
 		Button yesButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.OK);
 		yesButton.setDefaultButton(false);
 		Button cancelButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.CANCEL);

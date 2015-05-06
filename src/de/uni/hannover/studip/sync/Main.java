@@ -27,6 +27,7 @@ public class Main extends Application {
 
 	// Views.
 	public static final String OVERVIEW = "Overview";
+	public static final String NEW_DOCUMENTS = "NewDocuments";
 	public static final String OAUTH = "OAuth";
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
@@ -53,7 +54,7 @@ public class Main extends Application {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Fehler");
 			alert.setHeaderText(null);
-			alert.setContentText("FileSync l‰uft bereits.");
+			alert.setContentText("FileSync l√§uft bereits.");
 			alert.showAndWait();
 			System.exit(0);
 		}
