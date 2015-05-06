@@ -87,6 +87,7 @@ public class NewDocumentsController extends AbstractController {
 							NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
 
 							if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
+								// TODO: Add fail message box.
 								FileBrowser.open(selectedItem.getDocumentFile());
 							}
 						}
@@ -102,6 +103,7 @@ public class NewDocumentsController extends AbstractController {
 			tableView.getSortOrder().add(dateColumn);
 
 		} catch (IOException e) {
+			// TODO: Add fail message box.
 			throw new IllegalStateException(e);
 		}
 	}

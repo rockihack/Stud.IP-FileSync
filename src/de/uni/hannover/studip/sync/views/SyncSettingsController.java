@@ -53,6 +53,8 @@ public class SyncSettingsController extends AbstractController {
 				}
 			}
 		});
+
+		// TODO: Add option to replace whitespaces [-_].
 	}
 
 	@FXML

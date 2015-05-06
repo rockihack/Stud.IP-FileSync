@@ -117,6 +117,7 @@ public class TreeSync extends TreeBuilder {
 		File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(documentNode.filename));
 		
 		if (documentFile.exists()) {
+			// TODO: Doesn't work on linux...
 			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() != documentNode.chdate * 1000L) {
 				/* Document has changed, we will download it again. */
 
@@ -214,6 +215,7 @@ public class TreeSync extends TreeBuilder {
 			} finally {
 				/* Job done. */
 				phaser.arrive();
+				// TODO: Add course name in new line.
 				updateProgress(phaser, documentNode.name);
 			}
 		}

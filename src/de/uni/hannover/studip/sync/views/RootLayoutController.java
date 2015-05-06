@@ -84,6 +84,7 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleUpdateSeminars() {
+		// TODO: Alert size too small on linux.
 		Alert confirm = new Alert(AlertType.CONFIRMATION);
 		confirm.setTitle("Bestätigen");
 		confirm.setHeaderText(null);

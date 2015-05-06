@@ -16,26 +16,29 @@ public class FileBrowser {
 			return false;
 		}
 
+		String filePath = file.getAbsolutePath();
+
 		if (OS.isWindows()) {
-			return runCommand(String.format("explorer %s", file.getAbsolutePath()));
+			return runCommand(new String[] {"explorer", filePath});
 
 		} else if (OS.isMacOS()) {
-			return runCommand(String.format("open %s", file.getAbsolutePath()));
+			return runCommand(new String[] {"open", filePath});
 
 		} else if (OS.isLinux()) {
-			return runCommand(String.format("xdg-open %s", file.getAbsolutePath()))			// All
-					|| runCommand(String.format("kde-open %s", file.getAbsolutePath()))		// KDE
-					|| runCommand(String.format("exo-open %s", file.getAbsolutePath()))		// Xfce
-					|| runCommand(String.format("gvfs-open %s", file.getAbsolutePath()))	// GNOME
-					|| runCommand(String.format("gnome-open %s", file.getAbsolutePath()))	// GNOME (deprecated)
-					|| runCommand(String.format("pcmanfm %s", file.getAbsolutePath()));		// LXDE
+			// TODO: Escape whitespaces?
+			return runCommand(new String[] {"xdg-open", filePath})			// All
+					|| runCommand(new String[] {"kde-open", filePath})		// KDE
+					|| runCommand(new String[] {"exo-open", filePath})		// Xfce
+					|| runCommand(new String[] {"gvfs-open", filePath})		// GNOME
+					|| runCommand(new String[] {"gnome-open", filePath})	// GNOME (deprecated)
+					|| runCommand(new String[] {"pcmanfm", filePath});		// LXDE
 
 		} else {
 			return false;
 		}
 	}
 
-	private static boolean runCommand(String cmd) {
+	private static boolean runCommand(String[] cmd) {
 		try {
 			return Runtime.getRuntime().exec(cmd) != null;
 
