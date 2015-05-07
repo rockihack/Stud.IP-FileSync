@@ -1,5 +1,6 @@
 package de.uni.hannover.studip.sync.utils;
 
+import java.awt.Desktop;
 import java.io.File;
 
 import de.uni.hannover.studip.sync.models.Config;
@@ -18,16 +19,27 @@ public class FileBrowser {
 			return false;
 		}
 
-		String filePath = file.getAbsolutePath();
-
 		if (OS.isWindows()) {
-			return runCommand(new String[] {"explorer", filePath});
+			try {
+				// Windows long path names workaround.
+				if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
+					throw new UnsupportedOperationException("Desktop not supported!");
+				}
+
+				Desktop.getDesktop().open(file);
+				return true;
+
+			} catch (Exception e) {
+				return runCommand(new String[] {"explorer", file.getAbsolutePath()});
+			}
 
 		} else if (OS.isMacOS()) {
-			return runCommand(new String[] {"open", filePath});
+			return runCommand(new String[] {"open", file.getAbsolutePath()});
 
 		} else if (OS.isLinux()) {
 			// TODO: Escape whitespaces?
+			String filePath = file.getAbsolutePath();
+
 			return runCommand(new String[] {"xdg-open", filePath})			// All
 					|| runCommand(new String[] {"kde-open", filePath})		// KDE
 					|| runCommand(new String[] {"exo-open", filePath})		// Xfce
