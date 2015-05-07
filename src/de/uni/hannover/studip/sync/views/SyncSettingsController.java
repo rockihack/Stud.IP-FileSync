@@ -16,6 +16,9 @@ public class SyncSettingsController extends AbstractController {
 	@FXML
 	private ChoiceBox<String> downloadAllSemestersChoicebox;
 
+	@FXML
+	private ChoiceBox<String> replaceWhitespacesChoicebox;
+
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
 	 */
@@ -25,6 +28,7 @@ public class SyncSettingsController extends AbstractController {
 
 		overwriteChoicebox.getSelectionModel().select(config.getOverwriteFiles() ? 0 : 1);
 		downloadAllSemestersChoicebox.getSelectionModel().select(config.getDownloadAllSemesters() ? 0 : 1);
+		replaceWhitespacesChoicebox.getSelectionModel().select(config.getReplaceWhitespaces());
 
 		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
 			@Override
@@ -54,7 +58,20 @@ public class SyncSettingsController extends AbstractController {
 			}
 		});
 
-		// TODO: Add option to replace whitespaces [-_].
+		replaceWhitespacesChoicebox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				if (!oldValue.equals(newValue)) {
+					try {
+						// TODO: Add confirm dialog and rename already downloaded files.
+						config.setReplaceWhitespaces(newValue.intValue());
+
+					} catch (IOException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+		});
 	}
 
 	@FXML

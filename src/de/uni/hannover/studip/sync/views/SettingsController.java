@@ -52,9 +52,9 @@ public class SettingsController extends AbstractController {
 	@FXML
 	public void handleLogout() {
 		Alert confirm = new Alert(AlertType.CONFIRMATION);
-		confirm.setTitle("Bestätigen");
+		confirm.setTitle("BestÃ¤tigen");
 		confirm.setHeaderText(null);
-		confirm.setContentText("Möchten Sie sich wirklich ausloggen?");
+		confirm.setContentText("MÃ¶chten Sie sich wirklich ausloggen?");
 		Optional<ButtonType> result = confirm.showAndWait();
 
 		if (result.get() == ButtonType.OK) {
@@ -69,7 +69,7 @@ public class SettingsController extends AbstractController {
 	@FXML
 	public void handleRootDir() {
 		DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle("Ziel Ordner wählen");
+		chooser.setTitle("Ziel Ordner wÃ¤hlen");
 		chooser.setInitialDirectory(new File(Config.getHomeDirectory()));
 
 		File rootDir = chooser.showDialog(getMain().getPrimaryStage());

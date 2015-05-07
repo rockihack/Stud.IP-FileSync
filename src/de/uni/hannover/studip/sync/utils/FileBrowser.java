@@ -2,6 +2,8 @@ package de.uni.hannover.studip.sync.utils;
 
 import java.io.File;
 
+import de.uni.hannover.studip.sync.models.Config;
+
 /**
  * 
  * @author Lennart Glauer
@@ -54,8 +56,20 @@ public class FileBrowser {
 	 * @return
 	 */
 	public static String removeIllegalCharacters(String file) {
+		/* Replace whitespaces. */
+		switch (Config.getInstance().getReplaceWhitespaces()) {
+		case 1:
+			file = file.replaceAll("[-\\s]+", "-");
+			break;
+		case 2:
+			file = file.replaceAll("[_\\s]+", "_");
+			break;
+		default:
+			break;
+		}
+
 		/* Replace separators. */
-		file = file.replaceAll("[\\/]+", "-");
+		file = file.replaceAll("[-\\/]+", "-");
 		/* Remove other illegal chars. */
 		return file.replaceAll("[<>:\"|?*]+", "");
 	}

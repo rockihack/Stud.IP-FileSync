@@ -16,7 +16,7 @@ public class OAuthController extends AbstractController {
 			Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Fehler");
 			alert.setHeaderText(null);
-			alert.setContentText("Keine Verbindung zum Internet möglich!");
+			alert.setContentText("Keine Verbindung zum Internet mÃ¶glich!");
 			alert.showAndWait();
 		}
 	}

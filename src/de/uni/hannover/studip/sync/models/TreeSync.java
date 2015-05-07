@@ -105,7 +105,7 @@ public class TreeSync extends TreeBuilder {
 			doDocument(phaser, document, parentDirectory);
 		}
 	}
-	
+
 	/**
 	 * Document node handler.
 	 * 

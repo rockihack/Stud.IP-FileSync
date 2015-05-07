@@ -37,12 +37,23 @@
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                 <RowConstraints vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Sollen geänderte Dateien überschrieben werden?" GridPane.columnIndex="1">
+                  <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1">
                   </Label>
-                  <ChoiceBox fx:id="overwriteChoicebox" prefWidth="150.0" GridPane.columnIndex="3">
+                  <ChoiceBox fx:id="downloadAllSemestersChoicebox" prefWidth="150.0" GridPane.columnIndex="3">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Alle Semester" />
+                           <String fx:value="Aktuelles Semester" />
+                        </FXCollections>
+                     </items>
+                  </ChoiceBox>
+                  <Label text="Sollen geänderte Dateien überschrieben werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  </Label>
+                  <ChoiceBox fx:id="overwriteChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
                            <String fx:value="Überschreiben" />
@@ -50,13 +61,13 @@
                         </FXCollections>
                      </items>
                   </ChoiceBox>
-                  <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                  </Label>
-                  <ChoiceBox fx:id="downloadAllSemestersChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                  <Label text="Sollen Leerzeichen in Dateinamen ersetzt werden?" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <ChoiceBox fx:id="replaceWhitespacesChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="4">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
-                           <String fx:value="Alle Semester" />
-                           <String fx:value="Aktuelles Semester" />
+                           <String fx:value="Nein" />
+                           <String fx:value="Ja, durch einen Bindestrich" />
+                           <String fx:value="Ja, durch einen Unterstrich" />
                         </FXCollections>
                      </items>
                   </ChoiceBox>

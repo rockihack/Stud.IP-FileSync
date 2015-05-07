@@ -19,7 +19,7 @@ public class OAuthCompleteController extends AbstractController {
 	@FXML
 	public void handleDest() {
 		DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle("Ziel Ordner w‰hlen");
+		chooser.setTitle("Ziel Ordner w√§hlen");
 		chooser.setInitialDirectory(new File(Config.getHomeDirectory()));
 
 		rootDir = chooser.showDialog(getMain().getPrimaryStage());

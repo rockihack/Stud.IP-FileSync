@@ -167,6 +167,24 @@ public class Config {
 	}
 
 	/**
+	 * 
+	 */
+	public int getReplaceWhitespaces() {
+		return settings.data.replaceWhitespaces;
+	}
+
+	/**
+	 * @throws IOException 
+	 * @throws JsonMappingException 
+	 * @throws JsonGenerationException 
+	 * 
+	 */
+	public void setReplaceWhitespaces(int value) throws JsonGenerationException, JsonMappingException, IOException {
+		settings.data.replaceWhitespaces = value;
+		settings.write();
+	}
+
+	/**
 	 * Get logged in user firstname.
 	 */
 	public String getFirstName() {
