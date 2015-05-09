@@ -2,6 +2,7 @@ package de.uni.hannover.studip.sync.utils;
 
 import java.awt.Desktop;
 import java.io.File;
+import java.io.IOException;
 
 import de.uni.hannover.studip.sync.models.Config;
 
@@ -29,7 +30,7 @@ public class FileBrowser {
 				Desktop.getDesktop().open(file);
 				return true;
 
-			} catch (Exception e) {
+			} catch (IOException e) {
 				return runCommand(new String[] {"explorer", file.getAbsolutePath()});
 			}
 
@@ -54,9 +55,10 @@ public class FileBrowser {
 
 	private static boolean runCommand(String[] cmd) {
 		try {
-			return Runtime.getRuntime().exec(cmd) != null;
+			Process process = Runtime.getRuntime().exec(cmd);
+			return process.isAlive();
 
-		} catch (Exception e) {
+		} catch (IOException e) {
 			return false;
 		}
 	}

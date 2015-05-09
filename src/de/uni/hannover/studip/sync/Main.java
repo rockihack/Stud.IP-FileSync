@@ -9,10 +9,8 @@ import de.uni.hannover.studip.sync.views.AbstractController;
 import de.uni.hannover.studip.sync.views.RootLayoutController;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -41,33 +39,31 @@ public class Main extends Application {
 	private Stage primaryStage;
 	private BorderPane rootLayout;
 	private RootLayoutController rootLayoutController;
-	private AbstractController controller;
+	private AbstractController currentController;
 
 	@SuppressWarnings("unused")
-	private static ServerSocket globalAppMutex;
-
-	static {
-		// Acquire system wide app mutex to allow only one running instance.
-		try {
-			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
-
-		} catch (Exception e) {
-			Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("FileSync läuft bereits.");
-			alert.showAndWait();
-			System.exit(0);
-		}
-	}
+	private ServerSocket globalAppMutex;
 
 	@Override
 	public void start(Stage primaryStage) {
 		this.primaryStage = primaryStage;
 
-		initRootLayout();
+		try {
+			// Acquire system wide app mutex to allow only one running instance.
+			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
 
-		setView(OVERVIEW);
+			initRootLayout();
+
+			setView(OVERVIEW);
+
+		} catch (IOException e) {
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("FileSync läuft bereits.");
+			alert.showAndWait();
+			Platform.exit();
+		}
 	}
 
 	private void initRootLayout() {
@@ -80,20 +76,17 @@ public class Main extends Application {
 
 			// Init primary stage.
 			primaryStage.setScene(new Scene(rootLayout));
-			primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("icon.png")));
+			primaryStage.getIcons().add(new Image(Main.class.getResourceAsStream("icon.png")));
 			primaryStage.setTitle(APP_NAME);
 			//primaryStage.setMinWidth(640);
 			//primaryStage.setMinHeight(480);
 
-			primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-				@Override
-				public void handle(WindowEvent e) {
-					Platform.exit();
+			primaryStage.setOnCloseRequest(event -> {
+				Platform.exit();
 
-					// Terminate worker threads.
-					// TODO: More graceful
-					System.exit(0);
-				}
+				// Terminate worker threads.
+				// TODO: More graceful
+				System.exit(0);
 			});
 
 			primaryStage.show();
@@ -115,8 +108,8 @@ public class Main extends Application {
 				FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + fxml + ".fxml"));
 				rootLayout.setCenter((AnchorPane) loader.load());
 
-				controller = loader.getController();
-				controller.setMain(this);
+				currentController = loader.getController();
+				currentController.setMain(this);
 
 				// Push view.
 				viewHistory.push(fxml);
@@ -157,7 +150,7 @@ public class Main extends Application {
 	}
 
 	public AbstractController getController() {
-		return controller;
+		return currentController;
 	}
 
 }

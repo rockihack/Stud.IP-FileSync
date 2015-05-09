@@ -43,7 +43,9 @@ public class SettingsController extends AbstractController {
 			userLabel.setText("Eingeloggt als " + config.getFirstName() + " " + config.getLastName() + ", " + config.getUserName());
 			logoutButton.setDisable(false);
 
-		} catch (UnauthorizedException e) {}
+		} catch (UnauthorizedException e) {
+			// Not logged in.
+		}
 
 		// Root dir.
 		setRootDirLabel(config.getRootDirectory());
@@ -70,7 +72,7 @@ public class SettingsController extends AbstractController {
 	public void handleRootDir() {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ziel Ordner wählen");
-		chooser.setInitialDirectory(new File(Config.getHomeDirectory()));
+		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
 		File rootDir = chooser.showDialog(getMain().getPrimaryStage());
 		if (rootDir != null) {

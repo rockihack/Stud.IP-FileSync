@@ -17,8 +17,10 @@ public class ConfigFile<T> {
 	public T data;
 
 	public ConfigFile(String dir, String file, Class<T> type) throws IOException, InstantiationException, IllegalAccessException {
-		this.dir = new File(Config.getHomeDirectory(), dir);
-		this.dir.mkdir();
+		this.dir = new File(System.getProperty("user.home"), dir);
+		if (!this.dir.exists() && !this.dir.mkdir()) {
+			throw new IOException(file + " konnte nicht erstellt werden!");
+		}
 
 		this.file = new File(this.dir, file);
 		this.type = type;

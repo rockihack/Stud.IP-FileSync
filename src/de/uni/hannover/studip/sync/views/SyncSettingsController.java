@@ -13,8 +13,6 @@ import de.uni.hannover.studip.sync.datamodel.SemesterTreeNode;
 import de.uni.hannover.studip.sync.datamodel.SemestersTreeNode;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -30,7 +28,7 @@ public class SyncSettingsController extends AbstractController {
 	private ChoiceBox<String> downloadAllSemestersChoicebox;
 
 	@FXML
-	private ChoiceBox<String> replaceWhitespacesChoicebox;
+	protected ChoiceBox<String> replaceWhitespacesChoicebox;
 
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
@@ -43,9 +41,8 @@ public class SyncSettingsController extends AbstractController {
 		downloadAllSemestersChoicebox.getSelectionModel().select(config.getDownloadAllSemesters() ? 0 : 1);
 		replaceWhitespacesChoicebox.getSelectionModel().select(config.getReplaceWhitespaces());
 
-		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(
+			(observableValue, oldValue, newValue) -> {
 				if (!oldValue.equals(newValue)) {
 					try {
 						config.setOverwriteFiles(newValue.intValue() == 0);
@@ -54,12 +51,10 @@ public class SyncSettingsController extends AbstractController {
 						throw new IllegalStateException(e);
 					}
 				}
-			}
-		});
+			});
 
-		downloadAllSemestersChoicebox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+		downloadAllSemestersChoicebox.getSelectionModel().selectedIndexProperty().addListener(
+			(observableValue, oldValue, newValue) -> {
 				if (!oldValue.equals(newValue)) {
 					try {
 						config.setDownloadAllSemesters(newValue.intValue() == 0);
@@ -68,12 +63,10 @@ public class SyncSettingsController extends AbstractController {
 						throw new IllegalStateException(e);
 					}
 				}
-			}
-		});
+			});
 
-		replaceWhitespacesChoicebox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+		replaceWhitespacesChoicebox.getSelectionModel().selectedIndexProperty().addListener(
+			(observableValue, oldValue, newValue) -> {
 				if (config.getReplaceWhitespaces() != newValue.intValue()) {
 					try {
 						Alert confirm = new Alert(AlertType.CONFIRMATION);
@@ -107,8 +100,7 @@ public class SyncSettingsController extends AbstractController {
 						throw new IllegalStateException(e);
 					}
 				}
-			}
-		});
+			});
 	}
 
 	@FXML

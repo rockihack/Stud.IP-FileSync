@@ -35,9 +35,12 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Gui progress indicator.
 	 */
-	private ProgressIndicator progressIndicator;
+	protected ProgressIndicator progressIndicator;
 
-	private Label progressLabel;
+	/**
+	 * Gui progress label.
+	 */
+	protected Label progressLabel;
 
 	protected TreeBuilder() {
 		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -479,8 +482,8 @@ public class TreeBuilder implements AutoCloseable {
 	 * @param suffix
 	 * @return
 	 */
-	protected String appendFilename(String filename, String suffix) {
-		int ext = filename.lastIndexOf(".");
+	protected static String appendFilename(String filename, String suffix) {
+		int ext = filename.lastIndexOf('.');
 		if (ext == -1) {
 			ext = filename.length();
 		}
@@ -505,14 +508,9 @@ public class TreeBuilder implements AutoCloseable {
 	 */
 	protected void updateProgress(final Phaser phaser, final String text) {
 		if (progressIndicator != null) {
-			Platform.runLater(new Runnable() {
-
-				@Override
-				public void run() {
-					progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
-					progressLabel.setText(text);
-				}
-
+			Platform.runLater(() -> {
+				progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
+				progressLabel.setText(text);
 			});
 		}
 	}

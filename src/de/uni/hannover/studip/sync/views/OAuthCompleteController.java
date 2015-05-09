@@ -20,7 +20,7 @@ public class OAuthCompleteController extends AbstractController {
 	public void handleDest() {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ziel Ordner wählen");
-		chooser.setInitialDirectory(new File(Config.getHomeDirectory()));
+		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
 		rootDir = chooser.showDialog(getMain().getPrimaryStage());
 		next.setDisable(rootDir == null || !rootDir.canRead() || !rootDir.canWrite());
@@ -29,12 +29,13 @@ public class OAuthCompleteController extends AbstractController {
 	@FXML
 	public void handleNext() {
 		try {
-			// Store root directory.
-			Config.getInstance().setRootDirectory(rootDir.getAbsolutePath());
-
-			// Redirect to overview.
-			getMain().setView(Main.OVERVIEW);
-
+			if (rootDir != null) {
+				// Store root directory.
+				Config.getInstance().setRootDirectory(rootDir.getAbsolutePath());
+	
+				// Redirect to overview.
+				getMain().setView(Main.OVERVIEW);
+			}
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}

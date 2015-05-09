@@ -5,13 +5,15 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.scribe.model.Token;
+
+import de.elanev.studip.android.app.backend.datamodel.User;
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.exceptions.*;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
+import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
@@ -30,25 +32,19 @@ public class OAuthWebviewController extends AbstractController {
 		WebEngine webEngine = webView.getEngine();
 		webEngine.setJavaScriptEnabled(true);
 		webEngine.getLoadWorker().stateProperty().addListener(
-			new ChangeListener<State>() {
+			(observableValue, oldState, newState) -> {
+				if (newState == State.SUCCEEDED) {
+					// Scroll to login box.
+					webEngine.executeScript(
+							"var login = $('form[name=\"login\"]');" +
+							"if (login.length)" +
+								"$('html, body').animate({"
+										+ "scrollTop: login.offset().top - 100,"
+										+ "scrollLeft: login.offset().left - 100"
+								+ "}, 500);");
 
-				@SuppressWarnings("rawtypes")
-				@Override
-				public void changed(ObservableValue arg0, State oldState, State newState) {
-					if (newState == State.SUCCEEDED) {
-						// Scroll to login box.
-						webEngine.executeScript(
-								"var login = $('form[name=\"login\"]');" +
-								"if (login.length)" +
-									"$('html, body').animate({"
-											+ "scrollTop: login.offset().top - 100,"
-											+ "scrollLeft: login.offset().left - 100"
-									+ "}, 500);");
-
-						onload(webEngine);
-					}
+					onload(webEngine);
 				}
-
 			});
 
 		// Open oauth authentication url.
@@ -68,10 +64,15 @@ public class OAuthWebviewController extends AbstractController {
 		Matcher matcher = pattern.matcher(engine.getLocation());
 
 		if (matcher.find()) {
-			// Authentication succeeded, now get the oauth access token.
 			try {
-				OAuth oauth = OAuth.getInstance();
-				oauth.getAccessToken(matcher.group(1));
+				// Authentication succeeded, now get the oauth access token.
+				Token accessToken = OAuth.getInstance().getAccessToken(matcher.group(1));
+
+				// Test if access token is valid.
+				User current_user = RestApi.getUserById(null);
+
+				// Store access token.
+				Config.getInstance().setAccessToken(accessToken, current_user);
 
 				String rootDir = Config.getInstance().getRootDirectory();
 				getMain().setView(

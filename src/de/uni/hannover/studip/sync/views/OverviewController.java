@@ -1,6 +1,7 @@
 package de.uni.hannover.studip.sync.views;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -23,13 +24,13 @@ import javafx.scene.control.Alert.AlertType;
 public class OverviewController extends AbstractController {
 
 	@FXML
-	private ProgressIndicator progress;
+	protected ProgressIndicator progress;
 
 	@FXML
-	private Label progressLabel;
+	protected Label progressLabel;
 
 	@FXML
-	private Button syncButton;
+	protected Button syncButton;
 
 	@FXML
 	public void handleSync() {
@@ -37,8 +38,7 @@ public class OverviewController extends AbstractController {
 		syncButton.setDisable(true);
 		syncButton.setText("Updating...");
 
-		new Thread(new Runnable() {
-
+		(new Thread() {
 			@Override
 			public void run() {
 				try {
@@ -65,67 +65,46 @@ public class OverviewController extends AbstractController {
 							}
 
 							// Update sync button.
-							Platform.runLater(new Runnable() {
-
-								@Override
-								public void run() {
-									syncButton.setText("Downloading...");
-								}
-
-							});
+							Platform.runLater(() -> syncButton.setText("Downloading..."));
 
 							// Download documents.
 							tree.sync(treeFile, Config.getInstance().getDownloadAllSemesters());
 						}
 
 					} else {
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								Alert alert = new Alert(AlertType.ERROR);
-								alert.setTitle("Fehler");
-								alert.setHeaderText(null);
-								alert.setContentText("Kein Ziel Ordner gewählt.");
-								alert.showAndWait();
-							}
+						Platform.runLater(() -> {
+							Alert alert = new Alert(AlertType.ERROR);
+							alert.setTitle("Fehler");
+							alert.setHeaderText(null);
+							alert.setContentText("Kein Ziel Ordner gewählt.");
+							alert.showAndWait();
 						});
 					}
 
 				} catch (UnauthorizedException | NotFoundException e) {
 					OAuth.getInstance().removeAccessToken();
 
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							// Redirect to login.
-							getMain().setView(Main.OAUTH);
-						}
+					Platform.runLater(() -> getMain().setView(Main.OAUTH));
+
+				} catch (IOException e) {
+					Platform.runLater(() -> {
+						Alert alert = new Alert(AlertType.ERROR);
+						alert.setTitle("Fehler");
+						alert.setHeaderText(null);
+						alert.setContentText(e.getMessage());
+						alert.showAndWait();
 					});
 
-				} catch (Exception e) {
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							Alert alert = new Alert(AlertType.ERROR);
-							alert.setTitle("Fehler");
-							alert.setHeaderText(null);
-							alert.setContentText(e.getMessage());
-							alert.showAndWait();
-						}
-					});
-				}
-
-				// Update progress and sync button.
-				Platform.runLater(new Runnable() {
-					@Override
-					public void run() {
+				} finally {
+					// Update progress and sync button.
+					Platform.runLater(() -> {
 						progress.setProgress(1);
 						progressLabel.setText("");
 						syncButton.setText("Sync");
 						syncButton.setDisable(false);
 						getMain().getRootLayoutController().getMenu().setDisable(false);
-					}
-				});
+					});
+				}
 			}
 
 		}).start();

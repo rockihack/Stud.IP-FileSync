@@ -101,7 +101,9 @@ public class RootLayoutController extends AbstractController {
 			try {
 				// Delete the tree file to signal the sync routine,
 				// to rebuild the tree.
-				Config.openTreeFile().delete();
+				if (!Config.openTreeFile().delete()) {
+					throw new IOException("Dateibaum konnte nicht gelöscht werden!");
+				}
 
 				// Redirect to overview.
 				getMain().setView(Main.OVERVIEW);

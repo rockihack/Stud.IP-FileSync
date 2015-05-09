@@ -74,27 +74,22 @@ public class Config {
 	}
 
 	/**
-	 * Get the user home directory.
-	 * 
-	 * @return
-	 */
-	public static String getHomeDirectory() {
-		return System.getProperty("user.home");
-	}
-
-	/**
 	 * Open tree file.
 	 * 
 	 * @return
 	 * @throws IOException
 	 */
 	public static File openTreeFile() throws IOException {
-		File configDir = new File(getHomeDirectory(), CONFIG_DIR);
-		configDir.mkdir();
-		
+		File configDir = new File(System.getProperty("user.home"), CONFIG_DIR);
+		if (!configDir.exists() && !configDir.mkdir()) {
+			throw new IOException("Config Order konnte nicht erstellt werden!");
+		}
+
 		File treeFile = new File(configDir, TREE_FILE_NAME);
-		treeFile.createNewFile();
-		
+		if (!treeFile.exists() && !treeFile.createNewFile()) {
+			throw new IOException("Dateibaum konnte nicht erstellt werden!");
+		}
+
 		return treeFile;
 	}
 
@@ -219,7 +214,7 @@ public class Config {
 	 * @param accessToken
 	 * @throws UnauthorizedException 
 	 */
-	protected Token getAccessToken() throws UnauthorizedException {
+	public Token getAccessToken() throws UnauthorizedException {
 		try {
 			return new Token(oauth.data.token, oauth.data.secret);
 
@@ -238,10 +233,7 @@ public class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	protected void setAccessToken(Token accessToken) throws UnauthorizedException, NotFoundException, IOException {
-		// Test if access token is valid.
-		User current_user = RestApi.getUserById(null);
-
+	public void setAccessToken(Token accessToken, User current_user) throws UnauthorizedException, NotFoundException, IOException {
 		oauth.data.first_name = current_user.forename;
 		oauth.data.last_name = current_user.lastname;
 		oauth.data.user_name = current_user.username;

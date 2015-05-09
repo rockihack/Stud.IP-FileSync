@@ -117,7 +117,6 @@ public class TreeSync extends TreeBuilder {
 		File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(documentNode.filename));
 		
 		if (documentFile.exists()) {
-			// TODO: Doesn't work on linux...
 			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() != documentNode.chdate * 1000L) {
 				/* Document has changed, we will download it again. */
 
@@ -200,7 +199,9 @@ public class TreeSync extends TreeBuilder {
 				 * The timestamp must be the same as in the document node,
 				 * otherwise the file will be downloaded again.
 				 */
-				documentFile.setLastModified(documentNode.chdate * 1000L);
+				if (!documentFile.setLastModified(documentNode.chdate * 1000L)) {
+					throw new IllegalStateException("Änderungsdatum konnte nicht gesetzt werden!");
+				}
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */

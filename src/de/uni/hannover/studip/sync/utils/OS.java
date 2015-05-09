@@ -1,5 +1,7 @@
 package de.uni.hannover.studip.sync.utils;
 
+import java.util.Locale;
+
 /**
  * 
  * @author Lennart Glauer
@@ -28,7 +30,7 @@ public enum OS {
 	}
 
 	private static OS detectOS() {
-		String os = System.getProperty("os.name").toLowerCase();
+		String os = System.getProperty("os.name").toLowerCase(Locale.GERMANY);
 
 		if (os.contains("win")) {
 			return WINDOWS;

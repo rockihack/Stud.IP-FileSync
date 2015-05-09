@@ -16,22 +16,19 @@ import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.util.Callback;
 
 public class NewDocumentsController extends AbstractController {
 
 	private ObservableList<NewDocumentsModel> documentList = FXCollections.observableArrayList();
 
 	@FXML
-	private TableView<NewDocumentsModel> tableView;
+	protected TableView<NewDocumentsModel> tableView;
 
 	@FXML
 	private TableColumn<NewDocumentsModel, Date> dateColumn;
@@ -76,24 +73,18 @@ public class NewDocumentsController extends AbstractController {
 			courseColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.45));
 
 			// Click listener.
-			tableView.setRowFactory(new Callback<TableView<NewDocumentsModel>, TableRow<NewDocumentsModel>>() {
-				@Override
-				public TableRow<NewDocumentsModel> call(TableView<NewDocumentsModel> arg0) {
-					TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>();
+			tableView.setRowFactory(callback -> {
+				TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>();
 
-					row.setOnMouseClicked(new EventHandler<MouseEvent>() {
-						@Override
-						public void handle(MouseEvent event) {
-							NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
+				row.setOnMouseClicked(event -> {
+					NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
 
-							if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
-								FileBrowser.open(selectedItem.getDocumentFile());
-							}
-						}
-					});
+					if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
+						FileBrowser.open(selectedItem.getDocumentFile());
+					}
+				});
 
-					return row;
-				}
+				return row;
 			});
 
 			tableView.setItems(documentList);
@@ -102,6 +93,7 @@ public class NewDocumentsController extends AbstractController {
 			tableView.getSortOrder().add(dateColumn);
 
 		} catch (IOException e) {
+			// Empty table.
 		}
 	}
 

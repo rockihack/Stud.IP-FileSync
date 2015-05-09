@@ -9,7 +9,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class NewDocumentsModel {
 
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
+	protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss");
 
 	private final SimpleObjectProperty<Date> documentChdate;
 	private final SimpleStringProperty documentName;

@@ -28,11 +28,6 @@ public class OAuth {
 	private static final OAuth singletonInstance = new OAuth();
 
 	/**
-	 * Config.
-	 */
-	private static final Config config = Config.getInstance();
-
-	/**
 	 * Singleton instance getter.
 	 * 
 	 * @return OAuth instance
@@ -54,13 +49,16 @@ public class OAuth {
 	/**
 	 * Access token.
 	 */
-	private Token accessToken;
+	private volatile Token accessToken;
 
 	/**
 	 * Current state.
 	 */
-	private OAuthState state;
+	private volatile OAuthState state;
 
+	/**
+	 * State enum.
+	 */
 	private enum OAuthState {
 		GET_REQUEST_TOKEN,
 		GET_ACCESS_TOKEN,
@@ -110,7 +108,7 @@ public class OAuth {
 	 * @throws NotFoundException 
 	 * @throws UnauthorizedException 
 	 */
-	public synchronized void getAccessToken(String verifier) throws UnauthorizedException, NotFoundException, IOException {
+	public synchronized Token getAccessToken(String verifier) throws UnauthorizedException, NotFoundException, IOException {
 		if (state != OAuthState.GET_ACCESS_TOKEN) {
 			throw new IllegalStateException("Request token not found!");
 		}
@@ -119,7 +117,7 @@ public class OAuth {
 		accessToken = service.getAccessToken(requestToken, new Verifier(verifier));
 		state = OAuthState.READY;
 
-		config.setAccessToken(accessToken);
+		return accessToken;
 	}
 	
 	/**
@@ -147,7 +145,7 @@ public class OAuth {
 	 * @throws UnauthorizedException 
 	 */
 	public synchronized void restoreAccessToken() throws UnauthorizedException {
-		accessToken = config.getAccessToken();
+		accessToken = Config.getInstance().getAccessToken();
 		state = OAuthState.READY;
 	}
 
