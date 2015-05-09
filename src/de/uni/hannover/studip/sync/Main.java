@@ -16,6 +16,7 @@ import javafx.stage.WindowEvent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
@@ -79,6 +80,7 @@ public class Main extends Application {
 
 			// Init primary stage.
 			primaryStage.setScene(new Scene(rootLayout));
+			primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("icon.png")));
 			primaryStage.setTitle(APP_NAME);
 			//primaryStage.setMinWidth(640);
 			//primaryStage.setMinHeight(480);

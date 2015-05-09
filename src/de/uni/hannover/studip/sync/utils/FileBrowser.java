@@ -67,9 +67,9 @@ public class FileBrowser {
 	 * @param file
 	 * @return
 	 */
-	public static String removeIllegalCharacters(String file) {
+	public static String removeIllegalCharacters(String file, int replaceWhitespaces) {
 		/* Replace whitespaces. */
-		switch (Config.getInstance().getReplaceWhitespaces()) {
+		switch (replaceWhitespaces) {
 		case 1:
 			file = file.replaceAll("[-\\s]+", "-");
 			break;
@@ -84,5 +84,15 @@ public class FileBrowser {
 		file = file.replaceAll("[-\\/]+", "-");
 		/* Remove other illegal chars. */
 		return file.replaceAll("[<>:\"|?*]+", "");
+	}
+
+	/**
+	 * Remove/replace illegal chars from path/file name.
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static String removeIllegalCharacters(String file) {
+		return removeIllegalCharacters(file, Config.getInstance().getReplaceWhitespaces());
 	}
 }
