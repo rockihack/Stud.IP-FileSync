@@ -15,6 +15,11 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.Alert.AlertType;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class RootLayoutController extends AbstractController {
 
 	@FXML
@@ -43,21 +48,19 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleOpenFolder() {
-		String rootDir = Config.getInstance().getRootDirectory();
-		if (rootDir != null) {
-			if (!FileBrowser.open(new File(rootDir))) {
-				Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Not supported.");
-				alert.showAndWait();
-			}
-
-		} else {
-			Alert alert = new Alert(AlertType.ERROR);
+		final String rootDir = Config.getInstance().getRootDirectory();
+		if (rootDir == null) {
+			final Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Fehler");
 			alert.setHeaderText(null);
 			alert.setContentText("Kein Ziel Ordner gewählt.");
+			alert.showAndWait();
+
+		} else if (!FileBrowser.open(new File(rootDir))) {
+			final Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("Not supported.");
 			alert.showAndWait();
 		}
 	}
@@ -85,17 +88,17 @@ public class RootLayoutController extends AbstractController {
 	@FXML
 	public void handleUpdateSeminars() {
 		// TODO: Alert size too small on linux.
-		Alert confirm = new Alert(AlertType.CONFIRMATION);
+		final Alert confirm = new Alert(AlertType.CONFIRMATION);
 		confirm.setTitle("Bestätigen");
 		confirm.setHeaderText(null);
 		confirm.setContentText("Diese Funktion sollte nur zu Beginn eines Semesters genutzt werden, "
 				+ "nachdem Sie sich in neue Veranstaltungen eingeschrieben haben. "
 				+ "Möchten Sie fortfahren?");
-		Button yesButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.OK);
+		final Button yesButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.OK);
 		yesButton.setDefaultButton(false);
-		Button cancelButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.CANCEL);
+		final Button cancelButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.CANCEL);
 		cancelButton.setDefaultButton(true);
-		Optional<ButtonType> result = confirm.showAndWait();
+		final Optional<ButtonType> result = confirm.showAndWait();
 
 		if (result.get() == ButtonType.OK) {
 			try {
@@ -109,11 +112,11 @@ public class RootLayoutController extends AbstractController {
 				getMain().setView(Main.OVERVIEW);
 
 				// Start the sync.
-				OverviewController overview = (OverviewController) getMain().getController();
+				final OverviewController overview = (OverviewController) getMain().getController();
 				overview.handleSync();
 
 			} catch (IOException e) {
-				Alert alert = new Alert(AlertType.ERROR);
+				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Fehler");
 				alert.setHeaderText(null);
 				alert.setContentText(e.getMessage());

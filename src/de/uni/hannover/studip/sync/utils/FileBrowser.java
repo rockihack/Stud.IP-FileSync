@@ -13,9 +13,13 @@ import de.uni.hannover.studip.sync.models.Config;
  * @notice java.awt.Desktop does not work on linux.
  *
  */
-public class FileBrowser {
+public final class FileBrowser {
 
-	public static boolean open(File file) {
+	private FileBrowser() {
+		// Utility class.
+	}
+
+	public static boolean open(final File file) {
 		if (!file.exists()) {
 			return false;
 		}
@@ -39,7 +43,7 @@ public class FileBrowser {
 
 		} else if (OS.isLinux()) {
 			// TODO: Escape whitespaces?
-			String filePath = file.getAbsolutePath();
+			final String filePath = file.getAbsolutePath();
 
 			return runCommand(new String[] {"xdg-open", filePath})			// All
 					|| runCommand(new String[] {"kde-open", filePath})		// KDE
@@ -53,9 +57,9 @@ public class FileBrowser {
 		}
 	}
 
-	private static boolean runCommand(String[] cmd) {
+	private static boolean runCommand(final String[] cmd) {
 		try {
-			Process process = Runtime.getRuntime().exec(cmd);
+			final Process process = Runtime.getRuntime().exec(cmd);
 			return process.isAlive();
 
 		} catch (IOException e) {
@@ -69,7 +73,7 @@ public class FileBrowser {
 	 * @param file
 	 * @return
 	 */
-	public static String removeIllegalCharacters(String file, int replaceWhitespaces) {
+	public static String removeIllegalCharacters(String file, final int replaceWhitespaces) {
 		/* Replace whitespaces. */
 		switch (replaceWhitespaces) {
 		case 1:
@@ -94,7 +98,7 @@ public class FileBrowser {
 	 * @param file
 	 * @return
 	 */
-	public static String removeIllegalCharacters(String file) {
+	public static String removeIllegalCharacters(final String file) {
 		return removeIllegalCharacters(file, Config.getInstance().getReplaceWhitespaces());
 	}
 }

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SemestersTreeNode {
-	
-	public List<SemesterTreeNode> semesters = Collections.synchronizedList(new ArrayList<SemesterTreeNode>());
-	
+
+	public final List<SemesterTreeNode> semesters = Collections.synchronizedList(new ArrayList<SemesterTreeNode>());
+
 }

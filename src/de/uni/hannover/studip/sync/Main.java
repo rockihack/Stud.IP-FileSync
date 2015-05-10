@@ -18,11 +18,15 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
-
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class Main extends Application {
 
 	// App name (titlebar).
-	private static final String APP_NAME = "Stud.IP FileSync **Beta**";
+	public static final String APP_NAME = "Stud.IP FileSync **Beta**";
 
 	// Views.
 	public static final String OVERVIEW = "Overview";
@@ -34,7 +38,7 @@ public class Main extends Application {
 	public static final String SYNC_SETTINGS = "SyncSettings";
 	public static final String ABOUT = "About";
 
-	private LinkedList<String> viewHistory = new LinkedList<String>();
+	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -44,8 +48,11 @@ public class Main extends Application {
 	@SuppressWarnings("unused")
 	private ServerSocket globalAppMutex;
 
+	/**
+	 * 
+	 */
 	@Override
-	public void start(Stage primaryStage) {
+	public void start(final Stage primaryStage) {
 		this.primaryStage = primaryStage;
 
 		try {
@@ -57,7 +64,7 @@ public class Main extends Application {
 			setView(OVERVIEW);
 
 		} catch (IOException e) {
-			Alert alert = new Alert(AlertType.ERROR);
+			final Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Fehler");
 			alert.setHeaderText(null);
 			alert.setContentText("FileSync läuft bereits.");
@@ -68,7 +75,7 @@ public class Main extends Application {
 
 	private void initRootLayout() {
 		try {
-			FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/RootLayout.fxml"));
+			final FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/RootLayout.fxml"));
 			rootLayout = (BorderPane) loader.load();
 
 			rootLayoutController = loader.getController();
@@ -97,22 +104,26 @@ public class Main extends Application {
 		}
 	}
 
-	public void setView(String fxml) {
-		synchronized (viewHistory) {
-			if (fxml.equals(viewHistory.peek())) {
+	/**
+	 * 
+	 * @param fxml
+	 */
+	public void setView(final String fxml) {
+		synchronized (VIEW_HISTORY) {
+			if (fxml.equals(VIEW_HISTORY.peek())) {
 				// Same as the current view.
 				return;
 			}
 
 			try {
-				FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + fxml + ".fxml"));
+				final FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/" + fxml + ".fxml"));
 				rootLayout.setCenter((AnchorPane) loader.load());
 
 				currentController = loader.getController();
 				currentController.setMain(this);
 
 				// Push view.
-				viewHistory.push(fxml);
+				VIEW_HISTORY.push(fxml);
 
 			} catch (IOException e) {
 				// View fxml file not found!
@@ -121,34 +132,57 @@ public class Main extends Application {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public void setPrevView() {
-		synchronized (viewHistory) {
-			if (viewHistory.size() >= 2) {
+		synchronized (VIEW_HISTORY) {
+			if (VIEW_HISTORY.size() >= 2) {
 				// Pop current view.
-				viewHistory.pop();
+				VIEW_HISTORY.pop();
 
 				// Set previous view.
-				setView(viewHistory.pop());
+				setView(VIEW_HISTORY.pop());
 			}
 		}
 	}
 
-	public static void main(String[] args) {
+	/**
+	 * 
+	 * @param args
+	 */
+	public static void main(final String[] args) {
 		launch(args);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public Stage getPrimaryStage() {
 		return primaryStage;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public BorderPane getRootLayout() {
 		return rootLayout;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public RootLayoutController getRootLayoutController() {
 		return rootLayoutController;
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	public AbstractController getController() {
 		return currentController;
 	}

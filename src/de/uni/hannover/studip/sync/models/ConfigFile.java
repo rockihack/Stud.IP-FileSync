@@ -8,38 +8,66 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ * @param <T>
+ */
 public class ConfigFile<T> {
 
-	private final File dir;
 	private final File file;
 	private final Class<T> type;
 
 	public T data;
 
-	public ConfigFile(String dir, String file, Class<T> type) throws IOException, InstantiationException, IllegalAccessException {
-		this.dir = new File(System.getProperty("user.home"), dir);
-		if (!this.dir.exists() && !this.dir.mkdir()) {
-			throw new IOException(file + " konnte nicht erstellt werden!");
+	/**
+	 * 
+	 * @param dir
+	 * @param file
+	 * @param type
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	public ConfigFile(final String dirName, final String fileName, final Class<T> typeClass) throws IOException, InstantiationException, IllegalAccessException {
+		final File dir = new File(System.getProperty("user.home"), dirName);
+		if (!dir.exists() && !dir.mkdir()) {
+			throw new IOException(dirName + " konnte nicht erstellt werden!");
 		}
 
-		this.file = new File(this.dir, file);
-		this.type = type;
+		file = new File(dir, fileName);
+		type = typeClass;
 
-		if (this.file.createNewFile()) {
+		if (file.createNewFile()) {
 			init();
 		} else {
 			read();
 		}
 	}
 
-	public synchronized void init() throws JsonGenerationException, JsonMappingException, IOException, InstantiationException, IllegalAccessException {
+	/**
+	 * 
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	public final synchronized void init() throws JsonGenerationException, JsonMappingException, IOException, InstantiationException, IllegalAccessException {
 		data = type.newInstance();
 		write();
 	}
 
-	public synchronized void read() throws IOException, InstantiationException, IllegalAccessException {
+	/**
+	 * 
+	 * @throws IOException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 */
+	public final synchronized void read() throws IOException, InstantiationException, IllegalAccessException {
 		try {
-			ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = new ObjectMapper();
 			data = mapper.readValue(file, type);
 
 		} catch (JsonParseException | JsonMappingException e) {
@@ -48,8 +76,14 @@ public class ConfigFile<T> {
 		}
 	}
 
-	public synchronized void write() throws JsonGenerationException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
+	/**
+	 * 
+	 * @throws JsonGenerationException
+	 * @throws JsonMappingException
+	 * @throws IOException
+	 */
+	public final synchronized void write() throws JsonGenerationException, JsonMappingException, IOException {
+		final ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(file, data);
 	}
 }

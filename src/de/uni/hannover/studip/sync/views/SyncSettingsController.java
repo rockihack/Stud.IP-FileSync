@@ -19,6 +19,11 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Alert.AlertType;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class SyncSettingsController extends AbstractController {
 
 	@FXML
@@ -35,10 +40,10 @@ public class SyncSettingsController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
-		Config config = Config.getInstance();
+		final Config config = Config.getInstance();
 
-		overwriteChoicebox.getSelectionModel().select(config.getOverwriteFiles() ? 0 : 1);
-		downloadAllSemestersChoicebox.getSelectionModel().select(config.getDownloadAllSemesters() ? 0 : 1);
+		overwriteChoicebox.getSelectionModel().select(config.isOverwriteFiles() ? 0 : 1);
+		downloadAllSemestersChoicebox.getSelectionModel().select(config.isDownloadAllSemesters() ? 0 : 1);
 		replaceWhitespacesChoicebox.getSelectionModel().select(config.getReplaceWhitespaces());
 
 		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(
@@ -69,11 +74,11 @@ public class SyncSettingsController extends AbstractController {
 			(observableValue, oldValue, newValue) -> {
 				if (config.getReplaceWhitespaces() != newValue.intValue()) {
 					try {
-						Alert confirm = new Alert(AlertType.CONFIRMATION);
+						final Alert confirm = new Alert(AlertType.CONFIRMATION);
 						confirm.setTitle("Bestätigen");
 						confirm.setHeaderText(null);
 						confirm.setContentText("Alle Dokumente werden entsprechend umbenannt.\nMöchten Sie wirklich fortfahren?");
-						Optional<ButtonType> result = confirm.showAndWait();
+						final Optional<ButtonType> result = confirm.showAndWait();
 
 						if (result.get() == ButtonType.OK) {
 							if (renameDocuments(config.getReplaceWhitespaces(), newValue.intValue())) {
@@ -85,7 +90,7 @@ public class SyncSettingsController extends AbstractController {
 								renameDocuments(newValue.intValue(), config.getReplaceWhitespaces());
 								replaceWhitespacesChoicebox.getSelectionModel().select(config.getReplaceWhitespaces());
 
-								Alert alert = new Alert(AlertType.ERROR);
+								final Alert alert = new Alert(AlertType.ERROR);
 								alert.setTitle("Fehler");
 								alert.setHeaderText(null);
 								alert.setContentText("Es konnten nicht alle Dokumente umbenannt werden.\nDie Änderungen wurden rückgängig gemacht.");
@@ -108,33 +113,40 @@ public class SyncSettingsController extends AbstractController {
 		getMain().setPrevView();
 	}
 
-	private synchronized boolean renameDocuments(int oldValue, int newValue) throws IOException {
+	/**
+	 * 
+	 * @param oldValue
+	 * @param newValue
+	 * @return
+	 * @throws IOException
+	 */
+	private synchronized boolean renameDocuments(final int oldValue, final int newValue) throws IOException {
 		/* Read existing tree. */
-		File treeFile = Config.openTreeFile();
-		ObjectMapper mapper = new ObjectMapper();
-		SemestersTreeNode rootNode = mapper.readValue(treeFile, SemestersTreeNode.class);
+		final File treeFile = Config.openTreeFile();
+		final ObjectMapper mapper = new ObjectMapper();
+		final SemestersTreeNode rootNode = mapper.readValue(treeFile, SemestersTreeNode.class);
 
-		File rootDirectory = new File(Config.getInstance().getRootDirectory());
+		final File rootDirectory = new File(Config.getInstance().getRootDirectory());
 
 		// Rename documents.
 		for (SemesterTreeNode semester : rootNode.semesters) {
-			File _semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title, oldValue));
+			final File _semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title, oldValue));
 			if (!_semesterDirectory.exists()) {
 				continue;
 			}
 
-			File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title, newValue));
+			final File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title, newValue));
 			if(!_semesterDirectory.renameTo(semesterDirectory)) {
 				return false;
 			}
 
 			for (CourseTreeNode course : semester.courses) {
-				File _courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title, oldValue));
+				final File _courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title, oldValue));
 				if (!_courseDirectory.exists()) {
 					continue;
 				}
 
-				File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title, newValue));
+				final File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title, newValue));
 				if (!_courseDirectory.renameTo(courseDirectory) || !doFolder(course.root, courseDirectory, oldValue, newValue)) {
 					return false;
 				}
@@ -144,27 +156,35 @@ public class SyncSettingsController extends AbstractController {
 		return true;
 	}
 
-	private boolean doFolder(DocumentFolderTreeNode folderNode, File parentDirectory, int oldValue, int newValue) {
+	/**
+	 * 
+	 * @param folderNode
+	 * @param parentDirectory
+	 * @param oldValue
+	 * @param newValue
+	 * @return
+	 */
+	private boolean doFolder(final DocumentFolderTreeNode folderNode, final File parentDirectory, final int oldValue, final int newValue) {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			File _folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, oldValue));
+			final File _folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, oldValue));
 			if (!_folderDirectory.exists()) {
 				continue;
 			}
 
-			File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, newValue));
+			final File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, newValue));
 			if (!_folderDirectory.renameTo(folderDirectory) || !doFolder(folder, folderDirectory, oldValue, newValue)) {
 				return false;
 			}
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
-			File _documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.filename, oldValue));
+			final File _documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.filename, oldValue));
 			if (!_documentFile.exists()) {
 				continue;
 			}
 
-			File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.filename, newValue));
+			final File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.filename, newValue));
 			if (!_documentFile.renameTo(documentFile)) {
 				return false;
 			}

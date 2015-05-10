@@ -22,20 +22,21 @@ public class DocumentFolderTreeNode {
 	public String name;
 	public String mkdate;
 	public Long chdate;
-	
+
 	/* Child nodes. */
-	public List<DocumentFolderTreeNode> folders = Collections.synchronizedList(new ArrayList<DocumentFolderTreeNode>());
-	public List<DocumentTreeNode> documents = Collections.synchronizedList(new ArrayList<DocumentTreeNode>());
-	
+	public final List<DocumentFolderTreeNode> folders = Collections.synchronizedList(new ArrayList<DocumentFolderTreeNode>());
+	public final List<DocumentTreeNode> documents = Collections.synchronizedList(new ArrayList<DocumentTreeNode>());
+
 	public DocumentFolderTreeNode() {
+		// Course root node.
 	}
-	
-	public DocumentFolderTreeNode(DocumentFolder folder) {
+
+	public DocumentFolderTreeNode(final DocumentFolder folder) {
 		this.folder_id = folder.folder_id;
 		this.user_id = folder.user_id;
 		this.name = folder.name;
 		this.mkdate = folder.mkdate;
 		this.chdate = folder.chdate;
 	}
-	
+
 }

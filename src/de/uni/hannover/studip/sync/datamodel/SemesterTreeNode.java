@@ -23,14 +23,15 @@ public class SemesterTreeNode {
 	public long end;
 	public long seminars_begin;
 	public long seminars_end;
-	  
+
 	/* Child nodes. */
-	public List<CourseTreeNode> courses = Collections.synchronizedList(new ArrayList<CourseTreeNode>());
-	
+	public final List<CourseTreeNode> courses = Collections.synchronizedList(new ArrayList<CourseTreeNode>());
+
 	public SemesterTreeNode() {
+		// Needed for json object binding.
 	}
-	
-	public SemesterTreeNode(Semester semester) {
+
+	public SemesterTreeNode(final Semester semester) {
 		this.semester_id = semester.semester_id;
 		this.title = semester.title;
 		this.begin = semester.begin;

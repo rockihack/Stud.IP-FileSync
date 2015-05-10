@@ -30,7 +30,7 @@ public enum OS {
 	}
 
 	private static OS detectOS() {
-		String os = System.getProperty("os.name").toLowerCase(Locale.GERMANY);
+		final String os = System.getProperty("os.name").toLowerCase(Locale.GERMANY);
 
 		if (os.contains("win")) {
 			return WINDOWS;

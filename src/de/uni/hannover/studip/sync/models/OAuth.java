@@ -20,21 +20,12 @@ import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
  * 
  * @author Lennart Glauer
  */
-public class OAuth {
+public final class OAuth {
 
 	/**
 	 * Singleton instance.
 	 */
-	private static final OAuth singletonInstance = new OAuth();
-
-	/**
-	 * Singleton instance getter.
-	 * 
-	 * @return OAuth instance
-	 */
-	public static OAuth getInstance() {
-		return singletonInstance;
-	}
+	private static final OAuth INSTANCE = new OAuth();
 
 	/**
 	 * Service object.
@@ -55,6 +46,15 @@ public class OAuth {
 	 * Current state.
 	 */
 	private volatile OAuthState state;
+
+	/**
+	 * Singleton instance getter.
+	 * 
+	 * @return OAuth instance
+	 */
+	public static OAuth getInstance() {
+		return INSTANCE;
+	}
 
 	/**
 	 * State enum.
@@ -108,7 +108,7 @@ public class OAuth {
 	 * @throws NotFoundException 
 	 * @throws UnauthorizedException 
 	 */
-	public synchronized Token getAccessToken(String verifier) throws UnauthorizedException, NotFoundException, IOException {
+	public synchronized Token getAccessToken(final String verifier) throws UnauthorizedException, NotFoundException, IOException {
 		if (state != OAuthState.GET_ACCESS_TOKEN) {
 			throw new IllegalStateException("Request token not found!");
 		}
@@ -127,12 +127,12 @@ public class OAuth {
 	 * @param url Request address
 	 * @return New OAuthRequest
 	 */
-	public Response sendRequest(Verb method, String url) {
+	public Response sendRequest(final Verb method, final String url) {
 		if (state != OAuthState.READY) {
 			throw new IllegalStateException("Access token not found!");
 		}
 
-		OAuthRequest request = new OAuthRequest(method, url);
+		final OAuthRequest request = new OAuthRequest(method, url);
 		request.setConnectionKeepAlive(true);
 		service.signRequest(accessToken, request);
 		return request.send();

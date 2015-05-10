@@ -5,6 +5,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class OAuthController extends AbstractController {
 
 	@FXML
@@ -13,7 +18,7 @@ public class OAuthController extends AbstractController {
 			getMain().setView(Main.OAUTH_WEBVIEW);
 
 		} catch (Exception e) {
-			Alert alert = new Alert(AlertType.ERROR);
+			final Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Fehler");
 			alert.setHeaderText(null);
 			alert.setContentText("Keine Verbindung zum Internet möglich!");

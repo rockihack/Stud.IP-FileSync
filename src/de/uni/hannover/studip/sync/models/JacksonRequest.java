@@ -23,7 +23,7 @@ public class JacksonRequest<T> {
 	/**
 	 * OAuth service.
 	 */
-	private static final OAuth oauth = OAuth.getInstance();
+	private static final OAuth OAUTH = OAuth.getInstance();
 	
 	/**
 	 * Request method.
@@ -45,13 +45,19 @@ public class JacksonRequest<T> {
 	 */
 	private final Response response;
 	
-	public JacksonRequest(Verb method, String url, Class<T> datamodel) {
+	/**
+	 * 
+	 * @param method
+	 * @param url
+	 * @param datamodel
+	 */
+	public JacksonRequest(final Verb method, final String url, final Class<T> datamodel) {
 		this.method = method;
 		this.url = url;
 		this.datamodel = datamodel;
 		
 		/* Send rest api request using oauth service. */
-		this.response = oauth.sendRequest(method, url);
+		this.response = OAUTH.sendRequest(method, url);
 	}
 	
 	/**
@@ -62,8 +68,8 @@ public class JacksonRequest<T> {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public T parseResponse(boolean unwrap) throws JsonParseException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
+	public T parseResponse(final boolean unwrap) throws JsonParseException, JsonMappingException, IOException {
+		final ObjectMapper mapper = new ObjectMapper();
 		
 		/* Unwrap root value. */
 		if (unwrap) {

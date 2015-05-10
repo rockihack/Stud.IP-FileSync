@@ -19,6 +19,11 @@ import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class OAuthWebviewController extends AbstractController {
 
 	@FXML
@@ -29,7 +34,7 @@ public class OAuthWebviewController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
-		WebEngine webEngine = webView.getEngine();
+		final WebEngine webEngine = webView.getEngine();
 		webEngine.setJavaScriptEnabled(true);
 		webEngine.getLoadWorker().stateProperty().addListener(
 			(observableValue, oldState, newState) -> {
@@ -48,7 +53,7 @@ public class OAuthWebviewController extends AbstractController {
 			});
 
 		// Open oauth authentication url.
-		OAuth oauth = OAuth.getInstance();
+		final OAuth oauth = OAuth.getInstance();
 		oauth.getRequestToken();
 		webEngine.load(oauth.getAuthUrl());
 	}
@@ -58,23 +63,23 @@ public class OAuthWebviewController extends AbstractController {
 	 * 
 	 * @param url 
 	 */
-	private void onload(WebEngine engine) {
+	private void onload(final WebEngine engine) {
 		// Parse oauth verifier.
-		Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
-		Matcher matcher = pattern.matcher(engine.getLocation());
+		final Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
+		final Matcher matcher = pattern.matcher(engine.getLocation());
 
 		if (matcher.find()) {
 			try {
 				// Authentication succeeded, now get the oauth access token.
-				Token accessToken = OAuth.getInstance().getAccessToken(matcher.group(1));
+				final Token accessToken = OAuth.getInstance().getAccessToken(matcher.group(1));
 
 				// Test if access token is valid.
-				User current_user = RestApi.getUserById(null);
+				final User currentUser = RestApi.getUserById(null);
 
 				// Store access token.
-				Config.getInstance().setAccessToken(accessToken, current_user);
+				Config.getInstance().setAccessToken(accessToken, currentUser);
 
-				String rootDir = Config.getInstance().getRootDirectory();
+				final String rootDir = Config.getInstance().getRootDirectory();
 				getMain().setView(
 						rootDir != null && new File(rootDir).exists()
 						? Main.OVERVIEW

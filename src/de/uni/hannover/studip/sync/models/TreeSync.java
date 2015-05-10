@@ -24,7 +24,11 @@ public class TreeSync extends TreeBuilder {
 	 */
 	private final File rootDirectory;
 
-	public TreeSync(File rootDirectory) {
+	/**
+	 * 
+	 * @param rootDirectory
+	 */
+	public TreeSync(final File rootDirectory) {
 		super();
 
 		if (!rootDirectory.isDirectory()) {
@@ -42,29 +46,29 @@ public class TreeSync extends TreeBuilder {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int sync(File tree, boolean doAllSemesters) throws JsonParseException, JsonMappingException, IOException {
+	public synchronized int sync(final File tree, final boolean doAllSemesters) throws JsonParseException, JsonMappingException, IOException {
 		/* Read existing tree. */
-		ObjectMapper mapper = new ObjectMapper();
-		SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
+		final ObjectMapper mapper = new ObjectMapper();
+		final SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
 		
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
-		Phaser phaser = new Phaser(1); /* = self. */
+		final Phaser phaser = new Phaser(1); /* = self. */
 		
 		/* Current unix timestamp. */
-		long now = System.currentTimeMillis() / 1000L;
+		final long now = System.currentTimeMillis() / 1000L;
 		
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
-				File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
+				final File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
 				
 				if (!semesterDirectory.exists() && !semesterDirectory.mkdir()) {
 					throw new IllegalStateException("Could not create semester directory!");
 				}
 				
 				for (CourseTreeNode course : semester.courses) {
-					File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
+					final File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
 					
 					if (!courseDirectory.exists() && !courseDirectory.mkdir()) {
 						throw new IllegalStateException("Could not create course directory!");
@@ -89,10 +93,10 @@ public class TreeSync extends TreeBuilder {
 	 * @param folderNode The folder node
 	 * @param parentDirectory The parent directory
 	 */
-	private void doFolder(Phaser phaser, DocumentFolderTreeNode folderNode, File parentDirectory) {
+	private void doFolder(final Phaser phaser, final DocumentFolderTreeNode folderNode, final File parentDirectory) {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
+			final File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
 			
 			if (!folderDirectory.exists() && !folderDirectory.mkdir()) {
 				throw new IllegalStateException("Could not create course directory!");
@@ -113,17 +117,17 @@ public class TreeSync extends TreeBuilder {
 	 * @param documentNode The document node
 	 * @param parentDirectory The parent directory
 	 */
-	private void doDocument(Phaser phaser, DocumentTreeNode documentNode, File parentDirectory) {
+	private void doDocument(final Phaser phaser, final DocumentTreeNode documentNode, final File parentDirectory) {
 		File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(documentNode.filename));
 		
 		if (documentFile.exists()) {
 			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() != documentNode.chdate * 1000L) {
 				/* Document has changed, we will download it again. */
 
-				if (!Config.getInstance().getOverwriteFiles()) {
+				if (!Config.getInstance().isOverwriteFiles()) {
 					/* Overwrite files is disabled, we append a version number to the filename. */
 					int i = 0;
-					String originalName = FileBrowser.removeIllegalCharacters(documentNode.filename);
+					final String originalName = FileBrowser.removeIllegalCharacters(documentNode.filename);
 
 					do {
 						i++;
@@ -180,7 +184,7 @@ public class TreeSync extends TreeBuilder {
 		 * @param documentNode The document node to download
 		 * @param documentFile The file location to store the document
 		 */
-		public DownloadDocumentJob(Phaser phaser, DocumentTreeNode documentNode, File documentFile) {
+		public DownloadDocumentJob(final Phaser phaser, final DocumentTreeNode documentNode, final File documentFile) {
 			this.phaser = phaser;
 			this.documentNode = documentNode;
 			this.documentFile = documentFile;
@@ -189,9 +193,9 @@ public class TreeSync extends TreeBuilder {
 		@Override
 		public void run() {
 			try {
-				long startTime = System.currentTimeMillis();
+				final long startTime = System.currentTimeMillis();
 				RestApi.downloadDocumentById(documentNode.document_id, documentFile);
-				long endTime = System.currentTimeMillis();
+				final long endTime = System.currentTimeMillis();
 				System.out.println("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
 
 				/*
@@ -211,6 +215,7 @@ public class TreeSync extends TreeBuilder {
 				 * User does not have the required permissions
 				 * or document does not exist.
 				 */
+				// TODO
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {

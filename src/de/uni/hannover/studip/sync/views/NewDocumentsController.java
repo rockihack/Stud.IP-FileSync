@@ -23,9 +23,14 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class NewDocumentsController extends AbstractController {
 
-	private ObservableList<NewDocumentsModel> documentList = FXCollections.observableArrayList();
+	private final ObservableList<NewDocumentsModel> documentList = FXCollections.observableArrayList();
 
 	@FXML
 	protected TableView<NewDocumentsModel> tableView;
@@ -46,18 +51,18 @@ public class NewDocumentsController extends AbstractController {
 	public void initialize() {
 		try {
 			/* Read existing tree. */
-			File treeFile = Config.openTreeFile();
-			ObjectMapper mapper = new ObjectMapper();
-			SemestersTreeNode rootNode = mapper.readValue(treeFile, SemestersTreeNode.class);
+			final File treeFile = Config.openTreeFile();
+			final ObjectMapper mapper = new ObjectMapper();
+			final SemestersTreeNode rootNode = mapper.readValue(treeFile, SemestersTreeNode.class);
 
-			File rootDirectory = new File(Config.getInstance().getRootDirectory());
+			final File rootDirectory = new File(Config.getInstance().getRootDirectory());
 
 			// Build list of documents.
 			for (SemesterTreeNode semester : rootNode.semesters) {
-				File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
+				final File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
 
 				for (CourseTreeNode course : semester.courses) {
-					File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
+					final File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
 					doFolder(course, course.root, courseDirectory);
 				}
 			}
@@ -74,10 +79,10 @@ public class NewDocumentsController extends AbstractController {
 
 			// Click listener.
 			tableView.setRowFactory(callback -> {
-				TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>();
+				final TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>();
 
 				row.setOnMouseClicked(event -> {
-					NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
+					final NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
 
 					if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
 						FileBrowser.open(selectedItem.getDocumentFile());
@@ -97,15 +102,15 @@ public class NewDocumentsController extends AbstractController {
 		}
 	}
 
-	private void doFolder(CourseTreeNode courseNode, DocumentFolderTreeNode folderNode, File parentDirectory) {
+	private void doFolder(final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final File parentDirectory) {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
+			final File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
 			doFolder(courseNode, folder, folderDirectory);
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
-			File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.filename));
+			final File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.filename));
 			documentList.add(new NewDocumentsModel(courseNode, document, documentFile));
 		}
 	}

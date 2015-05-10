@@ -8,7 +8,7 @@ import org.scribe.model.Token;
  * 
  * @author Lennart Glauer
  */
-public class StudIPApiProvider extends DefaultApi10a
+public final class StudIPApiProvider extends DefaultApi10a
 {
 	/**
 	 * Studip rest api plugin base url.
@@ -44,7 +44,7 @@ public class StudIPApiProvider extends DefaultApi10a
 	}
 
 	@Override
-	public String getAuthorizationUrl(Token requestToken)
+	public String getAuthorizationUrl(final Token requestToken)
 	{
 		return BASE_URL + "/oauth/authorize?oauth_token=" + requestToken.getToken();
 	}

@@ -14,12 +14,17 @@ import de.uni.hannover.studip.sync.datamodel.OAuthFile;
 import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 
-public class Config {
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
+public final class Config {
 	
 	/**
 	 * Singleton instance.
 	 */
-	private static final Config singletonInstance = new Config();
+	private static final Config INSTANCE = new Config();
 	
 	/**
 	 * Config directory.
@@ -57,7 +62,7 @@ public class Config {
 	 * @return
 	 */
 	public static Config getInstance() {
-		return singletonInstance;
+		return INSTANCE;
 	}
 	
 	/**
@@ -80,12 +85,12 @@ public class Config {
 	 * @throws IOException
 	 */
 	public static File openTreeFile() throws IOException {
-		File configDir = new File(System.getProperty("user.home"), CONFIG_DIR);
+		final File configDir = new File(System.getProperty("user.home"), CONFIG_DIR);
 		if (!configDir.exists() && !configDir.mkdir()) {
 			throw new IOException("Config Order konnte nicht erstellt werden!");
 		}
 
-		File treeFile = new File(configDir, TREE_FILE_NAME);
+		final File treeFile = new File(configDir, TREE_FILE_NAME);
 		if (!treeFile.exists() && !treeFile.createNewFile()) {
 			throw new IOException("Dateibaum konnte nicht erstellt werden!");
 		}
@@ -120,15 +125,15 @@ public class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setRootDirectory(String root_dir) throws JsonGenerationException, JsonMappingException, IOException {
-		settings.data.root_dir = root_dir;
+	public void setRootDirectory(final String rootDir) throws JsonGenerationException, JsonMappingException, IOException {
+		settings.data.root_dir = rootDir;
 		settings.write();
 	}
 
 	/**
 	 * 
 	 */
-	public boolean getOverwriteFiles() {
+	public boolean isOverwriteFiles() {
 		return settings.data.overwrite_files;
 	}
 
@@ -138,7 +143,7 @@ public class Config {
 	 * @throws JsonGenerationException 
 	 * 
 	 */
-	public void setOverwriteFiles(boolean value) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setOverwriteFiles(final boolean value) throws JsonGenerationException, JsonMappingException, IOException {
 		settings.data.overwrite_files = value;
 		settings.write();
 	}
@@ -146,7 +151,7 @@ public class Config {
 	/**
 	 * 
 	 */
-	public boolean getDownloadAllSemesters() {
+	public boolean isDownloadAllSemesters() {
 		return settings.data.download_all_semesters;
 	}
 
@@ -156,7 +161,7 @@ public class Config {
 	 * @throws JsonGenerationException 
 	 * 
 	 */
-	public void setDownloadAllSemesters(boolean value) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setDownloadAllSemesters(final boolean value) throws JsonGenerationException, JsonMappingException, IOException {
 		settings.data.download_all_semesters = value;
 		settings.write();
 	}
@@ -174,7 +179,7 @@ public class Config {
 	 * @throws JsonGenerationException 
 	 * 
 	 */
-	public void setReplaceWhitespaces(int value) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setReplaceWhitespaces(final int value) throws JsonGenerationException, JsonMappingException, IOException {
 		settings.data.replaceWhitespaces = value;
 		settings.write();
 	}
@@ -233,11 +238,11 @@ public class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setAccessToken(Token accessToken, User current_user) throws UnauthorizedException, NotFoundException, IOException {
-		oauth.data.first_name = current_user.forename;
-		oauth.data.last_name = current_user.lastname;
-		oauth.data.user_name = current_user.username;
-		oauth.data.user_id = current_user.user_id;
+	public void setAccessToken(final Token accessToken, final User currentUser) throws UnauthorizedException, NotFoundException, IOException {
+		oauth.data.first_name = currentUser.forename;
+		oauth.data.last_name = currentUser.lastname;
+		oauth.data.user_name = currentUser.username;
+		oauth.data.user_id = currentUser.user_id;
 		oauth.data.token = accessToken.getToken();
 		oauth.data.secret = accessToken.getSecret();
 		oauth.write();

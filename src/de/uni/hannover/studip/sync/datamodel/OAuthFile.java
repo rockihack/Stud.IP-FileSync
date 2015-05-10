@@ -11,20 +11,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class OAuthFile {
 
 	// Name and id of the currently logged in user.
-	public String first_name = null;
-	public String last_name = null;
+	public String first_name;
+	public String last_name;
 
-	public String user_name = null;
-	public String user_id = null;
+	public String user_name;
+	public String user_id;
 
 	// OAuth access token and secret.
-	public String token = null;
-	public String secret = null;
-	
+	public String token;
+	public String secret;
+
 	public OAuthFile() {
+		// Needed for json object binding.
 	}
-	
-	public OAuthFile(String first_name, String last_name, String user_name, String user_id, String token, String secret) {
+
+	public OAuthFile(final String first_name, final String last_name, final String user_name,
+			final String user_id, final String token, final String secret) {
 		this.first_name = first_name;
 		this.last_name = last_name;
 		this.user_name = user_name;

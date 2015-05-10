@@ -42,6 +42,9 @@ public class TreeBuilder implements AutoCloseable {
 	 */
 	protected Label progressLabel;
 
+	/**
+	 * 
+	 */
 	protected TreeBuilder() {
 		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
@@ -61,12 +64,12 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int build(File tree) throws JsonGenerationException, JsonMappingException, IOException {
+	public synchronized int build(final File tree) throws JsonGenerationException, JsonMappingException, IOException {
 		/* Create empty root node. */
-		SemestersTreeNode rootNode = new SemestersTreeNode();
+		final SemestersTreeNode rootNode = new SemestersTreeNode();
 		
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
-		Phaser phaser = new Phaser(2); /* = self + first job. */
+		final Phaser phaser = new Phaser(2); /* = self + first job. */
 		
 		/* Build tree with multiple threads. */
 		threadPool.execute(new BuildSemestersJob(phaser, rootNode));
@@ -75,7 +78,7 @@ public class TreeBuilder implements AutoCloseable {
 		phaser.arriveAndAwaitAdvance();
 		
 		/* Serialize the tree to json and store it in the tree file. */
-		ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(tree, rootNode);
 		
 		System.out.println("Build done!");
@@ -90,16 +93,16 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int update(File tree, boolean doAllSemesters) throws JsonGenerationException, JsonMappingException, IOException {
+	public synchronized int update(final File tree, final boolean doAllSemesters) throws JsonGenerationException, JsonMappingException, IOException {
 		/* Read existing tree. */
-		ObjectMapper mapper = new ObjectMapper();
-		SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
+		final ObjectMapper mapper = new ObjectMapper();
+		final SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
 
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
-		Phaser phaser = new Phaser(1); /* = self. */
+		final Phaser phaser = new Phaser(1); /* = self. */
 
 		/* Current unix timestamp. */
-		long now = System.currentTimeMillis() / 1000L;
+		final long now = System.currentTimeMillis() / 1000L;
 
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
@@ -147,7 +150,7 @@ public class TreeBuilder implements AutoCloseable {
 		 */
 		private final SemestersTreeNode rootNode;
 		
-		public BuildSemestersJob(Phaser phaser, SemestersTreeNode rootNode) {
+		public BuildSemestersJob(final Phaser phaser, final SemestersTreeNode rootNode) {
 			this.phaser = phaser;
 			this.rootNode = rootNode;
 		}
@@ -158,7 +161,7 @@ public class TreeBuilder implements AutoCloseable {
 				SemesterTreeNode semesterNode;
 				
 				/* Get all visible semesters. */
-				Semesters semesters = RestApi.getAllSemesters();
+				final Semesters semesters = RestApi.getAllSemesters();
 				
 				phaser.bulkRegister(semesters.semesters.size());
 				
@@ -202,7 +205,7 @@ public class TreeBuilder implements AutoCloseable {
 		 */
 		private final SemesterTreeNode semesterNode;
 		
-		public BuildCoursesJob(Phaser phaser, SemesterTreeNode semesterNode) {
+		public BuildCoursesJob(final Phaser phaser, final SemesterTreeNode semesterNode) {
 			this.phaser = phaser;
 			this.semesterNode = semesterNode;
 		}
@@ -213,7 +216,7 @@ public class TreeBuilder implements AutoCloseable {
 				CourseTreeNode courseNode;
 
 				/* Get subscribed courses. */
-				Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semester_id);
+				final Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semester_id);
 
 				phaser.bulkRegister(courses.courses.size());
 				
@@ -231,6 +234,7 @@ public class TreeBuilder implements AutoCloseable {
 				OAuth.getInstance().removeAccessToken();
 			} catch (NotFoundException e) {
 				/* Course does not exist. */
+				// TODO
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {
@@ -264,7 +268,7 @@ public class TreeBuilder implements AutoCloseable {
 		 */
 		private final DocumentFolderTreeNode parentNode;
 		
-		public BuildDocumentsJob(Phaser phaser, CourseTreeNode courseNode, DocumentFolderTreeNode parentNode) {
+		public BuildDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final DocumentFolderTreeNode parentNode) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
 			this.parentNode = parentNode;
@@ -276,10 +280,10 @@ public class TreeBuilder implements AutoCloseable {
 				DocumentFolderTreeNode folderNode;
 				DocumentTreeNode documentNode;
 
-				HashSet<String> fileNames = new HashSet<String>();
+				final HashSet<String> fileNames = new HashSet<String>();
 
 				/* Get course folder content. */
-				DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.course_id, parentNode.folder_id);
+				final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.course_id, parentNode.folder_id);
 
 				phaser.bulkRegister(folders.folders.size());
 
@@ -328,6 +332,7 @@ public class TreeBuilder implements AutoCloseable {
 				 * User does not have the required permissions
 				 * or folder does not exist.
 				 */
+				// TODO
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {
@@ -356,7 +361,7 @@ public class TreeBuilder implements AutoCloseable {
 		 */
 		private final CourseTreeNode courseNode;
 		
-		public UpdateDocumentsJob(Phaser phaser, CourseTreeNode courseNode) {
+		public UpdateDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
 		}
@@ -367,8 +372,8 @@ public class TreeBuilder implements AutoCloseable {
 		 * @param parentFolder
 		 * @return
 		 */
-		private HashMap<String, DocumentFolderTreeNode> buildFolderIndex(DocumentFolderTreeNode parentFolder) {
-			HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
+		private HashMap<String, DocumentFolderTreeNode> buildFolderIndex(final DocumentFolderTreeNode parentFolder) {
+			final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
 			folderIndex.put(parentFolder.folder_id, parentFolder);
 
 			for (DocumentFolderTreeNode folder : parentFolder.folders) {
@@ -385,7 +390,7 @@ public class TreeBuilder implements AutoCloseable {
 		 * @param document
 		 * @return
 		 */
-		private boolean removeDocument(DocumentFolderTreeNode folder, Document document) {
+		private boolean removeDocument(final DocumentFolderTreeNode folder, final Document document) {
 			// TODO: Use iterator?
 			for (DocumentTreeNode d : folder.documents) {
 				if (d.document_id.equals(document.document_id)) {
@@ -404,7 +409,7 @@ public class TreeBuilder implements AutoCloseable {
 		 * @param document
 		 * @return
 		 */
-		private boolean hasDuplicates(DocumentFolderTreeNode folder, Document document) {
+		private boolean hasDuplicates(final DocumentFolderTreeNode folder, final Document document) {
 			for (DocumentTreeNode d : folder.documents) {
 				if (d.filename.equals(document.filename)
 						&& !d.document_id.equals(document.document_id)) {
@@ -422,9 +427,9 @@ public class TreeBuilder implements AutoCloseable {
 				DocumentTreeNode documentNode;
 
 				/* Get all course documents with newer change date than course update time. */
-				Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.course_id, courseNode.update_time);
+				final Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.course_id, courseNode.update_time);
 				/* Build a folder index for this course, so we can easily access the folders. */
-				HashMap<String, DocumentFolderTreeNode> folderIndex = buildFolderIndex(courseNode.root);
+				final HashMap<String, DocumentFolderTreeNode> folderIndex = buildFolderIndex(courseNode.root);
 
 				for (Document document : newDocuments.documents) {
 					folderNode = folderIndex.get(document.folder_id);
@@ -465,6 +470,7 @@ public class TreeBuilder implements AutoCloseable {
 				 * User does not have the required permissions
 				 * or course does not exist.
 				 */
+				// TODO
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
 			} finally {
@@ -482,7 +488,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @param suffix
 	 * @return
 	 */
-	protected static String appendFilename(String filename, String suffix) {
+	protected static String appendFilename(final String filename, final String suffix) {
 		int ext = filename.lastIndexOf('.');
 		if (ext == -1) {
 			ext = filename.length();
@@ -496,7 +502,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * 
 	 * @param progress
 	 */
-	public void setProgress(ProgressIndicator progress, Label label) {
+	public void setProgress(final ProgressIndicator progress, final Label label) {
 		progressIndicator = progress;
 		progressLabel = label;
 	}

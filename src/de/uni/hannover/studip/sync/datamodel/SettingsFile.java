@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class SettingsFile {
 
 	// Path to studip sync root dir.
-	public String root_dir = null;
+	public String root_dir;
 
 	// If true, existing files will be overwritten,
 	// otherwise a version number is appended.
@@ -27,9 +27,10 @@ public class SettingsFile {
 	public int replaceWhitespaces = 0;
 
 	public SettingsFile() {
+		// Needed for json object binding.
 	}
-	
-	public SettingsFile(String root_dir) {
-		this.root_dir = root_dir;
+
+	public SettingsFile(final String rootDir) {
+		this.root_dir = rootDir;
 	}
 }

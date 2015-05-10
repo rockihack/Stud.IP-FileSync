@@ -16,6 +16,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.DirectoryChooser;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class SettingsController extends AbstractController {
 
 	@FXML
@@ -32,11 +37,11 @@ public class SettingsController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
-		Config config = Config.getInstance();
+		final Config config = Config.getInstance();
 
 		// Stud.IP Account.
 		try {
-			OAuth oauth = OAuth.getInstance();
+			final OAuth oauth = OAuth.getInstance();
 			oauth.restoreAccessToken();
 
 			// User has an access token, we do not check if it's valid here.
@@ -53,11 +58,11 @@ public class SettingsController extends AbstractController {
 
 	@FXML
 	public void handleLogout() {
-		Alert confirm = new Alert(AlertType.CONFIRMATION);
+		final Alert confirm = new Alert(AlertType.CONFIRMATION);
 		confirm.setTitle("Bestätigen");
 		confirm.setHeaderText(null);
 		confirm.setContentText("Möchten Sie sich wirklich ausloggen?");
-		Optional<ButtonType> result = confirm.showAndWait();
+		final Optional<ButtonType> result = confirm.showAndWait();
 
 		if (result.get() == ButtonType.OK) {
 			// Delete access token and update oauth config file.
@@ -70,11 +75,11 @@ public class SettingsController extends AbstractController {
 
 	@FXML
 	public void handleRootDir() {
-		DirectoryChooser chooser = new DirectoryChooser();
+		final DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ziel Ordner wählen");
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
-		File rootDir = chooser.showDialog(getMain().getPrimaryStage());
+		final File rootDir = chooser.showDialog(getMain().getPrimaryStage());
 		if (rootDir != null) {
 			if (rootDir.canRead() && rootDir.canWrite()) {
 				try {
@@ -82,14 +87,14 @@ public class SettingsController extends AbstractController {
 					setRootDirLabel(rootDir.getAbsolutePath());
 
 				} catch (IOException e) {
-					Alert alert = new Alert(AlertType.ERROR);
+					final Alert alert = new Alert(AlertType.ERROR);
 					alert.setTitle("Fehler");
 					alert.setHeaderText(null);
 					alert.setContentText(e.getMessage());
 					alert.showAndWait();
 				}
 			} else {
-				Alert alert = new Alert(AlertType.ERROR);
+				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Fehler");
 				alert.setHeaderText(null);
 				alert.setContentText("Keine Lese/Schreib Berechtigung.");
@@ -109,7 +114,7 @@ public class SettingsController extends AbstractController {
 		getMain().setPrevView();
 	}
 
-	private void setRootDirLabel(String rootDir) {
+	private void setRootDirLabel(final String rootDir) {
 		if (rootDir != null && new File(rootDir).exists()) {
 			rootDirLabel.setText("Aktuell: " + rootDir);
 		}

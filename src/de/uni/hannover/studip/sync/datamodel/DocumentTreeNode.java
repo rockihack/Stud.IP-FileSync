@@ -22,9 +22,10 @@ public class DocumentTreeNode {
 	public Long filesize;
 
 	public DocumentTreeNode() {
+		// Needed for json object binding.
 	}
-	
-	public DocumentTreeNode(Document document) {
+
+	public DocumentTreeNode(final Document document) {
 		this.document_id = document.document_id;
 		this.user_id = document.user_id;
 		this.name = document.name;

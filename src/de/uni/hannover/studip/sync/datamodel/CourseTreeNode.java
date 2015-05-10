@@ -19,17 +19,18 @@ public class CourseTreeNode {
 	public Long duration_time;
 	/* "1": Vorlesung, "2": Seminar, "3": Übung, "4": Projekt, "99": Studiengruppe. */
 	public int type;
-	
+
 	/* Last update time used for request caching. */
 	public long update_time;
-	
+
 	/* Child nodes. */
 	public DocumentFolderTreeNode root = new DocumentFolderTreeNode();
-	
+
 	public CourseTreeNode() {
+		// Needed for json object binding.
 	}
-	
-	public CourseTreeNode(Course course) {
+
+	public CourseTreeNode(final Course course) {
 		this.course_id = course.courseId;
 		this.title = course.title;
 		this.start_time = course.startTime;

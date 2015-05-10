@@ -9,6 +9,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.stage.DirectoryChooser;
 
+/**
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public class OAuthCompleteController extends AbstractController {
 
 	private File rootDir;
@@ -18,7 +23,7 @@ public class OAuthCompleteController extends AbstractController {
 
 	@FXML
 	public void handleDest() {
-		DirectoryChooser chooser = new DirectoryChooser();
+		final DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Ziel Ordner wählen");
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
