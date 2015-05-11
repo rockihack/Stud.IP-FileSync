@@ -3,6 +3,7 @@ package de.uni.hannover.studip.sync.utils;
 import java.util.Locale;
 
 /**
+ * Operating system helper class.
  * 
  * @author Lennart Glauer
  *
@@ -29,6 +30,11 @@ public enum OS {
 		return currentOS == LINUX || currentOS == SOLARIS;
 	}
 
+	/**
+	 * Detect current operating system.
+	 * 
+	 * @return
+	 */
 	private static OS detectOS() {
 		final String os = System.getProperty("os.name").toLowerCase(Locale.GERMANY);
 

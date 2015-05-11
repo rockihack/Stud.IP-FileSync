@@ -46,6 +46,7 @@ public class JacksonRequest<T> {
 	private final Response response;
 	
 	/**
+	 * Send jackson request.
 	 * 
 	 * @param method
 	 * @param url

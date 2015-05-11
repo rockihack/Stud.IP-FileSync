@@ -83,17 +83,26 @@ public class RootLayoutController extends AbstractController {
 	}
 
 	/**
+	 * Help -> Help.
+	 */
+	@FXML
+	public void handleHelp() {
+		// Redirect to help.
+		getMain().setView(Main.HELP);
+	}
+
+	/**
 	 * Help -> Update.
 	 */
 	@FXML
 	public void handleUpdateSeminars() {
-		// TODO: Alert size too small on linux.
 		final Alert confirm = new Alert(AlertType.CONFIRMATION);
 		confirm.setTitle("Bestätigen");
 		confirm.setHeaderText(null);
 		confirm.setContentText("Diese Funktion sollte nur zu Beginn eines Semesters genutzt werden, "
 				+ "nachdem Sie sich in neue Veranstaltungen eingeschrieben haben. "
 				+ "Möchten Sie fortfahren?");
+		confirm.getDialogPane().setPrefSize(400, 150);
 		final Button yesButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.OK);
 		yesButton.setDefaultButton(false);
 		final Button cancelButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.CANCEL);

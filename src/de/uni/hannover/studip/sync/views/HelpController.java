@@ -7,7 +7,7 @@ import javafx.fxml.FXML;
  * @author Lennart Glauer
  *
  */
-public class AboutController extends AbstractController {
+public class HelpController extends AbstractController {
 
 	@FXML
 	public void handlePrev() {

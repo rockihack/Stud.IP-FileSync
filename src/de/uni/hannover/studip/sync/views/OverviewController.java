@@ -30,6 +30,9 @@ import javafx.scene.control.Alert.AlertType;
  */
 public class OverviewController extends AbstractController {
 
+	private static final Config CONFIG = Config.getInstance();
+	private static final OAuth OAUTH = OAuth.getInstance();
+
 	@FXML
 	protected ProgressIndicator progress;
 
@@ -49,13 +52,12 @@ public class OverviewController extends AbstractController {
 			@Override
 			public void run() {
 				try {
-					final OAuth oauth = OAuth.getInstance();
-					oauth.restoreAccessToken();
+					OAUTH.restoreAccessToken();
 
 					// Test if access token is valid.
 					RestApi.getUserById(null);
 
-					final String rootDir = Config.getInstance().getRootDirectory();
+					final String rootDir = CONFIG.getRootDirectory();
 					if (rootDir == null) {
 						throw new IOException("Kein Ziel Ordner gewählt.");
 					}
@@ -78,15 +80,15 @@ public class OverviewController extends AbstractController {
 						Platform.runLater(() -> syncButton.setText("Downloading..."));
 
 						// Download documents.
-						tree.sync(treeFile, Config.getInstance().isDownloadAllSemesters());
+						tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
 					}
 
 				} catch (UnauthorizedException | NotFoundException e) {
-					OAuth.getInstance().removeAccessToken();
+					OAUTH.removeAccessToken();
 
 					Platform.runLater(() -> getMain().setView(Main.OAUTH));
 
-				} catch (IOException | OAuthConnectionException | IllegalStateException e) {
+				} catch (IOException | OAuthConnectionException e) {
 					Platform.runLater(() -> {
 						final Alert alert = new Alert(AlertType.ERROR);
 						alert.setTitle("Fehler");

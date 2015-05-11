@@ -26,9 +26,13 @@ public final class StudIPApiProvider extends DefaultApi10a
 	public static final String LOGOUT = "https://elearning.uni-hannover.de/logout.php";
 
 	/**
-	 * OAuth consumer key and secret.
+	 * OAuth consumer key.
 	 */
 	public static final String API_KEY = "";
+
+	/**
+	 * OAuth consumer secret.
+	 */
 	public static final String API_SECRET = "";
 
 	@Override

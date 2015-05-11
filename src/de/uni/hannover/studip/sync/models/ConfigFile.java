@@ -9,10 +9,11 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
+ * Config file wrapper class.
  * 
  * @author Lennart Glauer
  *
- * @param <T>
+ * @param <T> Config datamodel
  */
 public class ConfigFile<T> {
 
@@ -22,6 +23,7 @@ public class ConfigFile<T> {
 	public T data;
 
 	/**
+	 * Open and read config file.
 	 * 
 	 * @param dir
 	 * @param file
@@ -47,6 +49,7 @@ public class ConfigFile<T> {
 	}
 
 	/**
+	 * Init config file.
 	 * 
 	 * @throws JsonGenerationException
 	 * @throws JsonMappingException
@@ -60,6 +63,7 @@ public class ConfigFile<T> {
 	}
 
 	/**
+	 * Read config file.
 	 * 
 	 * @throws IOException
 	 * @throws InstantiationException
@@ -77,6 +81,7 @@ public class ConfigFile<T> {
 	}
 
 	/**
+	 * Write config file.
 	 * 
 	 * @throws JsonGenerationException
 	 * @throws JsonMappingException

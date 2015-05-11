@@ -23,6 +23,9 @@ import javafx.stage.DirectoryChooser;
  */
 public class SettingsController extends AbstractController {
 
+	private static final Config CONFIG = Config.getInstance();
+	private static final OAuth OAUTH = OAuth.getInstance();
+
 	@FXML
 	private Button logoutButton;
 
@@ -37,15 +40,12 @@ public class SettingsController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
-		final Config config = Config.getInstance();
-
 		// Stud.IP Account.
 		try {
-			final OAuth oauth = OAuth.getInstance();
-			oauth.restoreAccessToken();
+			OAUTH.restoreAccessToken();
 
 			// User has an access token, we do not check if it's valid here.
-			userLabel.setText("Eingeloggt als " + config.getFirstName() + " " + config.getLastName() + ", " + config.getUserName());
+			userLabel.setText("Eingeloggt als " + CONFIG.getFirstName() + " " + CONFIG.getLastName() + ", " + CONFIG.getUserName());
 			logoutButton.setDisable(false);
 
 		} catch (UnauthorizedException e) {
@@ -53,7 +53,7 @@ public class SettingsController extends AbstractController {
 		}
 
 		// Root dir.
-		setRootDirLabel(config.getRootDirectory());
+		setRootDirLabel(CONFIG.getRootDirectory());
 	}
 
 	@FXML
@@ -66,7 +66,7 @@ public class SettingsController extends AbstractController {
 
 		if (result.get() == ButtonType.OK) {
 			// Delete access token and update oauth config file.
-			OAuth.getInstance().removeAccessToken();
+			OAUTH.removeAccessToken();
 
 			// Redirect to login.
 			getMain().setView(Main.OAUTH);
@@ -83,7 +83,7 @@ public class SettingsController extends AbstractController {
 		if (rootDir != null) {
 			if (rootDir.canRead() && rootDir.canWrite()) {
 				try {
-					Config.getInstance().setRootDirectory(rootDir.getAbsolutePath());
+					CONFIG.setRootDirectory(rootDir.getAbsolutePath());
 					setRootDirLabel(rootDir.getAbsolutePath());
 
 				} catch (IOException e) {

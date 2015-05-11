@@ -11,7 +11,6 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 
@@ -26,6 +25,11 @@ public final class OAuth {
 	 * Singleton instance.
 	 */
 	private static final OAuth INSTANCE = new OAuth();
+
+	/**
+	 * Config instance.
+	 */
+	private static final Config CONFIG = Config.getInstance();
 
 	/**
 	 * Service object.
@@ -104,11 +108,8 @@ public final class OAuth {
 	 * Step 4: Get the access Token.
 	 * 
 	 * @param verifier Provided by the service and entered by the user
-	 * @throws IOException 
-	 * @throws NotFoundException 
-	 * @throws UnauthorizedException 
 	 */
-	public synchronized Token getAccessToken(final String verifier) throws UnauthorizedException, NotFoundException, IOException {
+	public synchronized Token getAccessToken(final String verifier) {
 		if (state != OAuthState.GET_ACCESS_TOKEN) {
 			throw new IllegalStateException("Request token not found!");
 		}
@@ -145,7 +146,7 @@ public final class OAuth {
 	 * @throws UnauthorizedException 
 	 */
 	public synchronized void restoreAccessToken() throws UnauthorizedException {
-		accessToken = Config.getInstance().getAccessToken();
+		accessToken = CONFIG.getAccessToken();
 		state = OAuthState.READY;
 	}
 
@@ -154,7 +155,7 @@ public final class OAuth {
 	 */
 	public synchronized void removeAccessToken() {
 		try {
-			Config.getInstance().initOAuthFile();
+			CONFIG.initOAuthFile();
 			state = OAuthState.GET_REQUEST_TOKEN;
 
 		} catch (IOException | InstantiationException | IllegalAccessException e) {

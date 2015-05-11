@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.CourseTreeNode;
 import de.uni.hannover.studip.sync.datamodel.DocumentFolderTreeNode;
 import de.uni.hannover.studip.sync.datamodel.DocumentTreeNode;
@@ -14,12 +17,15 @@ import de.uni.hannover.studip.sync.datamodel.SemesterTreeNode;
 import de.uni.hannover.studip.sync.datamodel.SemestersTreeNode;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 
@@ -44,6 +50,9 @@ public class NewDocumentsController extends AbstractController {
 	@FXML
 	private TableColumn<NewDocumentsModel, String> courseColumn;
 
+	@FXML
+	private TableColumn<NewDocumentsModel, String> semesterColumn;
+
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
 	 */
@@ -63,7 +72,7 @@ public class NewDocumentsController extends AbstractController {
 
 				for (CourseTreeNode course : semester.courses) {
 					final File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
-					doFolder(course, course.root, courseDirectory);
+					doFolder(semester, course, course.root, courseDirectory);
 				}
 			}
 
@@ -71,11 +80,13 @@ public class NewDocumentsController extends AbstractController {
 			dateColumn.setCellValueFactory(new PropertyValueFactory<NewDocumentsModel, Date>("documentChdate"));
 			documentColumn.setCellValueFactory(new PropertyValueFactory<NewDocumentsModel, String>("documentName"));
 			courseColumn.setCellValueFactory(new PropertyValueFactory<NewDocumentsModel, String>("courseTitle"));
+			semesterColumn.setCellValueFactory(new PropertyValueFactory<NewDocumentsModel, String>("semesterTitle"));
 
 			// Auto resize.
 			dateColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.1));
-			documentColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.45));
-			courseColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.45));
+			documentColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.4));
+			courseColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.4));
+			semesterColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.1));
 
 			// Click listener.
 			tableView.setRowFactory(callback -> {
@@ -97,21 +108,37 @@ public class NewDocumentsController extends AbstractController {
 			// Sort columns accordingly to the document chdate.
 			tableView.getSortOrder().add(dateColumn);
 
+		} catch (JsonParseException | JsonMappingException e) {
+			Platform.runLater(() -> {
+				final Alert alert = new Alert(AlertType.INFORMATION);
+				alert.setTitle("Info");
+				alert.setHeaderText(null);
+				alert.setContentText("Keine Dokumente gefunden.\nSie müssen zuerst Ihre Dokumente synchronisieren.");
+				alert.showAndWait();
+
+				// Redirect to overview.
+				getMain().setView(Main.OVERVIEW);
+
+				// Start the sync.
+				final OverviewController overview = (OverviewController) getMain().getController();
+				overview.handleSync();
+			});
+
 		} catch (IOException e) {
-			// Empty table.
+			throw new IllegalStateException(e);
 		}
 	}
 
-	private void doFolder(final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final File parentDirectory) {
+	private void doFolder(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final File parentDirectory) {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
 			final File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
-			doFolder(courseNode, folder, folderDirectory);
+			doFolder(semesterNode, courseNode, folder, folderDirectory);
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
 			final File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.filename));
-			documentList.add(new NewDocumentsModel(courseNode, document, documentFile));
+			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, documentFile));
 		}
 	}
 

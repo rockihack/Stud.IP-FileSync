@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -25,11 +24,12 @@
                </center>
             </BorderPane>
             <TableView fx:id="tableView" GridPane.columnIndex="1" GridPane.rowIndex="1">
-              <columns>
-                <TableColumn fx:id="dateColumn" editable="false" minWidth="125.0" prefWidth="125.0" sortType="DESCENDING" text="Datum" />
-                <TableColumn fx:id="documentColumn" editable="false" minWidth="150.0" prefWidth="300.0" text="Dokument" />
-                  <TableColumn fx:id="courseColumn" editable="false" minWidth="150.0" prefWidth="300.0" text="Veranstaltung" />
-              </columns>
+               <columns>
+                  <TableColumn fx:id="dateColumn" editable="false" minWidth="150.0" prefWidth="150.0" sortType="DESCENDING" text="Datum" />
+                  <TableColumn fx:id="documentColumn" editable="false" minWidth="300.0" prefWidth="300.0" text="Dokument" />
+                  <TableColumn fx:id="courseColumn" editable="false" minWidth="300.0" prefWidth="300.0" text="Veranstaltung" />
+                  <TableColumn fx:id="semesterColumn" editable="false" minWidth="150.0" prefWidth="150.0" text="Semester" />
+               </columns>
             </TableView>
          </children>
       </GridPane>

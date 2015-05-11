@@ -7,6 +7,12 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * File hash utility class.
+ * 
+ * @author Lennart Glauer
+ *
+ */
 public final class FileHash {
 
 	private static final int BUFFER_SIZE = 8192;
@@ -17,6 +23,15 @@ public final class FileHash {
 		// Utility class.
 	}
 
+	/**
+	 * Generate md5 hash and return it as lowercase string.
+	 * 
+	 * @param file
+	 * @return
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 */
 	public static String getMd5(final File file) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
 		try (FileInputStream in = new FileInputStream(file)) {
 			final MessageDigest digest = MessageDigest.getInstance("MD5");
@@ -32,6 +47,12 @@ public final class FileHash {
 		}
 	}
 
+	/**
+	 * Convert byte (hex) array to human readable string.
+	 * 
+	 * @param bytes
+	 * @return
+	 */
 	private static String bytesToHex(final byte[] bytes) {
 		final char[] hexChars = new char[bytes.length * 2];
 

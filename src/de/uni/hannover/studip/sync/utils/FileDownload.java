@@ -9,7 +9,7 @@ import java.io.InputStream;
 //import java.nio.channels.ReadableByteChannel;
 
 /**
- * File download helper.
+ * File download utility class.
  * 
  * @author Lennart Glauer
  * @see http://stackoverflow.com/questions/921262/how-to-download-and-save-a-file-from-internet-using-java
@@ -23,12 +23,19 @@ public final class FileDownload {
 		fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
 	}*/
 
+	private static final int BUFFER_SIZE = 8192;
+
 	private FileDownload() {
 		// Utility class.
 	}
 
-	private static final int BUFFER_SIZE = 8192;
-
+	/**
+	 * Write inputstream to file.
+	 * 
+	 * @param is
+	 * @param file
+	 * @throws IOException
+	 */
 	public static void get(final InputStream is, final File file) throws IOException {
 		try (BufferedInputStream in = new BufferedInputStream(is); FileOutputStream out = new FileOutputStream(file)) {
 			final byte buffer[] = new byte[BUFFER_SIZE];

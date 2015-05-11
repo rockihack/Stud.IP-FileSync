@@ -7,6 +7,7 @@ import java.io.IOException;
 import de.uni.hannover.studip.sync.models.Config;
 
 /**
+ * File browser utility class.
  * 
  * @author Lennart Glauer
  * 
@@ -19,6 +20,12 @@ public final class FileBrowser {
 		// Utility class.
 	}
 
+	/**
+	 * Opens a file or directory in the users default browser.
+	 * 
+	 * @param file
+	 * @return
+	 */
 	public static boolean open(final File file) {
 		if (!file.exists()) {
 			return false;
@@ -35,29 +42,34 @@ public final class FileBrowser {
 				return true;
 
 			} catch (IOException e) {
-				return runCommand(new String[] {"explorer", file.getAbsolutePath()});
+				return runCommand("explorer", file.getAbsolutePath());
 			}
 
 		} else if (OS.isMacOS()) {
-			return runCommand(new String[] {"open", file.getAbsolutePath()});
+			return runCommand("open", file.getAbsolutePath());
 
 		} else if (OS.isLinux()) {
-			// TODO: Escape whitespaces?
 			final String filePath = file.getAbsolutePath();
 
-			return runCommand(new String[] {"xdg-open", filePath})			// All
-					|| runCommand(new String[] {"kde-open", filePath})		// KDE
-					|| runCommand(new String[] {"exo-open", filePath})		// Xfce
-					|| runCommand(new String[] {"gvfs-open", filePath})		// GNOME
-					|| runCommand(new String[] {"gnome-open", filePath})	// GNOME (deprecated)
-					|| runCommand(new String[] {"pcmanfm", filePath});		// LXDE
+			return runCommand("xdg-open", filePath)			// All
+					|| runCommand("kde-open", filePath)		// KDE
+					|| runCommand("exo-open", filePath)		// Xfce
+					|| runCommand("gvfs-open", filePath)	// GNOME
+					|| runCommand("gnome-open", filePath)	// GNOME (deprecated)
+					|| runCommand("pcmanfm", filePath);		// LXDE
 
 		} else {
 			return false;
 		}
 	}
 
-	private static boolean runCommand(final String[] cmd) {
+	/**
+	 * Run a shell command.
+	 * 
+	 * @param cmd
+	 * @return
+	 */
+	private static boolean runCommand(final String... cmd) {
 		try {
 			final Process process = Runtime.getRuntime().exec(cmd);
 			return process.isAlive();
@@ -100,5 +112,21 @@ public final class FileBrowser {
 	 */
 	public static String removeIllegalCharacters(final String file) {
 		return removeIllegalCharacters(file, Config.getInstance().getReplaceWhitespaces());
+	}
+
+	/**
+	 * Appends the suffix to the filename (before file extension).
+	 * 
+	 * @param filename
+	 * @param suffix
+	 * @return
+	 */
+	public static String appendFilename(final String filename, final String suffix) {
+		int ext = filename.lastIndexOf('.');
+		if (ext == -1) {
+			ext = filename.length();
+		}
+
+		return filename.substring(0, ext) + suffix + filename.substring(ext);
 	}
 }

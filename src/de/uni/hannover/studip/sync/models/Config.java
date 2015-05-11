@@ -11,10 +11,10 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.uni.hannover.studip.sync.datamodel.SettingsFile;
 import de.uni.hannover.studip.sync.datamodel.OAuthFile;
-import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 
 /**
+ * Global config wrapper class.
  * 
  * @author Lennart Glauer
  *
@@ -27,7 +27,7 @@ public final class Config {
 	private static final Config INSTANCE = new Config();
 	
 	/**
-	 * Config directory.
+	 * Config directory name.
 	 */
 	private static final String CONFIG_DIR = ".studip-sync";
 	
@@ -131,17 +131,18 @@ public final class Config {
 	}
 
 	/**
-	 * 
+	 * Check if overwrite files setting is enabled.
 	 */
 	public boolean isOverwriteFiles() {
 		return settings.data.overwrite_files;
 	}
 
 	/**
+	 * Set overwrite files setting.
+	 * 
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
-	 * 
 	 */
 	public void setOverwriteFiles(final boolean value) throws JsonGenerationException, JsonMappingException, IOException {
 		settings.data.overwrite_files = value;
@@ -149,17 +150,18 @@ public final class Config {
 	}
 
 	/**
-	 * 
+	 * Check if download all semesters setting is enabled.
 	 */
 	public boolean isDownloadAllSemesters() {
 		return settings.data.download_all_semesters;
 	}
 
 	/**
+	 * Set download all semesters setting.
+	 * 
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
-	 * 
 	 */
 	public void setDownloadAllSemesters(final boolean value) throws JsonGenerationException, JsonMappingException, IOException {
 		settings.data.download_all_semesters = value;
@@ -167,17 +169,18 @@ public final class Config {
 	}
 
 	/**
-	 * 
+	 * Get replace whitespaces setting.
 	 */
 	public int getReplaceWhitespaces() {
 		return settings.data.replaceWhitespaces;
 	}
 
 	/**
+	 * Set replace whitespace setting.
+	 * 
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
-	 * 
 	 */
 	public void setReplaceWhitespaces(final int value) throws JsonGenerationException, JsonMappingException, IOException {
 		settings.data.replaceWhitespaces = value;
@@ -232,13 +235,9 @@ public final class Config {
 	 * Set the OAuth access token.
 	 * 
 	 * @param accessToken
-	 * @throws NotFoundException 
-	 * @throws UnauthorizedException 
 	 * @throws IOException 
-	 * @throws JsonMappingException 
-	 * @throws JsonGenerationException 
 	 */
-	public void setAccessToken(final Token accessToken, final User currentUser) throws UnauthorizedException, NotFoundException, IOException {
+	public void setAccessToken(final Token accessToken, final User currentUser) throws IOException {
 		oauth.data.first_name = currentUser.forename;
 		oauth.data.last_name = currentUser.lastname;
 		oauth.data.user_name = currentUser.username;

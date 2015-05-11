@@ -26,6 +26,8 @@ import javafx.scene.control.Alert.AlertType;
  */
 public class SyncSettingsController extends AbstractController {
 
+	private static final Config CONFIG = Config.getInstance();
+
 	@FXML
 	private ChoiceBox<String> overwriteChoicebox;
 
@@ -40,17 +42,15 @@ public class SyncSettingsController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
-		final Config config = Config.getInstance();
-
-		overwriteChoicebox.getSelectionModel().select(config.isOverwriteFiles() ? 0 : 1);
-		downloadAllSemestersChoicebox.getSelectionModel().select(config.isDownloadAllSemesters() ? 0 : 1);
-		replaceWhitespacesChoicebox.getSelectionModel().select(config.getReplaceWhitespaces());
+		overwriteChoicebox.getSelectionModel().select(CONFIG.isOverwriteFiles() ? 0 : 1);
+		downloadAllSemestersChoicebox.getSelectionModel().select(CONFIG.isDownloadAllSemesters() ? 0 : 1);
+		replaceWhitespacesChoicebox.getSelectionModel().select(CONFIG.getReplaceWhitespaces());
 
 		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(
 			(observableValue, oldValue, newValue) -> {
 				if (!oldValue.equals(newValue)) {
 					try {
-						config.setOverwriteFiles(newValue.intValue() == 0);
+						CONFIG.setOverwriteFiles(newValue.intValue() == 0);
 
 					} catch (IOException e) {
 						throw new IllegalStateException(e);
@@ -62,7 +62,7 @@ public class SyncSettingsController extends AbstractController {
 			(observableValue, oldValue, newValue) -> {
 				if (!oldValue.equals(newValue)) {
 					try {
-						config.setDownloadAllSemesters(newValue.intValue() == 0);
+						CONFIG.setDownloadAllSemesters(newValue.intValue() == 0);
 
 					} catch (IOException e) {
 						throw new IllegalStateException(e);
@@ -72,34 +72,9 @@ public class SyncSettingsController extends AbstractController {
 
 		replaceWhitespacesChoicebox.getSelectionModel().selectedIndexProperty().addListener(
 			(observableValue, oldValue, newValue) -> {
-				if (config.getReplaceWhitespaces() != newValue.intValue()) {
+				if (CONFIG.getReplaceWhitespaces() != newValue.intValue()) {
 					try {
-						final Alert confirm = new Alert(AlertType.CONFIRMATION);
-						confirm.setTitle("Bestätigen");
-						confirm.setHeaderText(null);
-						confirm.setContentText("Alle Dokumente werden entsprechend umbenannt.\nMöchten Sie wirklich fortfahren?");
-						final Optional<ButtonType> result = confirm.showAndWait();
-
-						if (result.get() == ButtonType.OK) {
-							if (renameDocuments(config.getReplaceWhitespaces(), newValue.intValue())) {
-								// Success.
-								config.setReplaceWhitespaces(newValue.intValue());
-
-							} else {
-								// Rollback.
-								renameDocuments(newValue.intValue(), config.getReplaceWhitespaces());
-								replaceWhitespacesChoicebox.getSelectionModel().select(config.getReplaceWhitespaces());
-
-								final Alert alert = new Alert(AlertType.ERROR);
-								alert.setTitle("Fehler");
-								alert.setHeaderText(null);
-								alert.setContentText("Es konnten nicht alle Dokumente umbenannt werden.\nDie Änderungen wurden rückgängig gemacht.");
-								alert.showAndWait();
-							}
-
-						} else {
-							replaceWhitespacesChoicebox.getSelectionModel().select(config.getReplaceWhitespaces());
-						}
+						handleRenameDocuments(CONFIG.getReplaceWhitespaces(), newValue.intValue());
 
 					} catch (IOException e) {
 						throw new IllegalStateException(e);
@@ -117,16 +92,54 @@ public class SyncSettingsController extends AbstractController {
 	 * 
 	 * @param oldValue
 	 * @param newValue
+	 * @throws IOException
+	 */
+	private void handleRenameDocuments(final int oldValue, final int newValue) throws IOException {
+		final Alert confirm = new Alert(AlertType.CONFIRMATION);
+		confirm.setTitle("Bestätigen");
+		confirm.setHeaderText(null);
+		confirm.setContentText("Alle Dokumente werden entsprechend umbenannt.\nMöchten Sie wirklich fortfahren?");
+		final Optional<ButtonType> result = confirm.showAndWait();
+
+		if (result.get() == ButtonType.OK) {
+			// FIXME: Handle document versions!
+			throw new UnsupportedOperationException();
+
+			/*if (renameDocuments(oldValue, newValue)) {
+				// Success.
+				CONFIG.setReplaceWhitespaces(newValue);
+
+			} else {
+				// Rollback.
+				renameDocuments(newValue, oldValue);
+				replaceWhitespacesChoicebox.getSelectionModel().select(oldValue);
+
+				final Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Fehler");
+				alert.setHeaderText(null);
+				alert.setContentText("Es konnten nicht alle Dokumente umbenannt werden.\nDie Änderungen wurden rückgängig gemacht.");
+				alert.showAndWait();
+			}*/
+
+		} else {
+			replaceWhitespacesChoicebox.getSelectionModel().select(oldValue);
+		}
+	}
+
+	/**
+	 * 
+	 * @param oldValue
+	 * @param newValue
 	 * @return
 	 * @throws IOException
 	 */
-	private synchronized boolean renameDocuments(final int oldValue, final int newValue) throws IOException {
+	private static synchronized boolean renameDocuments(final int oldValue, final int newValue) throws IOException {
 		/* Read existing tree. */
 		final File treeFile = Config.openTreeFile();
 		final ObjectMapper mapper = new ObjectMapper();
 		final SemestersTreeNode rootNode = mapper.readValue(treeFile, SemestersTreeNode.class);
 
-		final File rootDirectory = new File(Config.getInstance().getRootDirectory());
+		final File rootDirectory = new File(CONFIG.getRootDirectory());
 
 		// Rename documents.
 		for (SemesterTreeNode semester : rootNode.semesters) {
@@ -164,7 +177,7 @@ public class SyncSettingsController extends AbstractController {
 	 * @param newValue
 	 * @return
 	 */
-	private boolean doFolder(final DocumentFolderTreeNode folderNode, final File parentDirectory, final int oldValue, final int newValue) {
+	private static boolean doFolder(final DocumentFolderTreeNode folderNode, final File parentDirectory, final int oldValue, final int newValue) {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
 			final File _folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, oldValue));

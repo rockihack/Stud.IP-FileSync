@@ -36,9 +36,12 @@ public class Main extends Application {
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
 	public static final String SETTINGS = "Settings";
 	public static final String SYNC_SETTINGS = "SyncSettings";
+	public static final String HELP = "Help";
 	public static final String ABOUT = "About";
 
 	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
+
+	public static volatile boolean STOP_PENDING = false;
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -91,9 +94,8 @@ public class Main extends Application {
 			primaryStage.setOnCloseRequest(event -> {
 				Platform.exit();
 
-				// Terminate worker threads.
-				// TODO: More graceful
-				System.exit(0);
+				// Signal worker threads to terminate.
+				STOP_PENDING = true;
 			});
 
 			primaryStage.show();

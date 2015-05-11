@@ -3,6 +3,7 @@ package de.uni.hannover.studip.sync.models;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import org.scribe.model.Verb;
 
@@ -12,6 +13,7 @@ import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileDownload;
 
 /**
+ * Rest.Api utility class.
  * 
  * @author Lennart Glauer
  * 
@@ -21,10 +23,18 @@ import de.uni.hannover.studip.sync.utils.FileDownload;
 public final class RestApi {
 
 	/**
+	 * Logger instance.
+	 */
+	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+	/**
 	 * Debug flag.
 	 */
 	private static final boolean DEBUG = false;
 
+	/**
+	 * Regex for studip id (MD5) validation.
+	 */
 	private static final String STUDIP_ID_REGEX = "^[a-z0-9]{32}$";
 
 	private RestApi() {
@@ -32,7 +42,7 @@ public final class RestApi {
 	}
 
 	/**
-	 * Liefert Informationen �ber die in der Instanz unterst�tzten Routen, ihrer Methoden und den jeweiligen Zugriffsberechtigungen zur�ck.
+	 * Liefert Informationen über die in der Instanz unterstützten Routen, ihrer Methoden und den jeweiligen Zugriffsberechtigungen zurück.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException
@@ -54,7 +64,7 @@ public final class RestApi {
 				for (String route : routes) {
 					final Route r = discovery.routes.get(route);
 					
-					System.out.println(route + ":\nGET:" + r.get + ",\tPOST:" + r.post + ",\tPUT:" + r.put + ",\tDELETE:" + r.delete + "\n");
+					LOG.info(route + ":\nGET:" + r.get + ",\tPOST:" + r.post + ",\tPUT:" + r.put + ",\tDELETE:" + r.delete + "\n");
 				}
 			}
 			
@@ -67,7 +77,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die Veranstaltungen zur�ck, in die der Nutzer eingetragen ist. 
+	 * Liefert die Veranstaltungen zurück, in die der Nutzer eingetragen ist. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -83,7 +93,7 @@ public final class RestApi {
 			
 			if (DEBUG) {
 				for (Course course : courses.courses) {
-					System.out.println(course.title + "\n" + course.description + "\n");
+					LOG.info(course.title + "\n" + course.description + "\n");
 				}
 			}
 			
@@ -96,7 +106,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert alle Semester zur�ck, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
+	 * Liefert alle Semester zurück, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -117,7 +127,7 @@ public final class RestApi {
 			
 			if (DEBUG) {
 				for (Course course : courses.courses) {
-					System.out.println(course.title + "\n" + course.description + "\n");
+					LOG.info(course.title + "\n" + course.description + "\n");
 				}
 			}
 			
@@ -132,7 +142,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten der angegebenen Veranstaltung zur�ck. 
+	 * Liefert die Daten der angegebenen Veranstaltung zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -152,7 +162,7 @@ public final class RestApi {
 			final Course course = request.parseResponse(true);
 			
 			if (DEBUG) {
-				System.out.println(course.title + "\n" + course.description + "\n");
+				LOG.info(course.title + "\n" + course.description + "\n");
 			}
 			
 			return course;
@@ -166,7 +176,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die neuen Dateien einer Veranstaltung zur�ck. 
+	 * Liefert die neuen Dateien einer Veranstaltung zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -187,9 +197,9 @@ public final class RestApi {
 			final Documents newDocuments = request.parseResponse(false);
 			
 			if (DEBUG) {
-				System.out.println("Number of new documents: " + newDocuments.documents.size());
+				LOG.info("Number of new documents: " + newDocuments.documents.size());
 				for (Document document : newDocuments.documents) {
-					System.out.println(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
+					LOG.info(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
 				}
 			}
 			
@@ -206,7 +216,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die Dateien und Ordner eines angegebenen Ordners einer Veranstaltung zur�ck. 
+	 * Liefert die Dateien und Ordner eines angegebenen Ordners einer Veranstaltung zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -231,14 +241,14 @@ public final class RestApi {
 			final DocumentFolders documentFolders = request.parseResponse(false);
 			
 			if (DEBUG) {
-				System.out.println("Number of subfolders: " + documentFolders.folders.size());
+				LOG.info("Number of subfolders: " + documentFolders.folders.size());
 				for (DocumentFolder folder : documentFolders.folders) {
-					System.out.println(folder.name + "\n" + folder.description + "\n FolderId: " + folder.folder_id + "\n");
+					LOG.info(folder.name + "\n" + folder.description + "\n FolderId: " + folder.folder_id + "\n");
 				}
 				
-				System.out.println("Number of documents: " + documentFolders.documents.size());
+				LOG.info("Number of documents: " + documentFolders.documents.size());
 				for (Document document : documentFolders.documents) {
-					System.out.println(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
+					LOG.info(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
 				}
 			}
 			
@@ -257,7 +267,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten eines Dokuments zur�ck. 
+	 * Liefert die Daten eines Dokuments zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -278,7 +288,7 @@ public final class RestApi {
 			final Document document = request.parseResponse(false);
 			
 			if (DEBUG) {
-				System.out.println(document.name + "\n");
+				LOG.info(document.name + "\n");
 			}
 			
 			return document;
@@ -294,7 +304,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert das Dokument als solches zur�ck. 
+	 * Liefert das Dokument als solches zurück. 
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -327,7 +337,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert alle Semester zur�ck, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
+	 * Liefert alle Semester zurück, in denen der Nutzer in mindestens eine Veranstaltung eingetragen ist.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -343,7 +353,7 @@ public final class RestApi {
 			
 			if (DEBUG) {
 				for (Semester semester : semesters.semesters) {
-					System.out.println(semester.title + "\n");
+					LOG.info(semester.title + "\n");
 				}
 			}
 			
@@ -356,7 +366,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten des angegebenen Semesters zur�ck.
+	 * Liefert die Daten des angegebenen Semesters zurück.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -376,7 +386,7 @@ public final class RestApi {
 			final Semester semester = request.parseResponse(false);
 			
 			if (DEBUG) {
-				System.out.println(semester.title + "\n");
+				LOG.info(semester.title + "\n");
 			}
 			
 			return semester;
@@ -390,7 +400,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die Daten des Nutzers mit der angegebenen Id zur�ck. Ist keine Id angegeben, so werden die Daten des autorisierten Nutzers zur�ckgegeben.
+	 * Liefert die Daten des Nutzers mit der angegebenen Id zurück. Ist keine Id angegeben, so werden die Daten des autorisierten Nutzers zurückgegeben.
 	 * 
 	 * @return
 	 * @throws UnauthorizedException 
@@ -410,7 +420,7 @@ public final class RestApi {
 			final User user = request.parseResponse(true);
 			
 			if (DEBUG) {
-				System.out.println(user.username + "\n");
+				LOG.info(user.username + "\n");
 			}
 			
 			return user;
@@ -424,7 +434,7 @@ public final class RestApi {
 	}
 	
 	/**
-	 * Liefert die Aktivit�ten im Umfeld des autorisierten Nutzers zur�ck.
+	 * Liefert die Aktivitäten im Umfeld des autorisierten Nutzers zurück.
 	 * 
 	 * @notice Beta! Funktioniert nicht mit jeder Version.
 	 * @return
@@ -441,7 +451,7 @@ public final class RestApi {
 			
 			if (DEBUG) {
 				for (Activity activity : activities.activities) {
-					System.out.println("[" + activity.category + "] " + activity.title + " - " + activity.summary + "\n");
+					LOG.info("[" + activity.category + "] " + activity.title + " - " + activity.summary + "\n");
 				}
 			}
 			

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.scribe.exceptions.OAuthConnectionException;
 import org.scribe.model.Token;
 
 import de.elanev.studip.android.app.backend.datamodel.User;
@@ -14,8 +15,11 @@ import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
+import javafx.application.Platform;
 import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
@@ -25,6 +29,9 @@ import javafx.scene.web.WebView;
  *
  */
 public class OAuthWebviewController extends AbstractController {
+
+	private static final Config CONFIG = Config.getInstance();
+	private static final OAuth OAUTH = OAuth.getInstance();
 
 	@FXML
 	private WebView webView;
@@ -52,10 +59,22 @@ public class OAuthWebviewController extends AbstractController {
 				}
 			});
 
-		// Open oauth authentication url.
-		final OAuth oauth = OAuth.getInstance();
-		oauth.getRequestToken();
-		webEngine.load(oauth.getAuthUrl());
+		try {
+			// Open oauth authentication url.
+			OAUTH.getRequestToken();
+			webEngine.load(OAUTH.getAuthUrl());
+
+		} catch (OAuthConnectionException e) {
+			Platform.runLater(() -> {
+				final Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Fehler");
+				alert.setHeaderText(null);
+				alert.setContentText("Keine Verbindung zum Internet möglich!");
+				alert.showAndWait();
+
+				getMain().setPrevView();
+			});
+		}
 	}
 
 	/**
@@ -71,15 +90,15 @@ public class OAuthWebviewController extends AbstractController {
 		if (matcher.find()) {
 			try {
 				// Authentication succeeded, now get the oauth access token.
-				final Token accessToken = OAuth.getInstance().getAccessToken(matcher.group(1));
+				final Token accessToken = OAUTH.getAccessToken(matcher.group(1));
 
 				// Test if access token is valid.
 				final User currentUser = RestApi.getUserById(null);
 
 				// Store access token.
-				Config.getInstance().setAccessToken(accessToken, currentUser);
+				CONFIG.setAccessToken(accessToken, currentUser);
 
-				final String rootDir = Config.getInstance().getRootDirectory();
+				final String rootDir = CONFIG.getRootDirectory();
 				getMain().setView(
 						rootDir != null && new File(rootDir).exists()
 						? Main.OVERVIEW
@@ -89,7 +108,7 @@ public class OAuthWebviewController extends AbstractController {
 				engine.load(StudIPApiProvider.LOGOUT);
 
 			} catch (UnauthorizedException | NotFoundException e) {
-				OAuth.getInstance().removeAccessToken();
+				OAUTH.removeAccessToken();
 
 				// Redirect to login.
 				getMain().setView(Main.OAUTH);
