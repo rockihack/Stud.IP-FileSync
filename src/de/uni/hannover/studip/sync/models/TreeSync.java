@@ -62,7 +62,7 @@ public class TreeSync extends TreeBuilder {
 	 * @throws IOException
 	 */
 	public synchronized int sync(final File tree, final boolean doAllSemesters) throws JsonParseException, JsonMappingException, IOException {
-		if (Main.STOP_PENDING) {
+		if (Main.stopPending) {
 			return 0;
 		}
 
@@ -101,7 +101,7 @@ public class TreeSync extends TreeBuilder {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
-		if (!Main.STOP_PENDING) {
+		if (!Main.stopPending) {
 			LOG.info("Sync done!");
 		}
 
@@ -119,11 +119,11 @@ public class TreeSync extends TreeBuilder {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
 			final File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
-			
+
 			if (!folderDirectory.exists() && !folderDirectory.mkdir()) {
 				throw new IllegalStateException("Could not create course directory!");
 			}
-			
+
 			doFolder(phaser, folder, folderDirectory);
 		}
 
@@ -155,7 +155,7 @@ public class TreeSync extends TreeBuilder {
 
 					do {
 						i++;
-						renameFile = new File(parentDirectory, FileBrowser.appendFilename(originalFileName, "_" + i));
+						renameFile = new File(parentDirectory, FileBrowser.appendFilename(originalFileName, "_v" + i));
 					} while(renameFile.exists());
 
 					if (documentFile.renameTo(renameFile)) {
@@ -250,7 +250,7 @@ public class TreeSync extends TreeBuilder {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.STOP_PENDING) {
+				if (!Main.stopPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -260,7 +260,7 @@ public class TreeSync extends TreeBuilder {
 				// TODO: Add course name in new line.
 				updateProgress(phaser, documentNode.name);
 
-				if (Main.STOP_PENDING) {
+				if (Main.stopPending) {
 					phaser.forceTermination();
 				}
 			}

@@ -78,7 +78,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public synchronized int build(final File tree) throws JsonGenerationException, JsonMappingException, IOException {
-		if (Main.STOP_PENDING) {
+		if (Main.stopPending) {
 			return 0;
 		}
 
@@ -94,7 +94,7 @@ public class TreeBuilder implements AutoCloseable {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
-		if (!Main.STOP_PENDING) {
+		if (!Main.stopPending) {
 			/* Serialize the tree to json and store it in the tree file. */
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(tree, rootNode);
@@ -114,7 +114,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public synchronized int update(final File tree, final boolean doAllSemesters) throws JsonGenerationException, JsonMappingException, IOException {
-		if (Main.STOP_PENDING) {
+		if (Main.stopPending) {
 			return 0;
 		}
 
@@ -150,7 +150,7 @@ public class TreeBuilder implements AutoCloseable {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
-		if (!Main.STOP_PENDING) {
+		if (!Main.stopPending) {
 			/* Serialize the tree to json and store it in the tree file. */
 			mapper.writeValue(tree, rootNode);
 
@@ -209,7 +209,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.STOP_PENDING) {
+				if (!Main.stopPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -218,7 +218,7 @@ public class TreeBuilder implements AutoCloseable {
 				phaser.arrive();
 				//updateProgress(phaser);
 
-				if (Main.STOP_PENDING) {
+				if (Main.stopPending) {
 					phaser.forceTermination();
 				}
 			}
@@ -279,7 +279,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.STOP_PENDING) {
+				if (!Main.stopPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -288,7 +288,7 @@ public class TreeBuilder implements AutoCloseable {
 				phaser.arrive();
 				updateProgress(phaser, semesterNode.title);
 
-				if (Main.STOP_PENDING) {
+				if (Main.stopPending) {
 					phaser.forceTermination();
 				}
 			}
@@ -339,17 +339,19 @@ public class TreeBuilder implements AutoCloseable {
 
 				/* Folders. */
 				for (DocumentFolder folder : folders.folders) {
+					final String folderName = FileBrowser.removeIllegalCharacters(folder.name);
+
 					/*
 					 * Maybe the folder contains multiple folders with same name,
 					 * we need to assign a unique name in this case.
 					 */
-					if (fileNames.contains(folder.name)) {
+					if (fileNames.contains(folderName)) {
 						LOG.warning("Duplicate foldername: " + folder.name);
 						folder.name = FileBrowser.appendFilename(folder.name, "_" + folder.folder_id);
 					}
 
 					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
-					fileNames.add(folderNode.name);
+					fileNames.add(folderName);
 
 					/* Add update files job (recursive). */
 					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, folderNode));
@@ -359,17 +361,19 @@ public class TreeBuilder implements AutoCloseable {
 
 				/* Documents. */
 				for (Document document : folders.documents) {
+					final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
+
 					/*
 					 * Maybe the folder contains multiple documents with same filename,
 					 * we need to assign a unique filename in this case.
 					 */
-					if (fileNames.contains(document.filename)) {
+					if (fileNames.contains(fileName)) {
 						LOG.warning("Duplicate filename: " + document.filename);
 						document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
 					}
 
 					parentNode.documents.add(documentNode = new DocumentTreeNode(document));
-					fileNames.add(document.filename);
+					fileNames.add(fileName);
 
 					LOG.info(documentNode.name);
 				}
@@ -389,7 +393,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.STOP_PENDING) {
+				if (!Main.stopPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -398,7 +402,7 @@ public class TreeBuilder implements AutoCloseable {
 				phaser.arrive();
 				updateProgress(phaser, courseNode.title);
 
-				if (Main.STOP_PENDING) {
+				if (Main.stopPending) {
 					phaser.forceTermination();
 				}
 			}
@@ -453,7 +457,9 @@ public class TreeBuilder implements AutoCloseable {
 			final Iterator<DocumentTreeNode> iter = folder.documents.iterator();
 
 			while (iter.hasNext()) {
-				if (iter.next().document_id.equals(document.document_id)) {
+				final DocumentTreeNode doc = iter.next();
+
+				if (document.document_id.equals(doc.document_id)) {
 					iter.remove();
 					return true;
 				}
@@ -470,9 +476,11 @@ public class TreeBuilder implements AutoCloseable {
 		 * @return
 		 */
 		private boolean hasDuplicates(final DocumentFolderTreeNode folder, final Document document) {
-			for (DocumentTreeNode d : folder.documents) {
-				if (d.filename.equals(document.filename)
-						&& !d.document_id.equals(document.document_id)) {
+			final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
+
+			for (DocumentTreeNode doc : folder.documents) {
+				if (fileName.equals(FileBrowser.removeIllegalCharacters(doc.filename))
+						&& !document.document_id.equals(doc.document_id)) {
 					return true;
 				}
 			}
@@ -539,7 +547,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.STOP_PENDING) {
+				if (!Main.stopPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -548,7 +556,7 @@ public class TreeBuilder implements AutoCloseable {
 				phaser.arrive();
 				updateProgress(phaser, courseNode.title);
 
-				if (Main.STOP_PENDING) {
+				if (Main.stopPending) {
 					phaser.forceTermination();
 				}
 			}
@@ -571,7 +579,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @param phaser
 	 */
 	protected void updateProgress(final Phaser phaser, final String text) {
-		if (progressIndicator != null) {
+		if (progressIndicator != null && progressLabel != null) {
 			Platform.runLater(() -> {
 				progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
 				progressLabel.setText(text);

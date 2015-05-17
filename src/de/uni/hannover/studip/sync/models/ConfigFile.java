@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  * @param <T> Config datamodel
  */
-public class ConfigFile<T> {
+public final class ConfigFile<T> {
 
 	private final File file;
 	private final Class<T> type;
@@ -57,7 +57,7 @@ public class ConfigFile<T> {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public final synchronized void init() throws JsonGenerationException, JsonMappingException, IOException, InstantiationException, IllegalAccessException {
+	public synchronized void init() throws JsonGenerationException, JsonMappingException, IOException, InstantiationException, IllegalAccessException {
 		data = type.newInstance();
 		write();
 	}
@@ -69,7 +69,7 @@ public class ConfigFile<T> {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public final synchronized void read() throws IOException, InstantiationException, IllegalAccessException {
+	public synchronized void read() throws IOException, InstantiationException, IllegalAccessException {
 		try {
 			final ObjectMapper mapper = new ObjectMapper();
 			data = mapper.readValue(file, type);
@@ -87,7 +87,7 @@ public class ConfigFile<T> {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public final synchronized void write() throws JsonGenerationException, JsonMappingException, IOException {
+	public synchronized void write() throws JsonGenerationException, JsonMappingException, IOException {
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(file, data);
 	}

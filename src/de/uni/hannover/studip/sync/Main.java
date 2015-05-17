@@ -39,9 +39,11 @@ public class Main extends Application {
 	public static final String HELP = "Help";
 	public static final String ABOUT = "About";
 
+	// Keep track of previous views.
 	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
 
-	public static volatile boolean STOP_PENDING = false;
+	// Flag to signal orderly shutdown of worker threads.
+	public static volatile boolean stopPending = false;
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -94,8 +96,8 @@ public class Main extends Application {
 			primaryStage.setOnCloseRequest(event -> {
 				Platform.exit();
 
-				// Signal worker threads to terminate.
-				STOP_PENDING = true;
+				// Signal worker threads to terminate gracefully.
+				stopPending = true;
 			});
 
 			primaryStage.show();
