@@ -1,6 +1,7 @@
 package de.uni.hannover.studip.sync;
 	
 import java.io.IOException;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
@@ -54,6 +55,30 @@ public class Main extends Application {
 	private ServerSocket globalAppMutex;
 
 	/**
+	 * Default Uncaught Exception Handler.
+	 */
+	static {
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+			@Override
+			public void uncaughtException(final Thread t, final Throwable e) {
+				Platform.runLater(() -> {
+					// Signal worker threads to terminate gracefully.
+					stopPending = true;
+
+					final Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("UncaughtExceptionHandler");
+					alert.setHeaderText(null);
+					alert.setContentText(e.getMessage());
+					alert.setResizable(true);
+					alert.showAndWait();
+
+					Platform.exit();
+				});
+			}
+		});
+	}
+
+	/**
 	 * 
 	 */
 	@Override
@@ -74,6 +99,7 @@ public class Main extends Application {
 			alert.setHeaderText(null);
 			alert.setContentText("FileSync läuft bereits.");
 			alert.showAndWait();
+
 			Platform.exit();
 		}
 	}
@@ -94,10 +120,10 @@ public class Main extends Application {
 			//primaryStage.setMinHeight(480);
 
 			primaryStage.setOnCloseRequest(event -> {
-				Platform.exit();
-
 				// Signal worker threads to terminate gracefully.
 				stopPending = true;
+
+				Platform.exit();
 			});
 
 			primaryStage.show();
