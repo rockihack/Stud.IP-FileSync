@@ -35,7 +35,7 @@ public final class FileBrowser {
 			try {
 				// Windows long path names workaround.
 				if (!Desktop.isDesktopSupported() || !Desktop.getDesktop().isSupported(Desktop.Action.OPEN)) {
-					throw new UnsupportedOperationException("Desktop not supported!");
+					throw new IOException("Desktop not supported!");
 				}
 
 				Desktop.getDesktop().open(file);
