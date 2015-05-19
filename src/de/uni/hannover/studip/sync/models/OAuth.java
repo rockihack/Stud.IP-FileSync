@@ -156,7 +156,12 @@ public final class OAuth {
 	public synchronized void removeAccessToken() {
 		try {
 			CONFIG.initOAuthFile();
-			state = OAuthState.GET_REQUEST_TOKEN;
+
+			// We must not acquire a second request token until
+			// we got a access token for the first one.
+			if (state != OAuthState.GET_ACCESS_TOKEN) {
+				state = OAuthState.GET_REQUEST_TOKEN;
+			}
 
 		} catch (IOException | InstantiationException | IllegalAccessException e) {
 			throw new IllegalStateException(e);
