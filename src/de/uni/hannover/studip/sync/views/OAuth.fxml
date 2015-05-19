@@ -7,7 +7,7 @@
    <children>
       <GridPane layoutX="0" layoutY="0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
         </columnConstraints>
@@ -18,14 +18,14 @@
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
+           <Label alignment="TOP_LEFT" text="Stud.IP FileSync&#10;&#10;Für die Nutzung der Stud.IP FileSync Application, müssen Sie sich zuerst&#10;mit Ihren Stud.IP Logindaten authentifizieren.&#10;&#10;1) Loggen Sie sich in Ihren Stud.IP Account ein&#10;2) Bestätigen Sie den Zugriff auf Ihre Accountdaten&#10;    (Name, Semester und Veranstaltungen werden lokal auf Ihrem Computer gespeichert)&#10;3) Warten Sie bis die Authenfizierung abgeschlossen ist,&#10;    Sie werden danach automatisch weitergeleitet.&#10;&#10;Klicken Sie auf &quot;Weiter&quot;, um die Authentifizierung zu starten.&#10;&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+           </Label>
            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="3">
              <center>
                <Button mnemonicParsing="false" onAction="#handleNext" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Weiter" BorderPane.alignment="CENTER">
                </Button>
              </center>
            </BorderPane>
-           <Label alignment="TOP_LEFT" text="Stud.IP FileSync&#10;&#10;Für die Nutzung der Stud.IP FileSync Application, müssen Sie sich zuerst&#10;mit Ihren Stud.IP Logindaten authentifizieren.&#10;&#10;1) Loggen Sie sich in Ihren Stud.IP Account ein&#10;2) Bestätigen Sie den Zugriff auf Ihre Accountdaten&#10;    (Name, Semester und Veranstaltungen werden lokal auf Ihrem Computer gespeichert)&#10;3) Warten Sie bis die Authenfizierung abgeschlossen ist,&#10;    Sie werden danach automatisch weitergeleitet.&#10;&#10;Klicken Sie auf &quot;Weiter&quot;, um die Authentifizierung zu starten.&#10;&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
-           </Label>
          </children>
       </GridPane>
    </children>

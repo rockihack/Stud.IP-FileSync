@@ -2,7 +2,9 @@
 	-fx-font-size: 14px;
 }
 
-.menu:hover, .menu:showing, .menu-item:focused {
+.menu:hover,
+.menu:showing,
+.menu-item:focused {
 	/* LUH blau. */
 	-fx-background-color: #3d71b8;
 }
@@ -10,6 +12,16 @@
 .sync-indicator {
 	/* LUH blau. */
 	-fx-progress-color: #3d71b8;
+}
+
+.scroll-pane:focused,
+.table-view:focused {
+	-fx-background-color: -fx-box-border, -fx-control-inner-background;
+	-fx-background-insets: 0, 1;
+}
+
+.scroll-pane > .viewport {
+	-fx-background-color: #fff;
 }
 
 .blue-button {

@@ -7,29 +7,29 @@
    <children>
       <GridPane layoutX="0" layoutY="0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
+          <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
           <RowConstraints minHeight="75.0" prefHeight="75.0" vgrow="NEVER" />
-            <RowConstraints vgrow="SOMETIMES" />
-            <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
+          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="4">
-               <center>
-                  <Button fx:id="next" disable="true" mnemonicParsing="false" onAction="#handleNext" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Weiter" BorderPane.alignment="CENTER">
-                  </Button>
-               </center>
-            </BorderPane>
             <Label alignment="TOP_LEFT" prefHeight="153.0" prefWidth="560.0" text="Authentifizierung war erfolgreich!&#10;&#10;Bitte wählen Sie den Ziel Ordner.&#10;" GridPane.columnIndex="1" GridPane.rowIndex="1">
             </Label>
             <BorderPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
                   <Button mnemonicParsing="false" onAction="#handleDest" prefHeight="35.0" prefWidth="150.0" text="Ordner wählen" BorderPane.alignment="CENTER">
+                  </Button>
+               </center>
+            </BorderPane>
+            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="4">
+               <center>
+                  <Button fx:id="next" disable="true" mnemonicParsing="false" onAction="#handleNext" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Weiter" BorderPane.alignment="CENTER">
                   </Button>
                </center>
             </BorderPane>

@@ -9,22 +9,16 @@
    <children>
       <GridPane layoutX="0" layoutY="0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
         </columnConstraints>
         <rowConstraints>
-            <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
+          <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
           <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
-               <center>
-                  <Button mnemonicParsing="false" onAction="#handlePrev" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
-                  </Button>
-               </center>
-            </BorderPane>
             <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
               <columnConstraints>
                 <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
@@ -73,6 +67,12 @@
                   </ChoiceBox>
                </children>
             </GridPane>
+            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <center>
+                  <Button mnemonicParsing="false" onAction="#handlePrev" prefHeight="35.0" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
+                  </Button>
+               </center>
+            </BorderPane>
          </children>
       </GridPane>
    </children>
