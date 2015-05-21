@@ -23,6 +23,7 @@ import de.elanev.studip.android.app.backend.datamodel.*;
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.exceptions.*;
+import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 
 /**
@@ -133,8 +134,8 @@ public class TreeBuilder implements AutoCloseable {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (CourseTreeNode course : semester.courses) {
-					/* Cache requests for 10min. */
-					if (now - course.update_time > 10 * 60) {
+					/* Request caching. */
+					if (now - course.update_time > StudIPApiProvider.CACHE_TIME) {
 						course.update_time = now;
 
 						phaser.register();

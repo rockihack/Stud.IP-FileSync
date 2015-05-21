@@ -35,6 +35,11 @@ public final class StudIPApiProvider extends DefaultApi10a
 	 */
 	public static final String API_SECRET = "";
 
+	/**
+	 * Request cache time in seconds (update).
+	 */
+	public static final int CACHE_TIME = 10 * 60;
+
 	@Override
 	public String getAccessTokenEndpoint()
 	{
