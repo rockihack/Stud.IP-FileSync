@@ -96,7 +96,18 @@ public class NewDocumentsController extends AbstractController {
 					final NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
 
 					if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
-						FileBrowser.open(selectedItem.getDocumentFile());
+						final File selectedFile = selectedItem.getDocumentFile();
+
+						try {
+							FileBrowser.open(selectedFile);
+
+						} catch (IOException e) {
+							final Alert alert = new Alert(AlertType.ERROR);
+							alert.setTitle("Fehler");
+							alert.setHeaderText(null);
+							alert.setContentText("Datei wurde nicht gefunden.\n" + selectedFile.getAbsolutePath());
+							alert.showAndWait();
+						}
 					}
 				});
 

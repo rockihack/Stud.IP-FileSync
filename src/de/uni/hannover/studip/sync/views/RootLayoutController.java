@@ -56,12 +56,23 @@ public class RootLayoutController extends AbstractController {
 			alert.setContentText("Kein Ziel Ordner gewählt.");
 			alert.showAndWait();
 
-		} else if (!FileBrowser.open(new File(rootDir))) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("Not supported.");
-			alert.showAndWait();
+		} else {
+			try {
+				if (!FileBrowser.open(new File(rootDir))) {
+					final Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Fehler");
+					alert.setHeaderText(null);
+					alert.setContentText("Not supported.");
+					alert.showAndWait();
+				}
+
+			} catch (IOException e) {
+				final Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Fehler");
+				alert.setHeaderText(null);
+				alert.setContentText("Ordner wurde nicht gefunden.");
+				alert.showAndWait();
+			}
 		}
 	}
 

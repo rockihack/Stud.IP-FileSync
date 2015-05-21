@@ -25,10 +25,11 @@ public final class FileBrowser {
 	 * 
 	 * @param file
 	 * @return
+	 * @throws IOException 
 	 */
-	public static boolean open(final File file) {
+	public static boolean open(final File file) throws IOException {
 		if (!file.exists()) {
-			return false;
+			throw new IOException("File not found!");
 		}
 
 		if (OS.isWindows()) {
