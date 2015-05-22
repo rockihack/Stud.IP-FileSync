@@ -16,18 +16,22 @@ public enum OS {
 	LINUX,
 	SOLARIS;
 
-	private static OS currentOS = detectOS();
+	private static final OS CURRENT_OS = detectOS();
+
+	public static OS get() {
+		return CURRENT_OS;
+	}
 
 	public static boolean isWindows() {
-		return currentOS == WINDOWS;
+		return CURRENT_OS == WINDOWS;
 	}
 
 	public static boolean isMacOS() {
-		return currentOS == MACOS;
+		return CURRENT_OS == MACOS;
 	}
 
 	public static boolean isLinux() {
-		return currentOS == LINUX || currentOS == SOLARIS;
+		return CURRENT_OS == LINUX || CURRENT_OS == SOLARIS;
 	}
 
 	/**

@@ -10,15 +10,26 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OAuthFile {
 
-	// Name and id of the currently logged in user.
+	/**
+	 * Logged in user name.
+	 */
 	public String first_name;
 	public String last_name;
-
 	public String user_name;
+
+	/**
+	 * Logged in user id.
+	 */
 	public String user_id;
 
-	// OAuth access token and secret.
+	/**
+	 * OAuth access token.
+	 */
 	public String token;
+
+	/**
+	 * OAuth access secret.
+	 */
 	public String secret;
 
 	public OAuthFile() {

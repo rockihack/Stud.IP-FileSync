@@ -78,7 +78,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int build(final File tree) throws JsonGenerationException, JsonMappingException, IOException {
+	public synchronized int build(final File tree) throws IOException {
 		if (Main.stopPending) {
 			return 0;
 		}
@@ -114,7 +114,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int update(final File tree, final boolean doAllSemesters) throws JsonGenerationException, JsonMappingException, IOException {
+	public synchronized int update(final File tree, final boolean doAllSemesters) throws IOException {
 		if (Main.stopPending) {
 			return 0;
 		}
@@ -140,9 +140,13 @@ public class TreeBuilder implements AutoCloseable {
 
 						phaser.register();
 
-						// TODO
-						threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
+						/*
+						 * If Rest.IP plugin 0.9.9.6 or later is installed we can use UpdateDocumentsJob.
+						 * Since this version the api offers a more efficient route for updating documents,
+						 * otherwise we need to rebuild the folder tree every time.
+						 */
 						//threadPool.execute(new UpdateDocumentsJob(phaser, course));
+						threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
 					}
 				}
 			}
@@ -177,7 +181,13 @@ public class TreeBuilder implements AutoCloseable {
 		 * Tree root node.
 		 */
 		private final SemestersTreeNode rootNode;
-		
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param phaser
+		 * @param rootNode
+		 */
 		public BuildSemestersJob(final Phaser phaser, final SemestersTreeNode rootNode) {
 			this.phaser = phaser;
 			this.rootNode = rootNode;
@@ -196,7 +206,7 @@ public class TreeBuilder implements AutoCloseable {
 				for (Semester semester : semesters.semesters) {
 					rootNode.semesters.add(semesterNode = new SemesterTreeNode(semester));
 					
-					/* Add update courses job. */
+					/* Add build courses job. */
 					threadPool.execute(new BuildCoursesJob(phaser, semesterNode));
 
 					LOG.info(semesterNode.title);
@@ -243,7 +253,13 @@ public class TreeBuilder implements AutoCloseable {
 		 * Semester node.
 		 */
 		private final SemesterTreeNode semesterNode;
-		
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param phaser
+		 * @param semesterNode
+		 */
 		public BuildCoursesJob(final Phaser phaser, final SemesterTreeNode semesterNode) {
 			this.phaser = phaser;
 			this.semesterNode = semesterNode;
@@ -262,7 +278,7 @@ public class TreeBuilder implements AutoCloseable {
 				for (Course course : courses.courses) {
 					semesterNode.courses.add(courseNode = new CourseTreeNode(course));
 					
-					/* Add update files job. */
+					/* Add build documents job. */
 					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root));
 					
 					LOG.info(courseNode.title);
@@ -318,7 +334,14 @@ public class TreeBuilder implements AutoCloseable {
 		 * Parent folder node.
 		 */
 		private final DocumentFolderTreeNode parentNode;
-		
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param phaser
+		 * @param courseNode
+		 * @param parentNode 
+		 */
 		public BuildDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final DocumentFolderTreeNode parentNode) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
@@ -333,7 +356,10 @@ public class TreeBuilder implements AutoCloseable {
 
 				final HashSet<String> fileNames = new HashSet<String>();
 
-				/* Get course folder content. */
+				/*
+				 * Get course folder content.
+				 * If parent node is the root course folder the folder id is null.
+				 */
 				final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.course_id, parentNode.folder_id);
 
 				phaser.bulkRegister(folders.folders.size());
@@ -427,7 +453,13 @@ public class TreeBuilder implements AutoCloseable {
 		 * Course node.
 		 */
 		private final CourseTreeNode courseNode;
-		
+
+		/**
+		 * Constructor.
+		 * 
+		 * @param phaser
+		 * @param courseNode
+		 */
 		public UpdateDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;

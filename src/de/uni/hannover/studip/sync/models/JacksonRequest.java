@@ -69,7 +69,7 @@ public class JacksonRequest<T> {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public T parseResponse(final boolean unwrap) throws JsonParseException, JsonMappingException, IOException {
+	public T parseResponse(final boolean unwrap) throws IOException {
 		final ObjectMapper mapper = new ObjectMapper();
 		
 		/* Unwrap root value. */

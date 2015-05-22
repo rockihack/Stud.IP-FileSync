@@ -26,10 +26,14 @@ import javafx.scene.layout.BorderPane;
  */
 public class Main extends Application {
 
-	// App name (titlebar).
+	/**
+	 * App name (titlebar).
+	 */
 	public static final String APP_NAME = "Stud.IP FileSync **Beta**";
 
-	// Views.
+	/**
+	 * Views.
+	 */
 	public static final String OVERVIEW = "Overview";
 	public static final String NEW_DOCUMENTS = "NewDocuments";
 	public static final String OAUTH = "OAuth";
@@ -40,10 +44,14 @@ public class Main extends Application {
 	public static final String HELP = "Help";
 	public static final String ABOUT = "About";
 
-	// Keep track of previous views.
+	/**
+	 * Keep track of previous views.
+	 */
 	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
 
-	// Flag to signal orderly shutdown of worker threads.
+	/**
+	 * Flag to signal graceful shutdown of worker threads.
+	 */
 	public static volatile boolean stopPending = false;
 
 	private Stage primaryStage;
@@ -79,7 +87,7 @@ public class Main extends Application {
 	}
 
 	/**
-	 * 
+	 * JavaFX application start method.
 	 */
 	@Override
 	public void start(final Stage primaryStage) {
@@ -104,6 +112,9 @@ public class Main extends Application {
 		}
 	}
 
+	/**
+	 * Init application root layout (menu bar).
+	 */
 	private void initRootLayout() {
 		try {
 			final FXMLLoader loader = new FXMLLoader(Main.class.getResource("views/RootLayout.fxml"));
@@ -135,6 +146,7 @@ public class Main extends Application {
 	}
 
 	/**
+	 * Set active view.
 	 * 
 	 * @param fxml
 	 */
@@ -163,7 +175,7 @@ public class Main extends Application {
 	}
 
 	/**
-	 * 
+	 * Set previous view.
 	 */
 	public void setPrevView() {
 		synchronized (VIEW_HISTORY) {
@@ -178,6 +190,7 @@ public class Main extends Application {
 	}
 
 	/**
+	 * Main method.
 	 * 
 	 * @param args
 	 */
@@ -186,6 +199,7 @@ public class Main extends Application {
 	}
 
 	/**
+	 * Return primary stage (window).
 	 * 
 	 * @return
 	 */
@@ -194,6 +208,7 @@ public class Main extends Application {
 	}
 
 	/**
+	 * Return root layout.
 	 * 
 	 * @return
 	 */
@@ -202,6 +217,7 @@ public class Main extends Application {
 	}
 
 	/**
+	 * Return root layout controller.
 	 * 
 	 * @return
 	 */
@@ -210,11 +226,11 @@ public class Main extends Application {
 	}
 
 	/**
+	 * Return currently active controller.
 	 * 
 	 * @return
 	 */
 	public AbstractController getController() {
 		return currentController;
 	}
-
 }

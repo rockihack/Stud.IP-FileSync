@@ -32,7 +32,7 @@ public final class FileHash {
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 */
-	public static String getMd5(final File file) throws FileNotFoundException, IOException, NoSuchAlgorithmException {
+	public static String getMd5(final File file) throws IOException, NoSuchAlgorithmException {
 		try (FileInputStream in = new FileInputStream(file)) {
 			final MessageDigest digest = MessageDigest.getInstance("MD5");
 

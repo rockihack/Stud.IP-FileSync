@@ -61,7 +61,7 @@ public class TreeSync extends TreeBuilder {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int sync(final File tree, final boolean doAllSemesters) throws JsonParseException, JsonMappingException, IOException {
+	public synchronized int sync(final File tree, final boolean doAllSemesters) throws IOException {
 		if (Main.stopPending) {
 			return 0;
 		}

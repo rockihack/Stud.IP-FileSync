@@ -57,7 +57,7 @@ public final class ConfigFile<T> {
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public synchronized void init() throws JsonGenerationException, JsonMappingException, IOException, InstantiationException, IllegalAccessException {
+	public synchronized void init() throws IOException, InstantiationException, IllegalAccessException {
 		data = type.newInstance();
 		write();
 	}
@@ -87,7 +87,7 @@ public final class ConfigFile<T> {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized void write() throws JsonGenerationException, JsonMappingException, IOException {
+	public synchronized void write() throws IOException {
 		final ObjectMapper mapper = new ObjectMapper();
 		mapper.writeValue(file, data);
 	}

@@ -24,6 +24,7 @@ import javafx.stage.DirectoryChooser;
 public class SettingsController extends AbstractController {
 
 	private static final Config CONFIG = Config.getInstance();
+
 	private static final OAuth OAUTH = OAuth.getInstance();
 
 	@FXML
@@ -80,7 +81,7 @@ public class SettingsController extends AbstractController {
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
 		final File rootDir = chooser.showDialog(getMain().getPrimaryStage());
-		if (rootDir != null) {
+		if (rootDir != null && rootDir.exists()) {
 			if (rootDir.canRead() && rootDir.canWrite()) {
 				try {
 					CONFIG.setRootDirectory(rootDir.getAbsolutePath());
@@ -115,7 +116,7 @@ public class SettingsController extends AbstractController {
 	}
 
 	private void setRootDirLabel(final String rootDir) {
-		if (rootDir != null && new File(rootDir).exists()) {
+		if (rootDir != null) {
 			rootDirLabel.setText("Aktuell: " + rootDir);
 		}
 	}

@@ -107,7 +107,7 @@ public final class Config {
 	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public void initOAuthFile() throws JsonGenerationException, JsonMappingException, InstantiationException, IllegalAccessException, IOException {
+	public void initOAuthFile() throws IOException, InstantiationException, IllegalAccessException {
 		oauth.init();
 	}
 
@@ -125,7 +125,7 @@ public final class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setRootDirectory(final String rootDir) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setRootDirectory(final String rootDir) throws IOException {
 		settings.data.root_dir = rootDir;
 		settings.write();
 	}
@@ -144,7 +144,7 @@ public final class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setOverwriteFiles(final boolean value) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setOverwriteFiles(final boolean value) throws IOException {
 		settings.data.overwrite_files = value;
 		settings.write();
 	}
@@ -163,7 +163,7 @@ public final class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setDownloadAllSemesters(final boolean value) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setDownloadAllSemesters(final boolean value) throws IOException {
 		settings.data.download_all_semesters = value;
 		settings.write();
 	}
@@ -182,7 +182,7 @@ public final class Config {
 	 * @throws JsonMappingException 
 	 * @throws JsonGenerationException 
 	 */
-	public void setReplaceWhitespaces(final int value) throws JsonGenerationException, JsonMappingException, IOException {
+	public void setReplaceWhitespaces(final int value) throws IOException {
 		settings.data.replaceWhitespaces = value;
 		settings.write();
 	}

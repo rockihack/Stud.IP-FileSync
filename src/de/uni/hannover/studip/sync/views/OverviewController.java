@@ -9,11 +9,9 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.uni.hannover.studip.sync.Main;
-import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
-import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeSync;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -54,9 +52,6 @@ public class OverviewController extends AbstractController {
 				try {
 					OAUTH.restoreAccessToken();
 
-					// Test if access token is valid.
-					RestApi.getUserById(null);
-
 					final String rootDir = CONFIG.getRootDirectory();
 					if (rootDir == null) {
 						throw new IOException("Kein Ziel Ordner gewählt.");
@@ -83,7 +78,7 @@ public class OverviewController extends AbstractController {
 						tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
 					}
 
-				} catch (UnauthorizedException | NotFoundException e) {
+				} catch (UnauthorizedException e) {
 					OAUTH.removeAccessToken();
 
 					Platform.runLater(() -> getMain().setView(Main.OAUTH));

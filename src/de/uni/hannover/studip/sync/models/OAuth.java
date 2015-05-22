@@ -3,7 +3,6 @@ package de.uni.hannover.studip.sync.models;
 import java.io.IOException;
 
 import org.scribe.builder.ServiceBuilder;
-import org.scribe.exceptions.OAuthConnectionException;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
@@ -63,7 +62,7 @@ public final class OAuth {
 	/**
 	 * State enum.
 	 */
-	private enum OAuthState {
+	private static enum OAuthState {
 		GET_REQUEST_TOKEN,
 		GET_ACCESS_TOKEN,
 		READY
@@ -86,7 +85,7 @@ public final class OAuth {
 	/**
 	 * Step 2: Get the request token.
 	 */
-	public synchronized void getRequestToken() throws OAuthConnectionException {
+	public synchronized void getRequestToken() {
 		if (state == OAuthState.GET_REQUEST_TOKEN) {
 			requestToken = service.getRequestToken();
 			state = OAuthState.GET_ACCESS_TOKEN;
@@ -114,7 +113,6 @@ public final class OAuth {
 			throw new IllegalStateException("Request token not found!");
 		}
 
-		// Get access token and store it in oauth config file.
 		accessToken = service.getAccessToken(requestToken, new Verifier(verifier));
 		state = OAuthState.READY;
 
