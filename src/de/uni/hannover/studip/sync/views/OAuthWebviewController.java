@@ -21,6 +21,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 
 /**
@@ -43,19 +44,28 @@ public class OAuthWebviewController extends AbstractController {
 	public void initialize() {
 		final WebEngine webEngine = webView.getEngine();
 		webEngine.setJavaScriptEnabled(true);
+
+		// On status change event.
+		webEngine.setOnStatusChanged(event -> {
+			if (event.getEventType() == WebEvent.STATUS_CHANGED && webEngine.getLocation().contains("oauth_verifier")) {
+				getOAuthVerifier(webEngine);
+			}
+		});
+
+		// On load event.
 		webEngine.getLoadWorker().stateProperty().addListener(
 			(observableValue, oldState, newState) -> {
 				if (newState == State.SUCCEEDED) {
 					// Scroll to login box.
-					webEngine.executeScript(
-							"var login = $('form[name=\"login\"]');" +
-							"if (login.length)" +
-								"$('html, body').animate({"
-										+ "scrollTop: login.offset().top - 100,"
-										+ "scrollLeft: login.offset().left - 100"
-								+ "}, 500);");
-
-					onload(webEngine);
+					webEngine.executeScript("if (typeof $ === 'function') {"
+						+ "var login = $('form[name=\"login\"]');"
+						+ "if (login.length) {"
+							+ "$('html, body').animate({"
+								+ "scrollTop: login.offset().top - 100,"
+								+ "scrollLeft: login.offset().left - 100"
+							+ "}, 500);"
+						+ "}"
+					+ "}");
 				}
 			});
 
@@ -78,11 +88,11 @@ public class OAuthWebviewController extends AbstractController {
 	}
 
 	/**
-	 * WebEngine window onload callback.
+	 * Get oauth verifier from url.
 	 * 
 	 * @param url 
 	 */
-	private void onload(final WebEngine engine) {
+	private void getOAuthVerifier(final WebEngine engine) {
 		// Parse oauth verifier.
 		final Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
 		final Matcher matcher = pattern.matcher(engine.getLocation());
