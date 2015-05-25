@@ -115,7 +115,7 @@ public final class Config {
 	 * Get root directoy.
 	 */
 	public String getRootDirectory() {
-		return settings.data.root_dir;
+		return settings.data.rootDir;
 	}
 
 	/**
@@ -126,7 +126,7 @@ public final class Config {
 	 * @throws JsonGenerationException 
 	 */
 	public void setRootDirectory(final String rootDir) throws IOException {
-		settings.data.root_dir = rootDir;
+		settings.data.rootDir = rootDir;
 		settings.write();
 	}
 
@@ -134,7 +134,7 @@ public final class Config {
 	 * Check if overwrite files setting is enabled.
 	 */
 	public boolean isOverwriteFiles() {
-		return settings.data.overwrite_files;
+		return settings.data.overwriteFiles;
 	}
 
 	/**
@@ -145,7 +145,7 @@ public final class Config {
 	 * @throws JsonGenerationException 
 	 */
 	public void setOverwriteFiles(final boolean value) throws IOException {
-		settings.data.overwrite_files = value;
+		settings.data.overwriteFiles = value;
 		settings.write();
 	}
 
@@ -153,7 +153,7 @@ public final class Config {
 	 * Check if download all semesters setting is enabled.
 	 */
 	public boolean isDownloadAllSemesters() {
-		return settings.data.download_all_semesters;
+		return settings.data.downloadAllSemesters;
 	}
 
 	/**
@@ -164,7 +164,7 @@ public final class Config {
 	 * @throws JsonGenerationException 
 	 */
 	public void setDownloadAllSemesters(final boolean value) throws IOException {
-		settings.data.download_all_semesters = value;
+		settings.data.downloadAllSemesters = value;
 		settings.write();
 	}
 
@@ -191,28 +191,28 @@ public final class Config {
 	 * Get logged in user firstname.
 	 */
 	public String getFirstName() {
-		return oauth.data.first_name;
+		return oauth.data.firstName;
 	}
 
 	/**
 	 * Get logged in user lastname.
 	 */
 	public String getLastName() {
-		return oauth.data.last_name;
+		return oauth.data.lastName;
 	}
 
 	/**
 	 * Get logged in user name.
 	 */
 	public String getUserName() {
-		return oauth.data.user_name;
+		return oauth.data.userName;
 	}
 
 	/**
 	 * Get logged in user id.
 	 */
 	public String getUserId() {
-		return oauth.data.user_id;
+		return oauth.data.userId;
 	}
 
 	/**
@@ -238,10 +238,10 @@ public final class Config {
 	 * @throws IOException 
 	 */
 	public void setAccessToken(final Token accessToken, final User currentUser) throws IOException {
-		oauth.data.first_name = currentUser.forename;
-		oauth.data.last_name = currentUser.lastname;
-		oauth.data.user_name = currentUser.username;
-		oauth.data.user_id = currentUser.user_id;
+		oauth.data.firstName = currentUser.forename;
+		oauth.data.lastName = currentUser.lastname;
+		oauth.data.userName = currentUser.username;
+		oauth.data.userId = currentUser.user_id;
 		oauth.data.token = accessToken.getToken();
 		oauth.data.secret = accessToken.getSecret();
 		oauth.write();

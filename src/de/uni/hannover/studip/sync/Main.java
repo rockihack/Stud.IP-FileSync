@@ -69,10 +69,12 @@ public class Main extends Application {
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
 			@Override
 			public void uncaughtException(final Thread t, final Throwable e) {
-				Platform.runLater(() -> {
-					// Signal worker threads to terminate gracefully.
-					stopPending = true;
+				e.printStackTrace();
 
+				// Signal worker threads to terminate gracefully.
+				stopPending = true;
+
+				Platform.runLater(() -> {
 					final Alert alert = new Alert(AlertType.ERROR);
 					alert.setTitle("UncaughtExceptionHandler");
 					alert.setHeaderText(null);

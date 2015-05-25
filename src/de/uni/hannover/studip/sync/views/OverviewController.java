@@ -2,6 +2,7 @@ package de.uni.hannover.studip.sync.views;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import org.scribe.exceptions.OAuthConnectionException;
 
@@ -28,7 +29,13 @@ import javafx.scene.control.Alert.AlertType;
  */
 public class OverviewController extends AbstractController {
 
+	/**
+	 * Logger instance.
+	 */
+	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
 	private static final Config CONFIG = Config.getInstance();
+
 	private static final OAuth OAUTH = OAuth.getInstance();
 
 	@FXML
@@ -59,23 +66,26 @@ public class OverviewController extends AbstractController {
 
 					try (TreeSync tree = new TreeSync(new File(rootDir))) {
 						final File treeFile = Config.openTreeFile();
+						int numberOfRequests;
 
 						tree.setProgress(progress, progressLabel);
 
 						// Update documents.
 						try {
-							tree.update(treeFile, false);
+							numberOfRequests = tree.update(treeFile, false);
 
 						} catch (JsonParseException | JsonMappingException e) {
 							// Invalid tree file, lets build a new one.
-							tree.build(treeFile);
+							numberOfRequests = tree.build(treeFile);
 						}
 
 						// Update sync button.
 						Platform.runLater(() -> syncButton.setText("Downloading..."));
 
 						// Download documents.
-						tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
+						numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
+
+						LOG.info("Number of requests: " + numberOfRequests);
 					}
 
 				} catch (UnauthorizedException e) {

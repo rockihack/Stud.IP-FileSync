@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.scribe.exceptions.OAuthConnectionException;
+import org.scribe.exceptions.OAuthException;
 import org.scribe.model.Token;
 
 import de.elanev.studip.android.app.backend.datamodel.User;
@@ -32,6 +33,7 @@ import javafx.scene.web.WebView;
 public class OAuthWebviewController extends AbstractController {
 
 	private static final Config CONFIG = Config.getInstance();
+
 	private static final OAuth OAUTH = OAuth.getInstance();
 
 	@FXML
@@ -84,6 +86,18 @@ public class OAuthWebviewController extends AbstractController {
 
 				getMain().setPrevView();
 			});
+
+		} catch (OAuthException e) {
+			// Invalid api key or secret.
+			Platform.runLater(() -> {
+				final Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Fehler");
+				alert.setHeaderText(null);
+				alert.setContentText("OAuth Verbindung fehlgeschlagen!");
+				alert.showAndWait();
+
+				Platform.exit();
+			});
 		}
 	}
 
@@ -117,7 +131,7 @@ public class OAuthWebviewController extends AbstractController {
 				// End login session.
 				engine.load(StudIPApiProvider.LOGOUT);
 
-			} catch (UnauthorizedException | NotFoundException e) {
+			} catch (OAuthException | UnauthorizedException | NotFoundException e) {
 				OAUTH.removeAccessToken();
 
 				// Redirect to login.

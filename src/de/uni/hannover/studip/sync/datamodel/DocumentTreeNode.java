@@ -13,26 +13,26 @@ import de.elanev.studip.android.app.backend.datamodel.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentTreeNode {
 
-	public String document_id;
-	public String user_id;
+	public String documentId;
+	public String userId;
 	public String name;
-	public Long mkdate;
-	public Long chdate;
-	public String filename;
-	public Long filesize;
+	public Long mkDate;
+	public Long chDate;
+	public String fileName;
+	public Long fileSize;
 
 	public DocumentTreeNode() {
 		// Needed for json object binding.
 	}
 
 	public DocumentTreeNode(final Document document) {
-		this.document_id = document.document_id;
-		this.user_id = document.user_id;
+		this.documentId = document.document_id;
+		this.userId = document.user_id;
 		this.name = document.name;
-		this.mkdate = document.mkdate;
-		this.chdate = document.chdate;
-		this.filename = document.filename;
-		this.filesize = document.filesize;
+		this.mkDate = document.mkdate;
+		this.chDate = document.chdate;
+		this.fileName = document.filename;
+		this.fileSize = document.filesize;
 	}
 	
 }

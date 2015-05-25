@@ -192,8 +192,8 @@ public class SyncSettingsController extends AbstractController {
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
-			final String oldFileName = FileBrowser.removeIllegalCharacters(document.filename, oldValue);
-			final String newFileName = FileBrowser.removeIllegalCharacters(document.filename, newValue);
+			final String oldFileName = FileBrowser.removeIllegalCharacters(document.fileName, oldValue);
+			final String newFileName = FileBrowser.removeIllegalCharacters(document.fileName, newValue);
 			File oldFile, newFile;
 
 			oldFile = new File(parentDirectory, oldFileName);

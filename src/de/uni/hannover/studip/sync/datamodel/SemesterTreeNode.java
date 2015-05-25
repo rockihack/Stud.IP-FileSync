@@ -17,12 +17,12 @@ import de.elanev.studip.android.app.backend.datamodel.Semester;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class SemesterTreeNode {
 
-	public String semester_id;
+	public String semesterId;
 	public String title;
 	public long begin;
 	public long end;
-	public long seminars_begin;
-	public long seminars_end;
+	public long seminarsBegin;
+	public long seminarsEnd;
 
 	/* Child nodes. */
 	public final List<CourseTreeNode> courses = Collections.synchronizedList(new ArrayList<CourseTreeNode>());
@@ -32,12 +32,12 @@ public class SemesterTreeNode {
 	}
 
 	public SemesterTreeNode(final Semester semester) {
-		this.semester_id = semester.semester_id;
+		this.semesterId = semester.semester_id;
 		this.title = semester.title;
 		this.begin = semester.begin;
 		this.end = semester.end;
-		this.seminars_begin = semester.seminars_begin;
-		this.seminars_end = semester.seminars_end;
+		this.seminarsBegin = semester.seminars_begin;
+		this.seminarsEnd = semester.seminars_end;
 	}
 
 }

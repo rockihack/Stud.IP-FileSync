@@ -135,8 +135,8 @@ public class TreeBuilder implements AutoCloseable {
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (CourseTreeNode course : semester.courses) {
 					/* Request caching. */
-					if (now - course.update_time > StudIPApiProvider.CACHE_TIME) {
-						course.update_time = now;
+					if (now - course.updateTime > StudIPApiProvider.CACHE_TIME) {
+						course.updateTime = now;
 
 						phaser.register();
 
@@ -271,7 +271,7 @@ public class TreeBuilder implements AutoCloseable {
 				CourseTreeNode courseNode;
 
 				/* Get subscribed courses. */
-				final Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semester_id);
+				final Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semesterId);
 
 				phaser.bulkRegister(courses.courses.size());
 				
@@ -360,7 +360,7 @@ public class TreeBuilder implements AutoCloseable {
 				 * Get course folder content.
 				 * If parent node is the root course folder the folder id is null.
 				 */
-				final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.course_id, parentNode.folder_id);
+				final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.courseId, parentNode.folderId);
 
 				phaser.bulkRegister(folders.folders.size());
 
@@ -476,7 +476,7 @@ public class TreeBuilder implements AutoCloseable {
 				buildFolderIndex(folderIndex, folder);
 			}
 
-			folderIndex.put(parentFolder.folder_id, parentFolder);
+			folderIndex.put(parentFolder.folderId, parentFolder);
 		}
 
 		/**
@@ -492,7 +492,7 @@ public class TreeBuilder implements AutoCloseable {
 			while (iter.hasNext()) {
 				final DocumentTreeNode doc = iter.next();
 
-				if (document.document_id.equals(doc.document_id)) {
+				if (document.document_id.equals(doc.documentId)) {
 					iter.remove();
 					return true;
 				}
@@ -512,8 +512,8 @@ public class TreeBuilder implements AutoCloseable {
 			final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
 
 			for (DocumentTreeNode doc : folder.documents) {
-				if (fileName.equals(FileBrowser.removeIllegalCharacters(doc.filename))
-						&& !document.document_id.equals(doc.document_id)) {
+				if (fileName.equals(FileBrowser.removeIllegalCharacters(doc.fileName))
+						&& !document.document_id.equals(doc.documentId)) {
 					return true;
 				}
 			}
@@ -528,7 +528,7 @@ public class TreeBuilder implements AutoCloseable {
 				DocumentTreeNode documentNode;
 
 				/* Get all course documents with newer change date than course update time. */
-				final Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.course_id, courseNode.update_time);
+				final Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.courseId, courseNode.updateTime);
 				/* Build a folder index for this course, so we can easily access the folders. */
 				final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
 

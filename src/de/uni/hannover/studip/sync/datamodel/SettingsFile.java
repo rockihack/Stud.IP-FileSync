@@ -13,19 +13,19 @@ public class SettingsFile {
 	/**
 	 * Path to studip sync root dir.
 	 */
-	public String root_dir;
+	public String rootDir;
 
 	/**
 	 * If true existing files will be overwritten,
 	 * otherwise a version number is appended.
 	 */
-	public boolean overwrite_files = true;
+	public boolean overwriteFiles = true;
 
 	/**
 	 * If true documents from all visible semesters will be downloaded,
 	 * otherwise only from the current semester.
 	 */
-	public boolean download_all_semesters = false;
+	public boolean downloadAllSemesters = false;
 
 	/**
 	 * 0: Do not replace whitespaces
@@ -39,6 +39,6 @@ public class SettingsFile {
 	}
 
 	public SettingsFile(final String rootDir) {
-		this.root_dir = rootDir;
+		this.rootDir = rootDir;
 	}
 }

@@ -140,12 +140,12 @@ public class TreeSync extends TreeBuilder {
 	 * @param parentDirectory The parent directory
 	 */
 	private void doDocument(final Phaser phaser, final DocumentTreeNode documentNode, final File parentDirectory) {
-		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.filename);
+		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
 
 		final File documentFile = new File(parentDirectory, originalFileName);
 
 		if (documentFile.exists()) {
-			if (documentFile.length() != documentNode.filesize || documentFile.lastModified() != documentNode.chdate * 1000L) {
+			if (documentFile.length() != documentNode.fileSize || documentFile.lastModified() != documentNode.chDate * 1000L) {
 				/* Document has changed, we will download it again. */
 
 				if (!CONFIG.isOverwriteFiles()) {
@@ -222,7 +222,7 @@ public class TreeSync extends TreeBuilder {
 		public void run() {
 			try {
 				final long startTime = System.currentTimeMillis();
-				RestApi.downloadDocumentById(documentNode.document_id, documentFile);
+				RestApi.downloadDocumentById(documentNode.documentId, documentFile);
 				final long endTime = System.currentTimeMillis();
 				LOG.info("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
 
@@ -231,7 +231,7 @@ public class TreeSync extends TreeBuilder {
 				 * The timestamp must be the same as in the document node,
 				 * otherwise the file will be downloaded again.
 				 */
-				if (!documentFile.setLastModified(documentNode.chdate * 1000L)) {
+				if (!documentFile.setLastModified(documentNode.chDate * 1000L)) {
 					throw new IllegalStateException("Änderungsdatum konnte nicht gesetzt werden!");
 				}
 

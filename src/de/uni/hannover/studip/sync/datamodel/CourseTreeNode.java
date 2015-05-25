@@ -13,15 +13,15 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CourseTreeNode {
 
-	public String course_id;
+	public String courseId;
 	public String title;
-	public Long start_time;
-	public Long duration_time;
+	public Long startTime;
+	public Long durationTime;
 	/* "1": Vorlesung, "2": Seminar, "3": Übung, "4": Projekt, "99": Studiengruppe. */
 	public int type;
 
 	/* Last update time used for request caching. */
-	public long update_time;
+	public long updateTime;
 
 	/* Child nodes. */
 	public DocumentFolderTreeNode root = new DocumentFolderTreeNode();
@@ -31,12 +31,12 @@ public class CourseTreeNode {
 	}
 
 	public CourseTreeNode(final Course course) {
-		this.course_id = course.courseId;
+		this.courseId = course.courseId;
 		this.title = course.title;
-		this.start_time = course.startTime;
-		this.duration_time = course.durationTime;
+		this.startTime = course.startTime;
+		this.durationTime = course.durationTime;
 		this.type = course.type;
-		this.update_time = System.currentTimeMillis() / 1000L;
+		this.updateTime = System.currentTimeMillis() / 1000L;
 	}
 
 }

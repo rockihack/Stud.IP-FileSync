@@ -17,11 +17,11 @@ import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentFolderTreeNode {
 
-	public String folder_id;
-	public String user_id;
+	public String folderId;
+	public String userId;
 	public String name;
-	public String mkdate;
-	public Long chdate;
+	public String mkDate;
+	public Long chDate;
 
 	/* Child nodes. */
 	public final List<DocumentFolderTreeNode> folders = Collections.synchronizedList(new ArrayList<DocumentFolderTreeNode>());
@@ -32,11 +32,11 @@ public class DocumentFolderTreeNode {
 	}
 
 	public DocumentFolderTreeNode(final DocumentFolder folder) {
-		this.folder_id = folder.folder_id;
-		this.user_id = folder.user_id;
+		this.folderId = folder.folder_id;
+		this.userId = folder.user_id;
 		this.name = folder.name;
-		this.mkdate = folder.mkdate;
-		this.chdate = folder.chdate;
+		this.mkDate = folder.mkdate;
+		this.chDate = folder.chdate;
 	}
 
 }

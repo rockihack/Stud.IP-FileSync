@@ -13,14 +13,14 @@ public class OAuthFile {
 	/**
 	 * Logged in user name.
 	 */
-	public String first_name;
-	public String last_name;
-	public String user_name;
+	public String firstName;
+	public String lastName;
+	public String userName;
 
 	/**
 	 * Logged in user id.
 	 */
-	public String user_id;
+	public String userId;
 
 	/**
 	 * OAuth access token.
@@ -38,10 +38,10 @@ public class OAuthFile {
 
 	public OAuthFile(final String first_name, final String last_name, final String user_name,
 			final String user_id, final String token, final String secret) {
-		this.first_name = first_name;
-		this.last_name = last_name;
-		this.user_name = user_name;
-		this.user_id = user_id;
+		this.firstName = first_name;
+		this.lastName = last_name;
+		this.userName = user_name;
+		this.userId = user_id;
 		this.token = token;
 		this.secret = secret;
 	}
