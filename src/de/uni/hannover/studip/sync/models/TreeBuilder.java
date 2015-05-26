@@ -136,8 +136,6 @@ public class TreeBuilder implements AutoCloseable {
 				for (CourseTreeNode course : semester.courses) {
 					/* Request caching. */
 					if (now - course.updateTime > StudIPApiProvider.CACHE_TIME) {
-						course.updateTime = now;
-
 						phaser.register();
 
 						/*
@@ -145,7 +143,9 @@ public class TreeBuilder implements AutoCloseable {
 						 * Since this version the api offers a more efficient route for updating documents,
 						 * otherwise we need to rebuild the folder tree every time.
 						 */
-						threadPool.execute(new UpdateDocumentsJob(phaser, course));
+						threadPool.execute(new UpdateDocumentsJob(phaser, course, now));
+
+						//course.updateTime = now;
 						//threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
 					}
 				}
@@ -455,14 +455,21 @@ public class TreeBuilder implements AutoCloseable {
 		private final CourseTreeNode courseNode;
 
 		/**
+		 * Current unix timestamp.
+		 */
+		private final long now;
+
+		/**
 		 * Constructor.
 		 * 
 		 * @param phaser
 		 * @param courseNode
+		 * @param now
 		 */
-		public UpdateDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode) {
+		public UpdateDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final long now) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
+			this.now = now;
 		}
 
 		/**
@@ -564,6 +571,9 @@ public class TreeBuilder implements AutoCloseable {
 
 					LOG.info(documentNode.name);
 				}
+
+				/* Update unix timestamp. */
+				courseNode.updateTime = now;
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
