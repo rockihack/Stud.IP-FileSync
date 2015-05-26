@@ -77,7 +77,7 @@ public class JacksonRequest<T> {
 			mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 		}
 		
-		return mapper.readValue(response.getBody(), datamodel);
+		return mapper.readValue(response.getStream(), datamodel);
 	}
 
 	/**

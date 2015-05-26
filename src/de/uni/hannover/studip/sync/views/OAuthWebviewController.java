@@ -58,13 +58,17 @@ public class OAuthWebviewController extends AbstractController {
 		webEngine.getLoadWorker().stateProperty().addListener(
 			(observableValue, oldState, newState) -> {
 				if (newState == State.SUCCEEDED) {
-					// Scroll to login box.
+					// Scroll to login box or oauth authorize button.
 					webEngine.executeScript("if (typeof $ === 'function') {"
 						+ "var login = $('form[name=\"login\"]');"
 						+ "if (login.length) {"
 							+ "$('html, body').animate({"
 								+ "scrollTop: login.offset().top - 100,"
 								+ "scrollLeft: login.offset().left - 100"
+							+ "}, 500);"
+						+ "} else if ($('section.oauth.authorize').length) {"
+							+ "$('html, body').animate({"
+								+ "scrollLeft: $(window).width() / 2"
 							+ "}, 500);"
 						+ "}"
 					+ "}");

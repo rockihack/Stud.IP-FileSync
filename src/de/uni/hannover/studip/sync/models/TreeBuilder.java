@@ -145,8 +145,8 @@ public class TreeBuilder implements AutoCloseable {
 						 * Since this version the api offers a more efficient route for updating documents,
 						 * otherwise we need to rebuild the folder tree every time.
 						 */
-						//threadPool.execute(new UpdateDocumentsJob(phaser, course));
-						threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
+						threadPool.execute(new UpdateDocumentsJob(phaser, course));
+						//threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
 					}
 				}
 			}
