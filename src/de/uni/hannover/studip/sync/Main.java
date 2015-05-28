@@ -1,7 +1,6 @@
 package de.uni.hannover.studip.sync;
 	
 import java.io.IOException;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
@@ -66,25 +65,22 @@ public class Main extends Application {
 	 * Default Uncaught Exception Handler.
 	 */
 	static {
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			@Override
-			public void uncaughtException(final Thread t, final Throwable e) {
-				e.printStackTrace();
+		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+			throwable.printStackTrace();
 
-				// Signal worker threads to terminate gracefully.
-				stopPending = true;
+			// Signal worker threads to terminate gracefully.
+			stopPending = true;
 
-				Platform.runLater(() -> {
-					final Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("UncaughtExceptionHandler");
-					alert.setHeaderText(null);
-					alert.setContentText(e.getMessage());
-					alert.setResizable(true);
-					alert.showAndWait();
+			Platform.runLater(() -> {
+				final Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("UncaughtExceptionHandler");
+				alert.setHeaderText(null);
+				alert.setContentText(throwable.getMessage());
+				alert.setResizable(true);
+				alert.showAndWait();
 
-					Platform.exit();
-				});
-			}
+				Platform.exit();
+			});
 		});
 	}
 

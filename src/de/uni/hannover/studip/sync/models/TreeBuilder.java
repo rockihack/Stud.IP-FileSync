@@ -143,7 +143,7 @@ public class TreeBuilder implements AutoCloseable {
 						 * Since this version the api offers a more efficient route for updating documents,
 						 * otherwise we need to rebuild the folder tree every time.
 						 */
-						threadPool.execute(new UpdateDocumentsJob(phaser, course, now));
+						threadPool.execute(new UpdateDocumentsJob(phaser, semester, course, now));
 
 						//course.updateTime = now;
 						//threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
@@ -448,7 +448,12 @@ public class TreeBuilder implements AutoCloseable {
 		 * Phaser.
 		 */
 		private final Phaser phaser;
-		
+
+		/**
+		 * Semester node.
+		 */
+		private final SemesterTreeNode semesterNode;
+
 		/**
 		 * Course node.
 		 */
@@ -466,8 +471,9 @@ public class TreeBuilder implements AutoCloseable {
 		 * @param courseNode
 		 * @param now
 		 */
-		public UpdateDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final long now) {
+		public UpdateDocumentsJob(final Phaser phaser, final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final long now) {
 			this.phaser = phaser;
+			this.semesterNode = semesterNode;
 			this.courseNode = courseNode;
 			this.now = now;
 		}
@@ -489,12 +495,12 @@ public class TreeBuilder implements AutoCloseable {
 		/**
 		 * Remove document node if it exists.
 		 * 
-		 * @param folder
+		 * @param folderNode
 		 * @param document
 		 * @return
 		 */
-		private boolean removeDocument(final DocumentFolderTreeNode folder, final Document document) {
-			final Iterator<DocumentTreeNode> iter = folder.documents.iterator();
+		private boolean removeDocument(final DocumentFolderTreeNode folderNode, final Document document) {
+			final Iterator<DocumentTreeNode> iter = folderNode.documents.iterator();
 
 			while (iter.hasNext()) {
 				final DocumentTreeNode doc = iter.next();
@@ -511,14 +517,14 @@ public class TreeBuilder implements AutoCloseable {
 		/**
 		 * Test if the folder contains multiple documents with same filename.
 		 * 
-		 * @param folder
+		 * @param folderNode
 		 * @param document
 		 * @return
 		 */
-		private boolean hasDuplicates(final DocumentFolderTreeNode folder, final Document document) {
+		private boolean hasDuplicates(final DocumentFolderTreeNode folderNode, final Document document) {
 			final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
 
-			for (DocumentTreeNode doc : folder.documents) {
+			for (DocumentTreeNode doc : folderNode.documents) {
 				if (fileName.equals(FileBrowser.removeIllegalCharacters(doc.fileName))
 						&& !document.document_id.equals(doc.documentId)) {
 					return true;
@@ -584,7 +590,9 @@ public class TreeBuilder implements AutoCloseable {
 				 * User does not have the required permissions
 				 * or course does not exist.
 				 */
-				// TODO
+				semesterNode.courses.remove(courseNode);
+
+				LOG.warning("Removed course: " + courseNode.title);
 
 			} catch (IOException e) {
 				throw new IllegalStateException(e);

@@ -195,21 +195,21 @@ public final class RestApi {
 		switch (request.getCode()) {
 		case 200:
 			final Documents newDocuments = request.parseResponse(false);
-			
+
 			if (DEBUG) {
 				LOG.info("Number of new documents: " + newDocuments.documents.size());
 				for (Document document : newDocuments.documents) {
 					LOG.info(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
 				}
 			}
-			
+
 			return newDocuments;
+		case 400:
+			throw new NotFoundException("Not found!");
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 403:
 			throw new ForbiddenException("Forbidden!");
-		case 404:
-			throw new NotFoundException("Not found!");
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
