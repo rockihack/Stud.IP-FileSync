@@ -1,6 +1,8 @@
 package de.uni.hannover.studip.sync;
 	
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
@@ -66,16 +68,17 @@ public class Main extends Application {
 	 */
 	static {
 		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
-			throwable.printStackTrace();
-
 			// Signal worker threads to terminate gracefully.
 			stopPending = true;
 
 			Platform.runLater(() -> {
+				final StringWriter writer = new StringWriter();
+				throwable.printStackTrace(new PrintWriter(writer));
+
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("UncaughtExceptionHandler");
-				alert.setHeaderText(null);
-				alert.setContentText(throwable.getMessage());
+				alert.setHeaderText(throwable.getMessage());
+				alert.setContentText(writer.toString());
 				alert.setResizable(true);
 				alert.showAndWait();
 
