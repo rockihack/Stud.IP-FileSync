@@ -79,7 +79,7 @@ public class TreeSync extends TreeBuilder {
 		/* Sync tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
-			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
+			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
 				final File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
 				
 				if (!semesterDirectory.exists() && !semesterDirectory.mkdir()) {

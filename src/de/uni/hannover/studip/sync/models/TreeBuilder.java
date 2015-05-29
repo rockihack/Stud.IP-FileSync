@@ -39,6 +39,11 @@ public class TreeBuilder implements AutoCloseable {
 	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
+	 * Time in seconds a semester will be updated after it's end date.
+	 */
+	protected static final long SEMESTER_THRESHOLD = 15 * 24 * 60 * 60;
+
+	/**
 	 * Thread pool.
 	 */
 	protected final ExecutorService threadPool;
@@ -132,7 +137,7 @@ public class TreeBuilder implements AutoCloseable {
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
-			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
+			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
 				for (CourseTreeNode course : semester.courses) {
 					/* Request caching. */
 					if (now - course.updateTime > StudIPApiProvider.CACHE_TIME) {
