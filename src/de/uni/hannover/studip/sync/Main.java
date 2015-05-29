@@ -125,8 +125,11 @@ public class Main extends Application {
 			primaryStage.setScene(new Scene(rootLayout));
 			primaryStage.getIcons().addAll(
 					new Image(Main.class.getResourceAsStream("icon_16.png")),
+					new Image(Main.class.getResourceAsStream("icon_24.png")),
 					new Image(Main.class.getResourceAsStream("icon_32.png")),
+					new Image(Main.class.getResourceAsStream("icon_48.png")),
 					new Image(Main.class.getResourceAsStream("icon_64.png")),
+					new Image(Main.class.getResourceAsStream("icon_96.png")),
 					new Image(Main.class.getResourceAsStream("icon_128.png")),
 					new Image(Main.class.getResourceAsStream("icon_256.png")),
 					new Image(Main.class.getResourceAsStream("icon_512.png")));
