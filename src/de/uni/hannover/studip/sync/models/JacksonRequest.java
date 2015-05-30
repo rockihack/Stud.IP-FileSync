@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
+
 /**
  * Jackson request.
  * 
@@ -51,8 +53,9 @@ public class JacksonRequest<T> {
 	 * @param method
 	 * @param url
 	 * @param datamodel
+	 * @throws UnauthorizedException 
 	 */
-	public JacksonRequest(final Verb method, final String url, final Class<T> datamodel) {
+	public JacksonRequest(final Verb method, final String url, final Class<T> datamodel) throws UnauthorizedException {
 		this.method = method;
 		this.url = url;
 		this.datamodel = datamodel;

@@ -237,6 +237,8 @@ public class TreeSync extends TreeBuilder {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Main.stopPending = true;
+
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {

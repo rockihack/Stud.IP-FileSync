@@ -219,6 +219,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Main.stopPending = true;
+
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (IOException e) {
@@ -291,6 +293,8 @@ public class TreeBuilder implements AutoCloseable {
 				
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Main.stopPending = true;
+
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (NotFoundException e) {
@@ -412,6 +416,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Main.stopPending = true;
+
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {
@@ -588,6 +594,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Main.stopPending = true;
+
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {

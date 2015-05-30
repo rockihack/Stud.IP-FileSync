@@ -125,10 +125,11 @@ public final class OAuth {
 	 * @param verb Request method
 	 * @param url Request address
 	 * @return New OAuthRequest
+	 * @throws UnauthorizedException 
 	 */
-	public Response sendRequest(final Verb method, final String url) {
+	public Response sendRequest(final Verb method, final String url) throws UnauthorizedException {
 		if (state != OAuthState.READY) {
-			throw new IllegalStateException("Access token not found!");
+			throw new UnauthorizedException("Access token not found!");
 		}
 
 		final OAuthRequest request = new OAuthRequest(method, url);
