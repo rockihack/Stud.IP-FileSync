@@ -49,6 +49,11 @@ public class TreeBuilder implements AutoCloseable {
 	protected final ExecutorService threadPool;
 
 	/**
+	 * Signals if the tree is dirty and needs to be written to disk.
+	 */
+	protected volatile boolean isDirty;
+
+	/**
 	 * Gui progress indicator.
 	 */
 	protected ProgressIndicator progressIndicator;
@@ -134,6 +139,8 @@ public class TreeBuilder implements AutoCloseable {
 		/* Current unix timestamp. */
 		final long now = System.currentTimeMillis() / 1000L;
 
+		isDirty = false;
+
 		/* Update tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
@@ -149,9 +156,6 @@ public class TreeBuilder implements AutoCloseable {
 						 * otherwise we need to rebuild the folder tree every time.
 						 */
 						threadPool.execute(new UpdateDocumentsJob(phaser, semester, course, now));
-
-						//course.updateTime = now;
-						//threadPool.execute(new BuildDocumentsJob(phaser, course, course.root = new DocumentFolderTreeNode()));
 					}
 				}
 			}
@@ -161,8 +165,10 @@ public class TreeBuilder implements AutoCloseable {
 		phaser.arriveAndAwaitAdvance();
 
 		if (!Main.stopPending) {
-			/* Serialize the tree to json and store it in the tree file. */
-			mapper.writeValue(tree, rootNode);
+			if (isDirty) {
+				/* Serialize the tree to json and store it in the tree file. */
+				mapper.writeValue(tree, rootNode);
+			}
 
 			LOG.info("Update done!");
 		}
@@ -299,7 +305,7 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (NotFoundException e) {
 				/* Course does not exist. */
-				// TODO
+				throw new IllegalStateException(e);
 
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
@@ -425,7 +431,7 @@ public class TreeBuilder implements AutoCloseable {
 				 * User does not have the required permissions
 				 * or folder does not exist.
 				 */
-				// TODO
+				throw new IllegalStateException(e);
 
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
@@ -553,44 +559,48 @@ public class TreeBuilder implements AutoCloseable {
 
 				/* Get all course documents with newer change date than course update time. */
 				final Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.courseId, courseNode.updateTime);
-				/* Build a folder index for this course, so we can easily access the folders. */
-				final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
+				if (!newDocuments.documents.isEmpty()) {
+					/* Build a folder index for this course, so we can easily access the folders. */
+					final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
 
-				buildFolderIndex(folderIndex, courseNode.root);
+					buildFolderIndex(folderIndex, courseNode.root);
 
-				for (Document document : newDocuments.documents) {
-					folderNode = folderIndex.get(document.folder_id);
-					if (folderNode == null) {
-						/* Folder does not exist locally, we need to re-sync all course folders. */
-						phaser.register();
+					for (Document document : newDocuments.documents) {
+						folderNode = folderIndex.get(document.folder_id);
+						if (folderNode == null) {
+							/* Folder does not exist locally, we need to re-sync all course folders. */
+							phaser.register();
 
-						threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode()));
-						break;
+							threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode()));
+							break;
+						}
+
+						/*
+						 * Maybe the document was updated and the node already exists,
+						 * we need to replace the document node (remove + add).
+						 */
+						removeDocument(folderNode, document);
+
+						/*
+						 * Maybe the folder contains multiple documents with same filename,
+						 * we need to assign a unique filename in this case.
+						 */
+						if (hasDuplicates(folderNode, document)) {
+							LOG.warning("Duplicate filename: " + document.filename);
+							document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
+						}
+
+						/* Add document to existing folder. */
+						folderNode.documents.add(documentNode = new DocumentTreeNode(document));
+
+						LOG.info(documentNode.name);
 					}
-
-					/*
-					 * Maybe the document was updated and the node already exists,
-					 * we need to replace the document node (remove + add).
-					 */
-					removeDocument(folderNode, document);
-
-					/*
-					 * Maybe the folder contains multiple documents with same filename,
-					 * we need to assign a unique filename in this case.
-					 */
-					if (hasDuplicates(folderNode, document)) {
-						LOG.warning("Duplicate filename: " + document.filename);
-						document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
-					}
-
-					/* Add document to existing folder. */
-					folderNode.documents.add(documentNode = new DocumentTreeNode(document));
-
-					LOG.info(documentNode.name);
 				}
 
 				/* Update unix timestamp. */
 				courseNode.updateTime = now;
+
+				isDirty = true;
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
@@ -604,6 +614,8 @@ public class TreeBuilder implements AutoCloseable {
 				 * or course does not exist.
 				 */
 				semesterNode.courses.remove(courseNode);
+
+				isDirty = true;
 
 				LOG.warning("Removed course: " + courseNode.title);
 

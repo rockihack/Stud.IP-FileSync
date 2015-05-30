@@ -25,14 +25,14 @@ public class SettingsFile {
 	 * If true documents from all visible semesters will be downloaded,
 	 * otherwise only from the current semester.
 	 */
-	public boolean downloadAllSemesters = false;
+	public boolean downloadAllSemesters;
 
 	/**
 	 * 0: Do not replace whitespaces
 	 * 1: Replace with "-"
 	 * 2: Replace with "_"
 	 */
-	public int replaceWhitespaces = 0;
+	public int replaceWhitespaces;
 
 	public SettingsFile() {
 		// Needed for json object binding.

@@ -51,6 +51,7 @@ public class SettingsController extends AbstractController {
 
 		} catch (UnauthorizedException e) {
 			// Not logged in.
+			logoutButton.setDisable(true);
 		}
 
 		// Root dir.

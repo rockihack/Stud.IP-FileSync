@@ -53,7 +53,7 @@ public class Main extends Application {
 	/**
 	 * Flag to signal graceful shutdown of worker threads.
 	 */
-	public static volatile boolean stopPending = false;
+	public static volatile boolean stopPending;
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -61,7 +61,7 @@ public class Main extends Application {
 	private AbstractController currentController;
 
 	@SuppressWarnings("unused")
-	private ServerSocket globalAppMutex;
+	private static ServerSocket globalAppMutex;
 
 	/**
 	 * Default Uncaught Exception Handler.

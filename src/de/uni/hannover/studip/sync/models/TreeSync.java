@@ -69,39 +69,46 @@ public class TreeSync extends TreeBuilder {
 		/* Read existing tree. */
 		final ObjectMapper mapper = new ObjectMapper();
 		final SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
-		
+
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		final Phaser phaser = new Phaser(1); /* = self. */
-		
+
 		/* Current unix timestamp. */
 		final long now = System.currentTimeMillis() / 1000L;
-		
+
+		isDirty = false;
+
 		/* Sync tree with multiple threads. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
 				final File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
-				
+
 				if (!semesterDirectory.exists() && !semesterDirectory.mkdir()) {
 					throw new IllegalStateException("Could not create semester directory!");
 				}
-				
+
 				for (CourseTreeNode course : semester.courses) {
 					final File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
-					
+
 					if (!courseDirectory.exists() && !courseDirectory.mkdir()) {
 						throw new IllegalStateException("Could not create course directory!");
 					}
-					
+
 					doFolder(phaser, course.root, courseDirectory);
 				}
 			}
 		}
-		
+
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
 		if (!Main.stopPending) {
+			if (isDirty) {
+				/* Serialize the tree to json and store it in the tree file. */
+				mapper.writeValue(tree, rootNode);
+			}
+
 			LOG.info("Sync done!");
 		}
 
@@ -128,7 +135,7 @@ public class TreeSync extends TreeBuilder {
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
-			doDocument(phaser, document, parentDirectory);
+			doDocument(phaser, folderNode, document, parentDirectory);
 		}
 	}
 
@@ -139,7 +146,7 @@ public class TreeSync extends TreeBuilder {
 	 * @param documentNode The document node
 	 * @param parentDirectory The parent directory
 	 */
-	private void doDocument(final Phaser phaser, final DocumentTreeNode documentNode, final File parentDirectory) {
+	private void doDocument(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final File parentDirectory) {
 		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
 
 		final File documentFile = new File(parentDirectory, originalFileName);
@@ -166,7 +173,7 @@ public class TreeSync extends TreeBuilder {
 				phaser.register();
 
 				/* Download modified file. */
-				threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
+				threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
 
 				LOG.warning("Modified: " + documentNode.name);
 			}
@@ -175,7 +182,7 @@ public class TreeSync extends TreeBuilder {
 			phaser.register();
 
 			/* Download new file. */
-			threadPool.execute(new DownloadDocumentJob(phaser, documentNode, documentFile));
+			threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
 
 			LOG.info("New: " + documentNode.name);
 		}
@@ -187,24 +194,29 @@ public class TreeSync extends TreeBuilder {
 	 * @author Lennart Glauer
 	 */
 	private class DownloadDocumentJob implements Runnable {
-		
+
 		/**
 		 * Phaser.
 		 */
 		private final Phaser phaser;
-		
+
+		/**
+		 * Folder node.
+		 */
+		private final DocumentFolderTreeNode folderNode;
+
 		/**
 		 * Document node.
 		 * The document node to download.
 		 */
 		private final DocumentTreeNode documentNode;
-		
+
 		/**
 		 * Document file.
 		 * The file location to store the document.
 		 */
 		private final File documentFile;
-		
+
 		/**
 		 * Download document job.
 		 * 
@@ -212,8 +224,9 @@ public class TreeSync extends TreeBuilder {
 		 * @param documentNode The document node to download
 		 * @param documentFile The file location to store the document
 		 */
-		public DownloadDocumentJob(final Phaser phaser, final DocumentTreeNode documentNode, final File documentFile) {
+		public DownloadDocumentJob(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final File documentFile) {
 			this.phaser = phaser;
+			this.folderNode = folderNode;
 			this.documentNode = documentNode;
 			this.documentFile = documentFile;
 		}
@@ -246,7 +259,11 @@ public class TreeSync extends TreeBuilder {
 				 * User does not have the required permissions
 				 * or document does not exist.
 				 */
-				// TODO
+				folderNode.documents.remove(documentNode);
+
+				isDirty = true;
+
+				LOG.warning("Removed document: " + documentNode.fileName);
 
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
