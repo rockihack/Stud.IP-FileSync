@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -165,7 +166,11 @@ public class TreeSync extends TreeBuilder {
 						renameFile = new File(parentDirectory, FileBrowser.appendFilename(originalFileName, "_v" + i));
 					} while(renameFile.exists());
 
-					if (documentFile.renameTo(renameFile)) {
+					if (!documentFile.renameTo(renameFile)) {
+						throw new IllegalStateException("Datei konnte nicht umbenannt werden.\n" + documentFile.getAbsolutePath());
+					}
+
+					if (LOG.isLoggable(Level.WARNING)) {
 						LOG.warning("Renamed: " + documentNode.name + " to " + renameFile.getName());
 					}
 				}
@@ -175,7 +180,9 @@ public class TreeSync extends TreeBuilder {
 				/* Download modified file. */
 				threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
 
-				LOG.warning("Modified: " + documentNode.name);
+				if (LOG.isLoggable(Level.WARNING)) {
+					LOG.warning("Modified: " + documentNode.name);
+				}
 			}
 
 		} else {
@@ -184,7 +191,9 @@ public class TreeSync extends TreeBuilder {
 			/* Download new file. */
 			threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
 
-			LOG.info("New: " + documentNode.name);
+			if (LOG.isLoggable(Level.INFO)) {
+				LOG.info("New: " + documentNode.name);
+			}
 		}
 	}
 	
@@ -237,7 +246,10 @@ public class TreeSync extends TreeBuilder {
 				final long startTime = System.currentTimeMillis();
 				RestApi.downloadDocumentById(documentNode.documentId, documentFile);
 				final long endTime = System.currentTimeMillis();
-				LOG.info("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
+
+				if (LOG.isLoggable(Level.INFO)) {
+					LOG.info("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
+				}
 
 				/*
 				 * We use the last modified timestamp to detect file changes.
@@ -263,7 +275,9 @@ public class TreeSync extends TreeBuilder {
 
 				isDirty = true;
 
-				LOG.warning("Removed document: " + documentNode.fileName);
+				if (LOG.isLoggable(Level.WARNING)) {
+					LOG.warning("Removed document: " + documentNode.fileName);
+				}
 
 			} catch (IOException e) {
 				throw new IllegalStateException(e);

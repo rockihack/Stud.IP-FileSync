@@ -2,6 +2,7 @@ package de.uni.hannover.studip.sync.views;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.scribe.exceptions.OAuthConnectionException;
@@ -85,7 +86,9 @@ public class OverviewController extends AbstractController {
 						// Download documents.
 						numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
 
-						LOG.info("Number of requests: " + numberOfRequests);
+						if (LOG.isLoggable(Level.INFO)) {
+							LOG.info("Number of requests: " + numberOfRequests);
+						}
 					}
 
 				} catch (UnauthorizedException e) {

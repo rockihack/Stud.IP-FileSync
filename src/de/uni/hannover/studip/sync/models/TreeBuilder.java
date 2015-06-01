@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.application.Platform;
@@ -388,7 +389,10 @@ public class TreeBuilder implements AutoCloseable {
 					 * we need to assign a unique name in this case.
 					 */
 					if (fileNames.contains(folderName)) {
-						LOG.warning("Duplicate foldername: " + folder.name);
+						if (LOG.isLoggable(Level.WARNING)) {
+							LOG.warning("Duplicate foldername: " + folder.name);
+						}
+
 						folder.name = FileBrowser.appendFilename(folder.name, "_" + folder.folder_id);
 					}
 
@@ -410,7 +414,10 @@ public class TreeBuilder implements AutoCloseable {
 					 * we need to assign a unique filename in this case.
 					 */
 					if (fileNames.contains(fileName)) {
-						LOG.warning("Duplicate filename: " + document.filename);
+						if (LOG.isLoggable(Level.WARNING)) {
+							LOG.warning("Duplicate filename: " + document.filename);
+						}
+
 						document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
 					}
 
@@ -586,7 +593,10 @@ public class TreeBuilder implements AutoCloseable {
 						 * we need to assign a unique filename in this case.
 						 */
 						if (hasDuplicates(folderNode, document)) {
-							LOG.warning("Duplicate filename: " + document.filename);
+							if (LOG.isLoggable(Level.WARNING)) {
+								LOG.warning("Duplicate filename: " + document.filename);
+							}
+
 							document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
 						}
 
@@ -617,7 +627,9 @@ public class TreeBuilder implements AutoCloseable {
 
 				isDirty = true;
 
-				LOG.warning("Removed course: " + courseNode.title);
+				if (LOG.isLoggable(Level.WARNING)) {
+					LOG.warning("Removed course: " + courseNode.title);
+				}
 
 			} catch (IOException e) {
 				throw new IllegalStateException(e);

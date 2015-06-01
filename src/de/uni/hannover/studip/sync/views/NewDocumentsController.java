@@ -94,7 +94,7 @@ public class NewDocumentsController extends AbstractController {
 				final TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>() {
 					// Description tooltip.
 					@Override
-					public void updateItem(NewDocumentsModel item, boolean empty) {
+					public void updateItem(final NewDocumentsModel item, final boolean empty) {
 						super.updateItem(item, empty);
 
 						if (item != null && !empty) {

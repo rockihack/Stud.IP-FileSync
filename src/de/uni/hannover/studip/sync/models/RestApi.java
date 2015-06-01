@@ -3,6 +3,7 @@ package de.uni.hannover.studip.sync.models;
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.scribe.model.Verb;
@@ -28,11 +29,6 @@ public final class RestApi {
 	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
-	 * Debug flag.
-	 */
-	private static final boolean DEBUG = false;
-
-	/**
 	 * Regex for studip id (MD5) validation.
 	 */
 	private static final String STUDIP_ID_REGEX = "^[a-z0-9]{32}$";
@@ -56,7 +52,7 @@ public final class RestApi {
 		case 200:
 			final Discovery discovery = request.parseResponse(false);
 
-			if (DEBUG) {
+			if (LOG.isLoggable(Level.FINEST)) {
 				/* A set containing all possible routes. */
 				final Set<String> routes = discovery.routes.keySet();
 				
@@ -64,7 +60,7 @@ public final class RestApi {
 				for (String route : routes) {
 					final Route r = discovery.routes.get(route);
 					
-					LOG.info(route + ":\nGET:" + r.get + ",\tPOST:" + r.post + ",\tPUT:" + r.put + ",\tDELETE:" + r.delete + "\n");
+					LOG.finest(route + ":\nGET:" + r.get + ",\tPOST:" + r.post + ",\tPUT:" + r.put + ",\tDELETE:" + r.delete + "\n");
 				}
 			}
 			
@@ -91,9 +87,9 @@ public final class RestApi {
 		case 200:
 			final Courses courses = request.parseResponse(false);
 			
-			if (DEBUG) {
+			if (LOG.isLoggable(Level.FINEST)) {
 				for (Course course : courses.courses) {
-					LOG.info(course.title + "\n" + course.description + "\n");
+					LOG.finest(course.title + "\n" + course.description + "\n");
 				}
 			}
 			
@@ -125,9 +121,9 @@ public final class RestApi {
 		case 200:
 			final Courses courses = request.parseResponse(false);
 			
-			if (DEBUG) {
+			if (LOG.isLoggable(Level.FINEST)) {
 				for (Course course : courses.courses) {
-					LOG.info(course.title + "\n" + course.description + "\n");
+					LOG.finest(course.title + "\n" + course.description + "\n");
 				}
 			}
 			
@@ -161,8 +157,8 @@ public final class RestApi {
 		case 200:
 			final Course course = request.parseResponse(true);
 			
-			if (DEBUG) {
-				LOG.info(course.title + "\n" + course.description + "\n");
+			if (LOG.isLoggable(Level.FINEST)) {
+				LOG.finest(course.title + "\n" + course.description + "\n");
 			}
 			
 			return course;
@@ -196,10 +192,10 @@ public final class RestApi {
 		case 200:
 			final Documents newDocuments = request.parseResponse(false);
 
-			if (DEBUG) {
-				LOG.info("Number of new documents: " + newDocuments.documents.size());
+			if (LOG.isLoggable(Level.FINEST)) {
+				LOG.finest("Number of new documents: " + newDocuments.documents.size());
 				for (Document document : newDocuments.documents) {
-					LOG.info(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
+					LOG.finest(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
 				}
 			}
 
@@ -240,15 +236,15 @@ public final class RestApi {
 		case 200:
 			final DocumentFolders documentFolders = request.parseResponse(false);
 			
-			if (DEBUG) {
-				LOG.info("Number of subfolders: " + documentFolders.folders.size());
+			if (LOG.isLoggable(Level.FINEST)) {
+				LOG.finest("Number of subfolders: " + documentFolders.folders.size());
 				for (DocumentFolder folder : documentFolders.folders) {
-					LOG.info(folder.name + "\n" + folder.description + "\n FolderId: " + folder.folder_id + "\n");
+					LOG.finest(folder.name + "\n" + folder.description + "\n FolderId: " + folder.folder_id + "\n");
 				}
 				
-				LOG.info("Number of documents: " + documentFolders.documents.size());
+				LOG.finest("Number of documents: " + documentFolders.documents.size());
 				for (Document document : documentFolders.documents) {
-					LOG.info(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
+					LOG.finest(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
 				}
 			}
 			
@@ -287,8 +283,8 @@ public final class RestApi {
 		case 200:
 			final Document document = request.parseResponse(false);
 			
-			if (DEBUG) {
-				LOG.info(document.name + "\n");
+			if (LOG.isLoggable(Level.FINEST)) {
+				LOG.finest(document.name + "\n");
 			}
 			
 			return document;
@@ -351,9 +347,9 @@ public final class RestApi {
 		case 200:
 			final Semesters semesters = request.parseResponse(false);
 			
-			if (DEBUG) {
+			if (LOG.isLoggable(Level.FINEST)) {
 				for (Semester semester : semesters.semesters) {
-					LOG.info(semester.title + "\n");
+					LOG.finest(semester.title + "\n");
 				}
 			}
 			
@@ -385,8 +381,8 @@ public final class RestApi {
 		case 200:
 			final Semester semester = request.parseResponse(false);
 			
-			if (DEBUG) {
-				LOG.info(semester.title + "\n");
+			if (LOG.isLoggable(Level.FINEST)) {
+				LOG.finest(semester.title + "\n");
 			}
 			
 			return semester;
@@ -419,8 +415,8 @@ public final class RestApi {
 		case 200:
 			final User user = request.parseResponse(true);
 			
-			if (DEBUG) {
-				LOG.info(user.username + "\n");
+			if (LOG.isLoggable(Level.FINEST)) {
+				LOG.finest(user.username + "\n");
 			}
 			
 			return user;
@@ -449,9 +445,9 @@ public final class RestApi {
 		case 200:
 			final Activities activities = request.parseResponse(true);
 			
-			if (DEBUG) {
+			if (LOG.isLoggable(Level.FINEST)) {
 				for (Activity activity : activities.activities) {
-					LOG.info("[" + activity.category + "] " + activity.title + " - " + activity.summary + "\n");
+					LOG.finest("[" + activity.category + "] " + activity.title + " - " + activity.summary + "\n");
 				}
 			}
 			
