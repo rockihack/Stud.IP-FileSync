@@ -16,6 +16,7 @@ public class DocumentTreeNode {
 	public String documentId;
 	public String userId;
 	public String name;
+	public String description;
 	public Long mkDate;
 	public Long chDate;
 	public String fileName;
@@ -29,6 +30,7 @@ public class DocumentTreeNode {
 		this.documentId = document.document_id;
 		this.userId = document.user_id;
 		this.name = document.name;
+		this.description = document.description;
 		this.mkDate = document.mkdate;
 		this.chDate = document.chdate;
 		this.fileName = document.filename;

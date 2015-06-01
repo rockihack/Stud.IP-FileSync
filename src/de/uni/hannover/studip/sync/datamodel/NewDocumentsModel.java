@@ -16,6 +16,7 @@ public class NewDocumentsModel {
 	private final SimpleStringProperty courseTitle;
 	private final SimpleObjectProperty<Date> documentChDate;
 	private final SimpleStringProperty documentName;
+	private final SimpleStringProperty documentDescription;
 	private final File documentFile;
 
 	/**
@@ -38,6 +39,7 @@ public class NewDocumentsModel {
 		});
 
 		documentName = new SimpleStringProperty(documentNode.name);
+		documentDescription = new SimpleStringProperty(documentNode.description);
 		documentFile = file;
 	}
 
@@ -71,6 +73,14 @@ public class NewDocumentsModel {
 	 */
 	public String getDocumentName() {
 		return documentName.get();
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public String getDocumentDescription() {
+		return documentDescription.get();
 	}
 
 	/**

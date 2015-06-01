@@ -26,6 +26,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 
@@ -88,10 +89,25 @@ public class NewDocumentsController extends AbstractController {
 			courseColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.4));
 			semesterColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.1));
 
-			// Click listener.
+			// Table row factory.
 			tableView.setRowFactory(callback -> {
-				final TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>();
+				final TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>() {
+					// Description tooltip.
+					@Override
+					public void updateItem(NewDocumentsModel item, boolean empty) {
+						super.updateItem(item, empty);
 
+						if (item != null && !empty) {
+							final String documentDescription = item.getDocumentDescription();
+							final Tooltip tip = new Tooltip(documentDescription.isEmpty() ? "Keine Beschreibung vorhanden" : documentDescription);
+							tip.setMaxWidth(600);
+							tip.setWrapText(true);
+							setTooltip(tip);
+						}
+					}
+				};
+
+				// Click listener.
 				row.setOnMouseClicked(event -> {
 					final NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
 
