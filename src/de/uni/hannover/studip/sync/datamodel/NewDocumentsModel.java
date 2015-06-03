@@ -7,6 +7,7 @@ import java.util.Locale;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.control.Tooltip;
 
 public class NewDocumentsModel {
 
@@ -16,7 +17,7 @@ public class NewDocumentsModel {
 	private final SimpleStringProperty courseTitle;
 	private final SimpleObjectProperty<Date> documentChDate;
 	private final SimpleStringProperty documentName;
-	private final SimpleStringProperty documentDescription;
+	private final Tooltip descriptionTooltip;
 	private final File documentFile;
 
 	/**
@@ -39,7 +40,14 @@ public class NewDocumentsModel {
 		});
 
 		documentName = new SimpleStringProperty(documentNode.name);
-		documentDescription = new SimpleStringProperty(documentNode.description);
+		descriptionTooltip = new Tooltip() {
+			// Init.
+			{
+				setMaxWidth(600);
+				setWrapText(true);
+				setText(documentNode.description.isEmpty() ? "Keine Beschreibung vorhanden" : documentNode.description);
+			}
+		};
 		documentFile = file;
 	}
 
@@ -79,8 +87,8 @@ public class NewDocumentsModel {
 	 * 
 	 * @return
 	 */
-	public String getDocumentDescription() {
-		return documentDescription.get();
+	public Tooltip getDescriptionTooltip() {
+		return descriptionTooltip;
 	}
 
 	/**

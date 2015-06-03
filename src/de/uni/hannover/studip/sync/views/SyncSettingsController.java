@@ -147,7 +147,7 @@ public class SyncSettingsController extends AbstractController {
 
 			final File newSemesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title, newValue));
 			if(!oldSemesterDirectory.renameTo(newSemesterDirectory)) {
-				throw new IOException(oldSemesterDirectory.getAbsolutePath() + " konnte nicht umbenannt werden.");
+				throw new IOException("Ordner konnte nicht umbenannt werden.\n" + oldSemesterDirectory.getAbsolutePath());
 			}
 
 			for (CourseTreeNode course : semester.courses) {
@@ -158,7 +158,7 @@ public class SyncSettingsController extends AbstractController {
 
 				final File newCourseDirectory = new File(newSemesterDirectory, FileBrowser.removeIllegalCharacters(course.title, newValue));
 				if (!oldCourseDirectory.renameTo(newCourseDirectory)) {
-					throw new IOException(oldCourseDirectory.getAbsolutePath() + " konnte nicht umbenannt werden.");
+					throw new IOException("Ordner konnte nicht umbenannt werden.\n" + oldCourseDirectory.getAbsolutePath());
 				}
 
 				doFolder(course.root, newCourseDirectory, oldValue, newValue);
@@ -185,7 +185,7 @@ public class SyncSettingsController extends AbstractController {
 
 			final File newFolderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, newValue));
 			if (!oldFolderDirectory.renameTo(newFolderDirectory)) {
-				throw new IOException(oldFolderDirectory.getAbsolutePath() + " konnte nicht umbenannt werden.");
+				throw new IOException("Ordner konnte nicht umbenannt werden.\n" + oldFolderDirectory.getAbsolutePath());
 			}
 
 			doFolder(folder, newFolderDirectory, oldValue, newValue);
@@ -200,7 +200,7 @@ public class SyncSettingsController extends AbstractController {
 			if (oldFile.exists()) {
 				newFile = new File(parentDirectory, newFileName);
 				if (!oldFile.renameTo(newFile)) {
-					throw new IOException(oldFile.getAbsolutePath() + " konnte nicht umbenannt werden.");
+					throw new IOException("Datei konnte nicht umbenannt werden.\n" + oldFile.getAbsolutePath());
 				}
 			}
 
@@ -212,7 +212,7 @@ public class SyncSettingsController extends AbstractController {
 
 				newFile = new File(parentDirectory, FileBrowser.appendFilename(newFileName, "_v" + i));
 				if (!oldFile.renameTo(newFile)) {
-					throw new IOException(oldFile.getAbsolutePath() + " konnte nicht umbenannt werden.");
+					throw new IOException("Datei konnte nicht umbenannt werden.\n" + oldFile.getAbsolutePath());
 				}
 			}
 		}

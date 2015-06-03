@@ -85,7 +85,7 @@ public class OAuthWebviewController extends AbstractController {
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Fehler");
 				alert.setHeaderText(null);
-				alert.setContentText("Keine Verbindung zum Internet möglich!");
+				alert.setContentText("Es konnte keine Verbindung zum Stud.IP Server hergestellt werden!");
 				alert.showAndWait();
 
 				getMain().setPrevView();

@@ -3,6 +3,7 @@ package de.uni.hannover.studip.sync.views;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -22,11 +23,11 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 
@@ -91,43 +92,39 @@ public class NewDocumentsController extends AbstractController {
 
 			// Table row factory.
 			tableView.setRowFactory(callback -> {
-				final TableRow<NewDocumentsModel> row = new TableRow<NewDocumentsModel>() {
-					// Description tooltip.
+				return new TableRow<NewDocumentsModel>() {
+					// Init.
+					{
+						// Click listener.
+						setOnMouseClicked(event -> {
+							final NewDocumentsModel selectedItem = getItem();
+
+							if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
+								final File selectedFile = selectedItem.getDocumentFile();
+
+								try {
+									FileBrowser.open(selectedFile);
+
+								} catch (IOException e) {
+									final Alert alert = new Alert(AlertType.ERROR);
+									alert.setTitle("Fehler");
+									alert.setHeaderText(null);
+									alert.setContentText("Datei wurde nicht gefunden.\n" + selectedFile.getAbsolutePath());
+									alert.showAndWait();
+								}
+							}
+						});
+					}
+
 					@Override
 					public void updateItem(final NewDocumentsModel item, final boolean empty) {
 						super.updateItem(item, empty);
 
 						if (item != null && !empty) {
-							final String documentDescription = item.getDocumentDescription();
-							final Tooltip tip = new Tooltip(documentDescription.isEmpty() ? "Keine Beschreibung vorhanden" : documentDescription);
-							tip.setMaxWidth(600);
-							tip.setWrapText(true);
-							setTooltip(tip);
+							setTooltip(item.getDescriptionTooltip());
 						}
 					}
 				};
-
-				// Click listener.
-				row.setOnMouseClicked(event -> {
-					final NewDocumentsModel selectedItem = tableView.getSelectionModel().getSelectedItem();
-
-					if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
-						final File selectedFile = selectedItem.getDocumentFile();
-
-						try {
-							FileBrowser.open(selectedFile);
-
-						} catch (IOException e) {
-							final Alert alert = new Alert(AlertType.ERROR);
-							alert.setTitle("Fehler");
-							alert.setHeaderText(null);
-							alert.setContentText("Datei wurde nicht gefunden.\n" + selectedFile.getAbsolutePath());
-							alert.showAndWait();
-						}
-					}
-				});
-
-				return row;
 			});
 
 			tableView.setItems(documentList);
@@ -137,18 +134,20 @@ public class NewDocumentsController extends AbstractController {
 
 		} catch (JsonParseException | JsonMappingException e) {
 			Platform.runLater(() -> {
-				final Alert alert = new Alert(AlertType.INFORMATION);
-				alert.setTitle("Info");
-				alert.setHeaderText(null);
-				alert.setContentText("Keine Dokumente gefunden.\nSie müssen zuerst Ihre Dokumente synchronisieren.");
-				alert.showAndWait();
+				final Alert confirm = new Alert(AlertType.CONFIRMATION);
+				confirm.setTitle("Bestätigen");
+				confirm.setHeaderText(null);
+				confirm.setContentText("Keine Dokumente gefunden.\nMöchten Sie Ihre Dokumente jetzt synchronisieren?");
+				final Optional<ButtonType> result = confirm.showAndWait();
 
-				// Redirect to overview.
-				getMain().setView(Main.OVERVIEW);
+				if (result.get() == ButtonType.OK) {
+					// Redirect to overview.
+					getMain().setView(Main.OVERVIEW);
 
-				// Start the sync.
-				final OverviewController overview = (OverviewController) getMain().getController();
-				overview.handleSync();
+					// Start the sync.
+					final OverviewController overview = (OverviewController) getMain().getController();
+					overview.handleSync();
+				}
 			});
 
 		} catch (IOException e) {
