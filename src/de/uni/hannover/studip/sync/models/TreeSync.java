@@ -289,9 +289,9 @@ public class TreeSync extends TreeBuilder {
 
 			} finally {
 				/* Job done. */
-				phaser.arrive();
 				// TODO: Add course name in new line.
 				updateProgress(phaser, documentNode.name);
+				phaser.arrive();
 
 				if (Main.stopPending) {
 					phaser.forceTermination();

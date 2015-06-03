@@ -240,8 +240,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				phaser.arrive();
 				//updateProgress(phaser);
+				phaser.arrive();
 
 				if (Main.stopPending) {
 					phaser.forceTermination();
@@ -318,8 +318,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				phaser.arrive();
 				updateProgress(phaser, semesterNode.title);
+				phaser.arrive();
 
 				if (Main.stopPending) {
 					phaser.forceTermination();
@@ -450,8 +450,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				phaser.arrive();
 				updateProgress(phaser, courseNode.title);
+				phaser.arrive();
 
 				if (Main.stopPending) {
 					phaser.forceTermination();
@@ -641,8 +641,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				phaser.arrive();
 				updateProgress(phaser, courseNode.title);
+				phaser.arrive();
 
 				if (Main.stopPending) {
 					phaser.forceTermination();
