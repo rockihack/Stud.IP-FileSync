@@ -107,7 +107,6 @@ public class OverviewController extends AbstractController {
 
 				} finally {
 					Platform.runLater(() -> {
-						progress.setProgress(1);
 						progressLabel.setText("");
 						syncButton.setText("Sync");
 						syncButton.setDisable(false);

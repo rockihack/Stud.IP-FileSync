@@ -101,6 +101,8 @@ public class TreeSync extends TreeBuilder {
 			}
 		}
 
+		startProgressAnimation(phaser);
+
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
@@ -290,7 +292,7 @@ public class TreeSync extends TreeBuilder {
 			} finally {
 				/* Job done. */
 				// TODO: Add course name in new line.
-				updateProgress(phaser, documentNode.name);
+				updateProgressLabel(documentNode.name);
 				phaser.arrive();
 
 				if (Main.stopPending) {

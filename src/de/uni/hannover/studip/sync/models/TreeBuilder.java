@@ -12,6 +12,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
@@ -103,6 +104,8 @@ public class TreeBuilder implements AutoCloseable {
 		/* Build tree with multiple threads. */
 		threadPool.execute(new BuildSemestersJob(phaser, rootNode));
 
+		startProgressAnimation(phaser);
+
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
@@ -161,6 +164,8 @@ public class TreeBuilder implements AutoCloseable {
 				}
 			}
 		}
+
+		startProgressAnimation(phaser);
 
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
@@ -318,7 +323,7 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				updateProgress(phaser, semesterNode.title);
+				updateProgressLabel(semesterNode.title);
 				phaser.arrive();
 
 				if (Main.stopPending) {
@@ -450,7 +455,7 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				updateProgress(phaser, courseNode.title);
+				updateProgressLabel(courseNode.title);
 				phaser.arrive();
 
 				if (Main.stopPending) {
@@ -641,7 +646,7 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				updateProgress(phaser, courseNode.title);
+				updateProgressLabel(courseNode.title);
 				phaser.arrive();
 
 				if (Main.stopPending) {
@@ -652,7 +657,7 @@ public class TreeBuilder implements AutoCloseable {
 	}
 
 	/**
-	 * Set gui progress indicator.
+	 * Set gui progress indicator and label.
 	 * 
 	 * @param progress
 	 */
@@ -662,16 +667,46 @@ public class TreeBuilder implements AutoCloseable {
 	}
 
 	/**
-	 * Update gui progress indicator.
+	 * Update gui progress label.
+	 * 
+	 * @param text
+	 */
+	protected void updateProgressLabel(final String text) {
+		if (progressLabel != null) {
+			Platform.runLater(() -> progressLabel.setText(text));
+		}
+	}
+
+	/**
+	 * Start gui progress animation.
 	 * 
 	 * @param phaser
 	 */
-	protected void updateProgress(final Phaser phaser, final String text) {
-		if (progressIndicator != null && progressLabel != null) {
-			Platform.runLater(() -> {
-				progressIndicator.setProgress((double) phaser.getArrivedParties() / phaser.getRegisteredParties());
-				progressLabel.setText(text);
-			});
+	protected void startProgressAnimation(final Phaser phaser) {
+		if (progressIndicator != null) {
+			if (phaser.getRegisteredParties() < 2) {
+				progressIndicator.setProgress(1);
+
+			} else {
+				(new AnimationTimer() {
+					private double y;
+
+					@Override
+					public void handle(final long now) {
+						final int a = phaser.getArrivedParties() - 1;
+						final int r = phaser.getRegisteredParties() - 1;
+						final double x = phaser.getPhase() == 0 ? Math.min(0.02 * a * a, (double) a / r) : 1.2;
+
+						if (y <= x) {
+							progressIndicator.setProgress(y += 0.1 * (x - y));
+						}
+
+						if (y >= 1.0) {
+							stop();
+						}
+					}
+				}).start();
+			}
 		}
 	}
 }
