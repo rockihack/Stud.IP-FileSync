@@ -99,7 +99,12 @@ public class RootLayoutController extends AbstractController {
 	@FXML
 	public void handleHelp() {
 		// Redirect to help.
-		getMain().setView(Main.HELP);
+		//getMain().setView(Main.HELP);
+		final Alert alert = new Alert(AlertType.INFORMATION);
+		alert.setTitle("Info");
+		alert.setHeaderText(null);
+		alert.setContentText("Keine Hilfe enthalten.");
+		alert.showAndWait();
 	}
 
 	/**

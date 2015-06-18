@@ -46,7 +46,11 @@ public class SettingsController extends AbstractController {
 			OAUTH.restoreAccessToken();
 
 			// User has an access token, we do not check if it's valid here.
-			userLabel.setText("Eingeloggt als " + CONFIG.getFirstName() + " " + CONFIG.getLastName() + ", " + CONFIG.getUserName());
+
+			if (CONFIG.getFirstName() != null && CONFIG.getLastName() != null && CONFIG.getUserName() != null) {
+				userLabel.setText("Eingeloggt als " + CONFIG.getFirstName() + " " + CONFIG.getLastName() + ", " + CONFIG.getUserName());
+			}
+
 			logoutButton.setDisable(false);
 
 		} catch (UnauthorizedException e) {
@@ -82,38 +86,30 @@ public class SettingsController extends AbstractController {
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
 		final File rootDir = chooser.showDialog(getMain().getPrimaryStage());
-		if (rootDir != null && rootDir.exists()) {
-			if (rootDir.canRead() && rootDir.canWrite()) {
-				try {
-					CONFIG.setRootDirectory(rootDir.getAbsolutePath());
-					setRootDirLabel(rootDir.getAbsolutePath());
-
-				} catch (IOException e) {
-					final Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Fehler");
-					alert.setHeaderText(null);
-					alert.setContentText(e.getMessage());
-					alert.showAndWait();
-				}
-			} else {
+		if (rootDir != null && rootDir.isDirectory()) {
+			if (!rootDir.canRead() || !rootDir.canWrite()) {
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Fehler");
 				alert.setHeaderText(null);
 				alert.setContentText("Keine Lese/Schreib Berechtigung.");
 				alert.showAndWait();
+				return;
+			}
+
+			try {
+				CONFIG.setRootDirectory(rootDir.getAbsolutePath());
+				setRootDirLabel(rootDir.getAbsolutePath());
+
+			} catch (IOException e) {
+				throw new IllegalStateException(e);
 			}
 		}
 	}
-	
+
 	@FXML
 	public void handleSyncOptions() {
 		// Redirect to sync settings.
 		getMain().setView(Main.SYNC_SETTINGS);
-	}
-
-	@FXML
-	public void handlePrev() {
-		getMain().setPrevView();
 	}
 
 	private void setRootDirLabel(final String rootDir) {

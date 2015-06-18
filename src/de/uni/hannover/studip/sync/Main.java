@@ -6,6 +6,8 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import de.uni.hannover.studip.sync.views.AbstractController;
 import de.uni.hannover.studip.sync.views.RootLayoutController;
@@ -85,6 +87,8 @@ public class Main extends Application {
 				Platform.exit();
 			});
 		});
+
+		Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.WARNING);
 	}
 
 	/**

@@ -38,7 +38,7 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Logger instance.
 	 */
-	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	protected static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
 	 * Time in seconds a semester will be updated after it's end date.

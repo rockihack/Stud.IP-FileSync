@@ -28,6 +28,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 
@@ -114,14 +115,20 @@ public class NewDocumentsController extends AbstractController {
 								}
 							}
 						});
+
+						// Tooltip.
+						Tooltip tooltip = new Tooltip();
+						tooltip.setWrapText(true);
+						tooltip.setMaxWidth(600);
+						setTooltip(tooltip);
 					}
 
 					@Override
 					public void updateItem(final NewDocumentsModel item, final boolean empty) {
 						super.updateItem(item, empty);
 
-						if (item != null && !empty) {
-							setTooltip(item.getDescriptionTooltip());
+						if (item != null) {
+							getTooltip().setText(item.getDocumentDescription());
 						}
 					}
 				};
@@ -167,10 +174,4 @@ public class NewDocumentsController extends AbstractController {
 			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, documentFile));
 		}
 	}
-
-	@FXML
-	public void handlePrev() {
-		getMain().setPrevView();
-	}
-
 }

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -22,11 +21,6 @@ import de.uni.hannover.studip.sync.utils.FileBrowser;
  * @author Lennart Glauer
  */
 public class TreeSync extends TreeBuilder {
-
-	/**
-	 * Logger instance.
-	 */
-	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
 	 * Config instance.
@@ -146,48 +140,15 @@ public class TreeSync extends TreeBuilder {
 	 * Document node handler.
 	 * 
 	 * @param phaser
-	 * @param documentNode The document node
-	 * @param parentDirectory The parent directory
+	 * @param folderNode
+	 * @param documentNode
+	 * @param parentDirectory
 	 */
 	private void doDocument(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final File parentDirectory) {
 		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
-
 		final File documentFile = new File(parentDirectory, originalFileName);
 
-		if (documentFile.exists()) {
-			if (documentFile.length() != documentNode.fileSize || documentFile.lastModified() != documentNode.chDate * 1000L) {
-				/* Document has changed, we will download it again. */
-
-				if (!CONFIG.isOverwriteFiles()) {
-					/* Overwrite files is disabled, we append a version number to the old document filename. */
-					File renameFile;
-					int i = 0;
-
-					do {
-						i++;
-						renameFile = new File(parentDirectory, FileBrowser.appendFilename(originalFileName, "_v" + i));
-					} while(renameFile.exists());
-
-					if (!documentFile.renameTo(renameFile)) {
-						throw new IllegalStateException("Datei konnte nicht umbenannt werden.\n" + documentFile.getAbsolutePath());
-					}
-
-					if (LOG.isLoggable(Level.WARNING)) {
-						LOG.warning("Renamed: " + documentNode.name + " to " + renameFile.getName());
-					}
-				}
-
-				phaser.register();
-
-				/* Download modified file. */
-				threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
-
-				if (LOG.isLoggable(Level.WARNING)) {
-					LOG.warning("Modified: " + documentNode.name);
-				}
-			}
-
-		} else {
+		if (!documentFile.exists()) {
 			phaser.register();
 
 			/* Download new file. */
@@ -195,6 +156,37 @@ public class TreeSync extends TreeBuilder {
 
 			if (LOG.isLoggable(Level.INFO)) {
 				LOG.info("New: " + documentNode.name);
+			}
+
+		} else if (documentFile.length() != documentNode.fileSize || documentFile.lastModified() != documentNode.chDate * 1000L) {
+			/* Document has changed, we will download it again. */
+
+			if (!CONFIG.isOverwriteFiles()) {
+				/* Overwrite files is disabled, we append a version number to the old document filename. */
+				File renameFile;
+				int i = 0;
+
+				do {
+					i++;
+					renameFile = new File(parentDirectory, FileBrowser.appendFilename(originalFileName, "_v" + i));
+				} while(renameFile.exists());
+
+				if (!documentFile.renameTo(renameFile)) {
+					throw new IllegalStateException("Datei konnte nicht umbenannt werden.\n" + documentFile.getAbsolutePath());
+				}
+
+				if (LOG.isLoggable(Level.WARNING)) {
+					LOG.warning("Renamed: " + documentNode.name + " to " + renameFile.getName());
+				}
+			}
+
+			phaser.register();
+
+			/* Download modified file. */
+			threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
+
+			if (LOG.isLoggable(Level.WARNING)) {
+				LOG.warning("Modified: " + documentNode.name);
 			}
 		}
 	}
@@ -300,6 +292,5 @@ public class TreeSync extends TreeBuilder {
 				}
 			}
 		}
-		
 	}
 }

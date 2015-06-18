@@ -83,11 +83,6 @@ public class SyncSettingsController extends AbstractController {
 			});
 	}
 
-	@FXML
-	public void handlePrev() {
-		getMain().setPrevView();
-	}
-
 	/**
 	 * 
 	 * @param oldValue

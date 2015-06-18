@@ -75,13 +75,13 @@ public class OAuthWebviewController extends AbstractController {
 				}
 			});
 
-		try {
-			// Open oauth authentication url.
-			OAUTH.getRequestToken();
-			webEngine.load(OAUTH.getAuthUrl());
+		Platform.runLater(() -> {
+			try {
+				// Open oauth authentication url.
+				OAUTH.getRequestToken();
+				webEngine.load(OAUTH.getAuthUrl());
 
-		} catch (OAuthConnectionException e) {
-			Platform.runLater(() -> {
+			} catch (OAuthConnectionException e) {
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Fehler");
 				alert.setHeaderText(null);
@@ -89,11 +89,9 @@ public class OAuthWebviewController extends AbstractController {
 				alert.showAndWait();
 
 				getMain().setPrevView();
-			});
 
-		} catch (OAuthException e) {
-			// Invalid api key or secret.
-			Platform.runLater(() -> {
+			} catch (OAuthException e) {
+				// Invalid api key or secret.
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Fehler");
 				alert.setHeaderText(null);
@@ -101,8 +99,8 @@ public class OAuthWebviewController extends AbstractController {
 				alert.showAndWait();
 
 				Platform.exit();
-			});
-		}
+			}
+		});
 	}
 
 	/**
@@ -128,7 +126,7 @@ public class OAuthWebviewController extends AbstractController {
 
 				final String rootDir = CONFIG.getRootDirectory();
 				getMain().setView(
-						rootDir != null && new File(rootDir).exists()
+						rootDir != null && new File(rootDir).isDirectory()
 						? Main.OVERVIEW
 						: Main.OAUTH_COMPLETE);
 
@@ -145,10 +143,5 @@ public class OAuthWebviewController extends AbstractController {
 				throw new IllegalStateException(e);
 			}
 		}
-	}
-
-	@FXML
-	public void handlePrev() {
-		getMain().setPrevView();
 	}
 }
