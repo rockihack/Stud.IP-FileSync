@@ -1,7 +1,10 @@
 package de.uni.hannover.studip.sync.views;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Optional;
 
@@ -10,12 +13,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.Main;
-import de.uni.hannover.studip.sync.datamodel.CourseTreeNode;
-import de.uni.hannover.studip.sync.datamodel.DocumentFolderTreeNode;
-import de.uni.hannover.studip.sync.datamodel.DocumentTreeNode;
-import de.uni.hannover.studip.sync.datamodel.NewDocumentsModel;
-import de.uni.hannover.studip.sync.datamodel.SemesterTreeNode;
-import de.uni.hannover.studip.sync.datamodel.SemestersTreeNode;
+import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 import javafx.application.Platform;
@@ -62,20 +60,28 @@ public class NewDocumentsController extends AbstractController {
 	@FXML
 	public void initialize() {
 		try {
-			/* Read existing tree. */
-			final File treeFile = Config.openTreeFile();
-			final ObjectMapper mapper = new ObjectMapper();
-			final SemestersTreeNode rootNode = mapper.readValue(treeFile, SemestersTreeNode.class);
+			final String rootDir = Config.getInstance().getRootDirectory();
+			if (rootDir == null || rootDir.isEmpty()) {
+				final Alert alert = new Alert(AlertType.ERROR);
+				alert.setTitle("Fehler");
+				alert.setHeaderText(null);
+				alert.setContentText("Kein Ziel Ordner gewählt.");
+				alert.showAndWait();
+				return;
+			}
 
-			final File rootDirectory = new File(Config.getInstance().getRootDirectory());
+			final Path rootDirectory = Paths.get(rootDir);
+
+			/* Read existing tree. */
+			final ObjectMapper mapper = new ObjectMapper();
+			final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(Config.openTreeFile()), SemestersTreeNode.class);
 
 			// Build list of documents.
 			for (SemesterTreeNode semester : rootNode.semesters) {
-				final File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
+				final Path semesterDirectory = rootDirectory.resolve(FileBrowser.removeIllegalCharacters(semester.title));
 
 				for (CourseTreeNode course : semester.courses) {
-					final File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
-					doFolder(semester, course, course.root, courseDirectory);
+					doFolder(semester, course, course.root, semesterDirectory.resolve(FileBrowser.removeIllegalCharacters(course.title)));
 				}
 			}
 
@@ -101,7 +107,7 @@ public class NewDocumentsController extends AbstractController {
 							final NewDocumentsModel selectedItem = getItem();
 
 							if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
-								final File selectedFile = selectedItem.getDocumentFile();
+								final Path selectedFile = selectedItem.getDocumentFile();
 
 								try {
 									FileBrowser.open(selectedFile);
@@ -110,7 +116,7 @@ public class NewDocumentsController extends AbstractController {
 									final Alert alert = new Alert(AlertType.ERROR);
 									alert.setTitle("Fehler");
 									alert.setHeaderText(null);
-									alert.setContentText("Datei wurde nicht gefunden.\n" + selectedFile.getAbsolutePath());
+									alert.setContentText("Datei wurde nicht gefunden.\n" + selectedFile.toAbsolutePath());
 									alert.showAndWait();
 								}
 							}
@@ -139,7 +145,7 @@ public class NewDocumentsController extends AbstractController {
 			// Sort columns accordingly to the document chdate.
 			tableView.getSortOrder().add(dateColumn);
 
-		} catch (JsonParseException | JsonMappingException e) {
+		} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
 			Platform.runLater(() -> {
 				final Alert confirm = new Alert(AlertType.CONFIRMATION);
 				confirm.setTitle("Bestätigen");
@@ -162,16 +168,21 @@ public class NewDocumentsController extends AbstractController {
 		}
 	}
 
-	private void doFolder(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final File parentDirectory) {
-		/* Traverse folder structure (recursive). */
+	/**
+	 * Traverse folder structure (recursive).
+	 * 
+	 * @param semesterNode
+	 * @param courseNode
+	 * @param folderNode
+	 * @param parentDirectory
+	 */
+	private void doFolder(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final Path parentDirectory) {
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			final File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
-			doFolder(semesterNode, courseNode, folder, folderDirectory);
+			doFolder(semesterNode, courseNode, folder, parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name)));
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
-			final File documentFile = new File(parentDirectory, FileBrowser.removeIllegalCharacters(document.fileName));
-			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, documentFile));
+			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, parentDirectory.resolve(FileBrowser.removeIllegalCharacters(document.fileName))));
 		}
 	}
 }

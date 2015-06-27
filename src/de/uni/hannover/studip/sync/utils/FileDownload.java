@@ -1,10 +1,10 @@
 package de.uni.hannover.studip.sync.utils;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 /**
  * File download utility class.
@@ -27,8 +27,8 @@ public final class FileDownload {
 	 * @param file
 	 * @throws IOException
 	 */
-	public static void get(final InputStream is, final File file) throws IOException {
-		try (BufferedInputStream in = new BufferedInputStream(is); FileOutputStream out = new FileOutputStream(file)) {
+	public static void get(final InputStream is, final Path file) throws IOException {
+		try (BufferedInputStream in = new BufferedInputStream(is); FileOutputStream out = new FileOutputStream(file.toFile())) {
 			final byte buffer[] = new byte[BUFFER_SIZE];
 			int count;
 
@@ -37,5 +37,4 @@ public final class FileDownload {
 			}
 		}
 	}
-	
 }

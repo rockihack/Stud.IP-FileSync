@@ -1,7 +1,9 @@
 package de.uni.hannover.studip.sync.views;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,12 +63,12 @@ public class OverviewController extends AbstractController {
 					OAUTH.restoreAccessToken();
 
 					final String rootDir = CONFIG.getRootDirectory();
-					if (rootDir == null) {
+					if (rootDir == null || rootDir.isEmpty()) {
 						throw new IOException("Kein Ziel Ordner gewählt.");
 					}
 
-					try (TreeSync tree = new TreeSync(new File(rootDir))) {
-						final File treeFile = Config.openTreeFile();
+					try (TreeSync tree = new TreeSync(Paths.get(rootDir))) {
+						final Path treeFile = Config.openTreeFile();
 						int numberOfRequests;
 
 						tree.setProgress(progress, progressLabel);
@@ -75,7 +77,7 @@ public class OverviewController extends AbstractController {
 						try {
 							numberOfRequests = tree.update(treeFile, false);
 
-						} catch (JsonParseException | JsonMappingException e) {
+						} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
 							// Invalid tree file, lets build a new one.
 							numberOfRequests = tree.build(treeFile);
 						}
@@ -116,5 +118,4 @@ public class OverviewController extends AbstractController {
 			}
 		}).start();
 	}
-
 }

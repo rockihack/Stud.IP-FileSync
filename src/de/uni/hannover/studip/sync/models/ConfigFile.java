@@ -1,7 +1,9 @@
 package de.uni.hannover.studip.sync.models;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -17,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public final class ConfigFile<T> {
 
-	private final File file;
+	private final Path file;
 	private final Class<T> type;
 
 	public T data;
@@ -33,18 +35,18 @@ public final class ConfigFile<T> {
 	 * @throws IllegalAccessException
 	 */
 	public ConfigFile(final String dirName, final String fileName, final Class<T> typeClass) throws IOException, InstantiationException, IllegalAccessException {
-		final File dir = new File(System.getProperty("user.home"), dirName);
-		if (!dir.exists() && !dir.mkdir()) {
-			throw new IOException(dirName + " konnte nicht erstellt werden!");
+		final Path dir = Paths.get(System.getProperty("user.home"), dirName);
+		if (!Files.isDirectory(dir)) {
+			Files.createDirectory(dir);
 		}
 
-		file = new File(dir, fileName);
+		file = dir.resolve(fileName);
 		type = typeClass;
 
-		if (file.createNewFile()) {
-			init();
-		} else {
+		if (Files.exists(file)) {
 			read();
+		} else {
+			init();
 		}
 	}
 
@@ -72,7 +74,7 @@ public final class ConfigFile<T> {
 	public synchronized void read() throws IOException, InstantiationException, IllegalAccessException {
 		try {
 			final ObjectMapper mapper = new ObjectMapper();
-			data = mapper.readValue(file, type);
+			data = mapper.readValue(Files.newBufferedReader(file), type);
 
 		} catch (JsonParseException | JsonMappingException e) {
 			// Invalid config file.
@@ -89,6 +91,6 @@ public final class ConfigFile<T> {
 	 */
 	public synchronized void write() throws IOException {
 		final ObjectMapper mapper = new ObjectMapper();
-		mapper.writeValue(file, data);
+		mapper.writeValue(Files.newBufferedWriter(file), data);
 	}
 }

@@ -1,6 +1,6 @@
 package de.uni.hannover.studip.sync.datamodel;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -17,7 +17,7 @@ public class NewDocumentsModel {
 	private final SimpleObjectProperty<Date> documentChDate;
 	private final SimpleStringProperty documentName;
 	private final String documentDescription;
-	private final File documentFile;
+	private final Path documentFile;
 
 	/**
 	 * 
@@ -25,7 +25,7 @@ public class NewDocumentsModel {
 	 * @param documentNode
 	 * @param file
 	 */
-	public NewDocumentsModel(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentTreeNode documentNode, final File file) {
+	public NewDocumentsModel(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentTreeNode documentNode, final Path file) {
 		semesterTitle = new SimpleStringProperty(semesterNode.title);
 		courseTitle = new SimpleStringProperty(courseNode.title);
 
@@ -87,7 +87,7 @@ public class NewDocumentsModel {
 	 * 
 	 * @return
 	 */
-	public File getDocumentFile() {
+	public Path getDocumentFile() {
 		return documentFile;
 	}
 }

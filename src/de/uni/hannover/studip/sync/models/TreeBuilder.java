@@ -1,10 +1,12 @@
 package de.uni.hannover.studip.sync.models;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
@@ -90,7 +92,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int build(final File tree) throws IOException {
+	public synchronized int build(final Path tree) throws IOException {
 		if (Main.stopPending) {
 			return 0;
 		}
@@ -112,7 +114,7 @@ public class TreeBuilder implements AutoCloseable {
 		if (!Main.stopPending) {
 			/* Serialize the tree to json and store it in the tree file. */
 			final ObjectMapper mapper = new ObjectMapper();
-			mapper.writeValue(tree, rootNode);
+			mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
 
 			LOG.info("Build done!");
 		}
@@ -128,14 +130,14 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int update(final File tree, final boolean doAllSemesters) throws IOException {
+	public synchronized int update(final Path tree, final boolean doAllSemesters) throws IOException {
 		if (Main.stopPending) {
 			return 0;
 		}
 
 		/* Read existing tree. */
 		final ObjectMapper mapper = new ObjectMapper();
-		final SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
+		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(tree), SemestersTreeNode.class);
 
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		final Phaser phaser = new Phaser(1); /* = self. */
@@ -173,7 +175,7 @@ public class TreeBuilder implements AutoCloseable {
 		if (!Main.stopPending) {
 			if (isDirty) {
 				/* Serialize the tree to json and store it in the tree file. */
-				mapper.writeValue(tree, rootNode);
+				mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
 			}
 
 			LOG.info("Update done!");
@@ -387,7 +389,8 @@ public class TreeBuilder implements AutoCloseable {
 
 				/* Folders. */
 				for (DocumentFolder folder : folders.folders) {
-					final String folderName = FileBrowser.removeIllegalCharacters(folder.name);
+					/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
+					final String folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
 
 					/*
 					 * Maybe the folder contains multiple folders with same name,
@@ -412,7 +415,8 @@ public class TreeBuilder implements AutoCloseable {
 
 				/* Documents. */
 				for (Document document : folders.documents) {
-					final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
+					/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
+					final String fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
 
 					/*
 					 * Maybe the folder contains multiple documents with same filename,
@@ -544,7 +548,8 @@ public class TreeBuilder implements AutoCloseable {
 		}
 
 		/**
-		 * Test if the folder contains multiple documents with same filename.
+		 * Test if the folder contains a document with same filename.
+		 * Ignore case because Windows and MacOS filesystems are case insensitive.
 		 * 
 		 * @param folderNode
 		 * @param document
@@ -554,7 +559,7 @@ public class TreeBuilder implements AutoCloseable {
 			final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
 
 			for (DocumentTreeNode doc : folderNode.documents) {
-				if (fileName.equals(FileBrowser.removeIllegalCharacters(doc.fileName))
+				if (fileName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(doc.fileName))
 						&& !document.document_id.equals(doc.documentId)) {
 					return true;
 				}

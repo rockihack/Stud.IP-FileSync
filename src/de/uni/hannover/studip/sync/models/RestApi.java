@@ -1,7 +1,7 @@
 package de.uni.hannover.studip.sync.models;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -308,7 +308,7 @@ public final class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static void downloadDocumentById(final String documentId, final File documentFile) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+	public static void downloadDocumentById(final String documentId, final Path documentFile) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
 		if (!documentId.matches(STUDIP_ID_REGEX)) {
 			throw new IllegalArgumentException("Invalid document id!");
 		}

@@ -2,6 +2,8 @@ package de.uni.hannover.studip.sync.views;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import de.uni.hannover.studip.sync.Main;
@@ -85,24 +87,37 @@ public class SettingsController extends AbstractController {
 		chooser.setTitle("Ziel Ordner wählen");
 		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
-		final File rootDir = chooser.showDialog(getMain().getPrimaryStage());
-		if (rootDir != null && rootDir.isDirectory()) {
-			if (!rootDir.canRead() || !rootDir.canWrite()) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Keine Lese/Schreib Berechtigung.");
-				alert.showAndWait();
-				return;
-			}
+		final File dir = chooser.showDialog(getMain().getPrimaryStage());
+		if (dir == null) {
+			return;
+		}
 
-			try {
-				CONFIG.setRootDirectory(rootDir.getAbsolutePath());
-				setRootDirLabel(rootDir.getAbsolutePath());
+		final Path rootDir = dir.toPath();
 
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
-			}
+		if (!Files.isDirectory(rootDir)) {
+			final Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("Kein Ordner.");
+			alert.showAndWait();
+			return;
+		}
+
+		if (!Files.isReadable(rootDir) || !Files.isWritable(rootDir)) {
+			final Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("Keine Lese/Schreib Berechtigung.");
+			alert.showAndWait();
+			return;
+		}
+
+		try {
+			CONFIG.setRootDirectory(rootDir.toAbsolutePath().toString());
+			setRootDirLabel(CONFIG.getRootDirectory());
+
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 

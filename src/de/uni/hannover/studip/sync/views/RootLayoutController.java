@@ -1,7 +1,8 @@
 package de.uni.hannover.studip.sync.views;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import de.uni.hannover.studip.sync.Main;
@@ -49,30 +50,30 @@ public class RootLayoutController extends AbstractController {
 	@FXML
 	public void handleOpenFolder() {
 		final String rootDir = Config.getInstance().getRootDirectory();
-		if (rootDir == null) {
+		if (rootDir == null || rootDir.isEmpty()) {
 			final Alert alert = new Alert(AlertType.ERROR);
 			alert.setTitle("Fehler");
 			alert.setHeaderText(null);
 			alert.setContentText("Kein Ziel Ordner gewählt.");
 			alert.showAndWait();
+			return;
+		}
 
-		} else {
-			try {
-				if (!FileBrowser.open(new File(rootDir))) {
-					final Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Fehler");
-					alert.setHeaderText(null);
-					alert.setContentText("Not supported.");
-					alert.showAndWait();
-				}
-
-			} catch (IOException e) {
+		try {
+			if (!FileBrowser.open(Paths.get(rootDir))) {
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("Fehler");
 				alert.setHeaderText(null);
-				alert.setContentText("Ordner wurde nicht gefunden.");
+				alert.setContentText("Ziel Ordner kann nicht geöffnet werden.");
 				alert.showAndWait();
 			}
+
+		} catch (IOException e) {
+			final Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("Ziel Ordner wurde nicht gefunden.");
+			alert.showAndWait();
 		}
 	}
 
@@ -127,11 +128,8 @@ public class RootLayoutController extends AbstractController {
 
 		if (result.get() == ButtonType.OK) {
 			try {
-				// Delete the tree file to signal the sync routine,
-				// to rebuild the tree.
-				if (!Config.openTreeFile().delete()) {
-					throw new IOException("Dateibaum konnte nicht gelöscht werden!");
-				}
+				// Signal the sync routine to rebuild the tree.
+				Files.deleteIfExists(Config.openTreeFile());
 
 				// Redirect to overview.
 				getMain().setView(Main.OVERVIEW);
@@ -157,5 +155,4 @@ public class RootLayoutController extends AbstractController {
 	public void handleAbout() {
 		getMain().setView(Main.ABOUT);
 	}
-
 }

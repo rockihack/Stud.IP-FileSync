@@ -1,7 +1,8 @@
 package de.uni.hannover.studip.sync.views;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -109,39 +110,41 @@ public class OAuthWebviewController extends AbstractController {
 	 * @param url 
 	 */
 	private void getOAuthVerifier(final WebEngine engine) {
-		// Parse oauth verifier.
-		final Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
-		final Matcher matcher = pattern.matcher(engine.getLocation());
+		try {
+			// Parse oauth verifier.
+			final Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
+			final Matcher matcher = pattern.matcher(engine.getLocation());
 
-		if (matcher.find()) {
-			try {
-				// Authentication succeeded, now get the oauth access token.
-				final Token accessToken = OAUTH.getAccessToken(matcher.group(1));
-
-				// Test if access token is valid.
-				final User currentUser = RestApi.getUserById(null);
-
-				// Store access token.
-				CONFIG.setAccessToken(accessToken, currentUser);
-
-				final String rootDir = CONFIG.getRootDirectory();
-				getMain().setView(
-						rootDir != null && new File(rootDir).isDirectory()
-						? Main.OVERVIEW
-						: Main.OAUTH_COMPLETE);
-
-				// End login session.
-				engine.load(StudIPApiProvider.LOGOUT);
-
-			} catch (OAuthException | UnauthorizedException | NotFoundException e) {
-				OAUTH.removeAccessToken();
-
-				// Redirect to login.
-				getMain().setView(Main.OAUTH);
-
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
+			if (!matcher.find()) {
+				return;
 			}
+
+			// Authentication succeeded, now get the oauth access token.
+			final Token accessToken = OAUTH.getAccessToken(matcher.group(1));
+
+			// Test if access token is valid.
+			final User currentUser = RestApi.getUserById(null);
+
+			// Store access token.
+			CONFIG.setAccessToken(accessToken, currentUser);
+
+			final String rootDir = CONFIG.getRootDirectory();
+			getMain().setView(
+					rootDir != null && Files.isDirectory(Paths.get(rootDir))
+					? Main.OVERVIEW
+					: Main.OAUTH_COMPLETE);
+
+			// End login session.
+			engine.load(StudIPApiProvider.LOGOUT);
+
+		} catch (OAuthException | UnauthorizedException | NotFoundException e) {
+			OAUTH.removeAccessToken();
+
+			// Redirect to login.
+			getMain().setView(Main.OAUTH);
+
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
 		}
 	}
 }

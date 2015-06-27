@@ -1,7 +1,9 @@
 package de.uni.hannover.studip.sync.models;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.scribe.model.Token;
 
@@ -84,18 +86,13 @@ public final class Config {
 	 * @return
 	 * @throws IOException
 	 */
-	public static File openTreeFile() throws IOException {
-		final File configDir = new File(System.getProperty("user.home"), CONFIG_DIR);
-		if (!configDir.exists() && !configDir.mkdir()) {
-			throw new IOException("Config Order konnte nicht erstellt werden!");
+	public static Path openTreeFile() throws IOException {
+		final Path configDir = Paths.get(System.getProperty("user.home"), CONFIG_DIR);
+		if (!Files.isDirectory(configDir)) {
+			Files.createDirectory(configDir);
 		}
 
-		final File treeFile = new File(configDir, TREE_FILE_NAME);
-		if (!treeFile.exists() && !treeFile.createNewFile()) {
-			throw new IOException("Dateibaum konnte nicht erstellt werden!");
-		}
-
-		return treeFile;
+		return configDir.resolve(TREE_FILE_NAME);
 	}
 
 	/**

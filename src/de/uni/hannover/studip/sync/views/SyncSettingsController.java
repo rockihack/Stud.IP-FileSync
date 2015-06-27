@@ -1,7 +1,11 @@
 package de.uni.hannover.studip.sync.views;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -101,6 +105,10 @@ public class SyncSettingsController extends AbstractController {
 				renameDocuments(oldValue, newValue);
 				CONFIG.setReplaceWhitespaces(newValue);
 
+			} catch (NoSuchFileException e) {
+				// Tree file does not exist yet.
+				CONFIG.setReplaceWhitespaces(newValue);
+
 			} catch (IOException e) {
 				// Rollback.
 				replaceWhitespacesChoicebox.getSelectionModel().select(oldValue);
@@ -126,35 +134,35 @@ public class SyncSettingsController extends AbstractController {
 	 * @throws IOException
 	 */
 	private static synchronized void renameDocuments(final int oldValue, final int newValue) throws IOException {
+		final String rooDir = CONFIG.getRootDirectory();
+		if (oldValue == newValue || rooDir == null || rooDir.isEmpty()) {
+			return;
+		}
+
+		final Path rootDirectory = Paths.get(rooDir);
+
 		/* Read existing tree. */
-		final File treeFile = Config.openTreeFile();
 		final ObjectMapper mapper = new ObjectMapper();
-		final SemestersTreeNode rootNode = mapper.readValue(treeFile, SemestersTreeNode.class);
+		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(Config.openTreeFile()), SemestersTreeNode.class);
 
-		final File rootDirectory = new File(CONFIG.getRootDirectory());
-
-		// Rename documents.
+		/* Rename documents. */
 		for (SemesterTreeNode semester : rootNode.semesters) {
-			final File oldSemesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title, oldValue));
-			if (!oldSemesterDirectory.exists()) {
+			final Path oldSemesterDirectory = rootDirectory.resolve(FileBrowser.removeIllegalCharacters(semester.title, oldValue));
+			if (!Files.exists(oldSemesterDirectory)) {
 				continue;
 			}
 
-			final File newSemesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title, newValue));
-			if(!oldSemesterDirectory.renameTo(newSemesterDirectory)) {
-				throw new IOException("Ordner konnte nicht umbenannt werden.\n" + oldSemesterDirectory.getAbsolutePath());
-			}
+			final Path newSemesterDirectory = rootDirectory.resolve(FileBrowser.removeIllegalCharacters(semester.title, newValue));
+			Files.move(oldSemesterDirectory, newSemesterDirectory, StandardCopyOption.REPLACE_EXISTING);
 
 			for (CourseTreeNode course : semester.courses) {
-				final File oldCourseDirectory = new File(newSemesterDirectory, FileBrowser.removeIllegalCharacters(course.title, oldValue));
-				if (!oldCourseDirectory.exists()) {
+				final Path oldCourseDirectory = newSemesterDirectory.resolve(FileBrowser.removeIllegalCharacters(course.title, oldValue));
+				if (!Files.exists(oldCourseDirectory)) {
 					continue;
 				}
 
-				final File newCourseDirectory = new File(newSemesterDirectory, FileBrowser.removeIllegalCharacters(course.title, newValue));
-				if (!oldCourseDirectory.renameTo(newCourseDirectory)) {
-					throw new IOException("Ordner konnte nicht umbenannt werden.\n" + oldCourseDirectory.getAbsolutePath());
-				}
+				final Path newCourseDirectory = newSemesterDirectory.resolve(FileBrowser.removeIllegalCharacters(course.title, newValue));
+				Files.move(oldCourseDirectory, newCourseDirectory, StandardCopyOption.REPLACE_EXISTING);
 
 				doFolder(course.root, newCourseDirectory, oldValue, newValue);
 			}
@@ -162,6 +170,7 @@ public class SyncSettingsController extends AbstractController {
 	}
 
 	/**
+	 * Traverse folder structure (recursive).
 	 * 
 	 * @param folderNode
 	 * @param parentDirectory
@@ -170,18 +179,15 @@ public class SyncSettingsController extends AbstractController {
 	 * @return
 	 * @throws IOException 
 	 */
-	private synchronized static void doFolder(final DocumentFolderTreeNode folderNode, final File parentDirectory, final int oldValue, final int newValue) throws IOException {
-		/* Traverse folder structure (recursive). */
+	private synchronized static void doFolder(final DocumentFolderTreeNode folderNode, final Path parentDirectory, final int oldValue, final int newValue) throws IOException {
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			final File oldFolderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, oldValue));
-			if (!oldFolderDirectory.exists()) {
+			final Path oldFolderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name, oldValue));
+			if (!Files.exists(oldFolderDirectory)) {
 				continue;
 			}
 
-			final File newFolderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name, newValue));
-			if (!oldFolderDirectory.renameTo(newFolderDirectory)) {
-				throw new IOException("Ordner konnte nicht umbenannt werden.\n" + oldFolderDirectory.getAbsolutePath());
-			}
+			final Path newFolderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name, newValue));
+			Files.move(oldFolderDirectory, newFolderDirectory, StandardCopyOption.REPLACE_EXISTING);
 
 			doFolder(folder, newFolderDirectory, oldValue, newValue);
 		}
@@ -189,26 +195,22 @@ public class SyncSettingsController extends AbstractController {
 		for (DocumentTreeNode document : folderNode.documents) {
 			final String oldFileName = FileBrowser.removeIllegalCharacters(document.fileName, oldValue);
 			final String newFileName = FileBrowser.removeIllegalCharacters(document.fileName, newValue);
-			File oldFile, newFile;
+			Path oldFile, newFile;
 
-			oldFile = new File(parentDirectory, oldFileName);
-			if (oldFile.exists()) {
-				newFile = new File(parentDirectory, newFileName);
-				if (!oldFile.renameTo(newFile)) {
-					throw new IOException("Datei konnte nicht umbenannt werden.\n" + oldFile.getAbsolutePath());
-				}
+			oldFile = parentDirectory.resolve(oldFileName);
+			if (Files.exists(oldFile)) {
+				newFile = parentDirectory.resolve(newFileName);
+				Files.move(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
 			}
 
 			for (int i = 1; ; i++) {
-				oldFile = new File(parentDirectory, FileBrowser.appendFilename(oldFileName, "_v" + i));
-				if (!oldFile.exists()) {
+				oldFile = parentDirectory.resolve(FileBrowser.appendFilename(oldFileName, "_v" + i));
+				if (!Files.exists(oldFile)) {
 					break;
 				}
 
-				newFile = new File(parentDirectory, FileBrowser.appendFilename(newFileName, "_v" + i));
-				if (!oldFile.renameTo(newFile)) {
-					throw new IOException("Datei konnte nicht umbenannt werden.\n" + oldFile.getAbsolutePath());
-				}
+				newFile = parentDirectory.resolve(FileBrowser.appendFilename(newFileName, "_v" + i));
+				Files.move(oldFile, newFile, StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
 	}

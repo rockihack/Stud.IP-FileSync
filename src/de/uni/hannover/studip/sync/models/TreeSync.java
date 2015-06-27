@@ -1,7 +1,9 @@
 package de.uni.hannover.studip.sync.models;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
@@ -30,21 +32,21 @@ public class TreeSync extends TreeBuilder {
 	/**
 	 * The sync root directory.
 	 */
-	private final File rootDirectory;
+	private final Path rootDirectory;
 
 	/**
 	 * Constructor.
 	 * 
 	 * @param rootDirectory
 	 */
-	public TreeSync(final File rootDirectory) {
+	public TreeSync(final Path rootDirectory) {
 		// Start threadpool in super class.
 		super();
 
-		if (!rootDirectory.isDirectory()) {
+		if (!Files.isDirectory(rootDirectory)) {
 			throw new IllegalStateException("Root directory does not exist!");
 		}
-		
+
 		this.rootDirectory = rootDirectory;
 	}
 	
@@ -56,14 +58,14 @@ public class TreeSync extends TreeBuilder {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public synchronized int sync(final File tree, final boolean doAllSemesters) throws IOException {
+	public synchronized int sync(final Path tree, final boolean doAllSemesters) throws IOException {
 		if (Main.stopPending) {
 			return 0;
 		}
 
 		/* Read existing tree. */
 		final ObjectMapper mapper = new ObjectMapper();
-		final SemestersTreeNode rootNode = mapper.readValue(tree, SemestersTreeNode.class);
+		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(tree), SemestersTreeNode.class);
 
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		final Phaser phaser = new Phaser(1); /* = self. */
@@ -77,17 +79,17 @@ public class TreeSync extends TreeBuilder {
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
-				final File semesterDirectory = new File(rootDirectory, FileBrowser.removeIllegalCharacters(semester.title));
+				final Path semesterDirectory = rootDirectory.resolve(FileBrowser.removeIllegalCharacters(semester.title));
 
-				if (!semesterDirectory.exists() && !semesterDirectory.mkdir()) {
-					throw new IllegalStateException("Could not create semester directory!");
+				if (!Files.isDirectory(semesterDirectory)) {
+					Files.createDirectory(semesterDirectory);
 				}
 
 				for (CourseTreeNode course : semester.courses) {
-					final File courseDirectory = new File(semesterDirectory, FileBrowser.removeIllegalCharacters(course.title));
+					final Path courseDirectory = semesterDirectory.resolve(FileBrowser.removeIllegalCharacters(course.title));
 
-					if (!courseDirectory.exists() && !courseDirectory.mkdir()) {
-						throw new IllegalStateException("Could not create course directory!");
+					if (!Files.isDirectory(courseDirectory)) {
+						Files.createDirectory(courseDirectory);
 					}
 
 					doFolder(phaser, course.root, courseDirectory);
@@ -103,7 +105,7 @@ public class TreeSync extends TreeBuilder {
 		if (!Main.stopPending) {
 			if (isDirty) {
 				/* Serialize the tree to json and store it in the tree file. */
-				mapper.writeValue(tree, rootNode);
+				mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
 			}
 
 			LOG.info("Sync done!");
@@ -118,14 +120,15 @@ public class TreeSync extends TreeBuilder {
 	 * @param phaser
 	 * @param folderNode The folder node
 	 * @param parentDirectory The parent directory
+	 * @throws IOException 
 	 */
-	private void doFolder(final Phaser phaser, final DocumentFolderTreeNode folderNode, final File parentDirectory) {
+	private void doFolder(final Phaser phaser, final DocumentFolderTreeNode folderNode, final Path parentDirectory) throws IOException {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			final File folderDirectory = new File(parentDirectory, FileBrowser.removeIllegalCharacters(folder.name));
+			final Path folderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name));
 
-			if (!folderDirectory.exists() && !folderDirectory.mkdir()) {
-				throw new IllegalStateException("Could not create course directory!");
+			if (!Files.isDirectory(folderDirectory)) {
+				Files.createDirectory(folderDirectory);
 			}
 
 			doFolder(phaser, folder, folderDirectory);
@@ -143,12 +146,13 @@ public class TreeSync extends TreeBuilder {
 	 * @param folderNode
 	 * @param documentNode
 	 * @param parentDirectory
+	 * @throws IOException 
 	 */
-	private void doDocument(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final File parentDirectory) {
+	private void doDocument(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final Path parentDirectory) throws IOException {
 		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
-		final File documentFile = new File(parentDirectory, originalFileName);
+		final Path documentFile = parentDirectory.resolve(originalFileName);
 
-		if (!documentFile.exists()) {
+		if (!Files.exists(documentFile)) {
 			phaser.register();
 
 			/* Download new file. */
@@ -158,25 +162,23 @@ public class TreeSync extends TreeBuilder {
 				LOG.info("New: " + documentNode.name);
 			}
 
-		} else if (documentFile.length() != documentNode.fileSize || documentFile.lastModified() != documentNode.chDate * 1000L) {
+		} else if (Files.size(documentFile) != documentNode.fileSize || Files.getLastModifiedTime(documentFile).toMillis() != documentNode.chDate * 1000L) {
 			/* Document has changed, we will download it again. */
 
 			if (!CONFIG.isOverwriteFiles()) {
 				/* Overwrite files is disabled, we append a version number to the old document filename. */
-				File renameFile;
+				Path renameFile;
 				int i = 0;
 
 				do {
 					i++;
-					renameFile = new File(parentDirectory, FileBrowser.appendFilename(originalFileName, "_v" + i));
-				} while(renameFile.exists());
+					renameFile = parentDirectory.resolve(FileBrowser.appendFilename(originalFileName, "_v" + i));
+				} while(Files.exists(renameFile));
 
-				if (!documentFile.renameTo(renameFile)) {
-					throw new IllegalStateException("Datei konnte nicht umbenannt werden.\n" + documentFile.getAbsolutePath());
-				}
+				Files.move(documentFile, renameFile);
 
 				if (LOG.isLoggable(Level.WARNING)) {
-					LOG.warning("Renamed: " + documentNode.name + " to " + renameFile.getName());
+					LOG.warning("Renamed: " + documentNode.name + " to " + renameFile.getFileName());
 				}
 			}
 
@@ -218,7 +220,7 @@ public class TreeSync extends TreeBuilder {
 		 * Document file.
 		 * The file location to store the document.
 		 */
-		private final File documentFile;
+		private final Path documentFile;
 
 		/**
 		 * Download document job.
@@ -227,7 +229,7 @@ public class TreeSync extends TreeBuilder {
 		 * @param documentNode The document node to download
 		 * @param documentFile The file location to store the document
 		 */
-		public DownloadDocumentJob(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final File documentFile) {
+		public DownloadDocumentJob(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final Path documentFile) {
 			this.phaser = phaser;
 			this.folderNode = folderNode;
 			this.documentNode = documentNode;
@@ -250,9 +252,7 @@ public class TreeSync extends TreeBuilder {
 				 * The timestamp must be the same as in the document node,
 				 * otherwise the file will be downloaded again.
 				 */
-				if (!documentFile.setLastModified(documentNode.chDate * 1000L)) {
-					throw new IllegalStateException("Änderungsdatum konnte nicht gesetzt werden!");
-				}
+				Files.setLastModifiedTime(documentFile, FileTime.fromMillis(documentNode.chDate * 1000L));
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */

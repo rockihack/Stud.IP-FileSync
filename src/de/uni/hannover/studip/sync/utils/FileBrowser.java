@@ -1,8 +1,9 @@
 package de.uni.hannover.studip.sync.utils;
 
 import java.awt.Desktop;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import de.uni.hannover.studip.sync.models.Config;
 
@@ -27,8 +28,8 @@ public final class FileBrowser {
 	 * @return
 	 * @throws IOException 
 	 */
-	public static boolean open(final File file) throws IOException {
-		if (!file.exists()) {
+	public static boolean open(final Path file) throws IOException {
+		if (!Files.exists(file)) {
 			throw new IOException("File not found!");
 		}
 
@@ -39,18 +40,18 @@ public final class FileBrowser {
 					throw new IOException("Desktop not supported!");
 				}
 
-				Desktop.getDesktop().open(file);
+				Desktop.getDesktop().open(file.toFile());
 				return true;
 
 			} catch (IOException e) {
-				return runCommand("explorer", file.getAbsolutePath());
+				return runCommand("explorer", file.toAbsolutePath().toString());
 			}
 
 		} else if (OS.isMacOS()) {
-			return runCommand("open", file.getAbsolutePath());
+			return runCommand("open", file.toAbsolutePath().toString());
 
 		} else if (OS.isLinux()) {
-			final String filePath = file.getAbsolutePath();
+			final String filePath = file.toAbsolutePath().toString();
 
 			return runCommand("xdg-open", filePath)			// All
 					|| runCommand("kde-open", filePath)		// KDE
@@ -86,23 +87,26 @@ public final class FileBrowser {
 	 * @param file
 	 * @return
 	 */
-	public static String removeIllegalCharacters(String file, final int replaceWhitespaces) {
+	public static String removeIllegalCharacters(String fileName, final int replaceWhitespaces) {
+		/* Remove leading and trailing whitespaces. */
+		fileName = fileName.trim();
+
 		/* Replace whitespaces. */
 		switch (replaceWhitespaces) {
 		case 1:
-			file = file.replaceAll("[-\\s]+", "-");
+			fileName = fileName.replaceAll("[-\\s]+", "-");
 			break;
 		case 2:
-			file = file.replaceAll("[_\\s]+", "_");
+			fileName = fileName.replaceAll("[_\\s]+", "_");
 			break;
 		default:
 			break;
 		}
 
 		/* Replace separators. */
-		file = file.replaceAll("[-\\/]+", "-");
+		fileName = fileName.replaceAll("[-\\/]+", "-");
 		/* Remove other illegal chars. */
-		return file.replaceAll("[<>:\"|?*]+", "");
+		return fileName.replaceAll("[<>:\"|?*]+", "");
 	}
 
 	/**
@@ -111,8 +115,8 @@ public final class FileBrowser {
 	 * @param file
 	 * @return
 	 */
-	public static String removeIllegalCharacters(final String file) {
-		return removeIllegalCharacters(file, Config.getInstance().getReplaceWhitespaces());
+	public static String removeIllegalCharacters(final String fileName) {
+		return removeIllegalCharacters(fileName, Config.getInstance().getReplaceWhitespaces());
 	}
 
 	/**
@@ -122,12 +126,11 @@ public final class FileBrowser {
 	 * @param suffix
 	 * @return
 	 */
-	public static String appendFilename(final String filename, final String suffix) {
-		int ext = filename.lastIndexOf('.');
-		if (ext == -1) {
-			ext = filename.length();
-		}
+	public static String appendFilename(final String fileName, final String suffix) {
+		final int ext = fileName.lastIndexOf('.');
 
-		return filename.substring(0, ext) + suffix + filename.substring(ext);
+		return ext == -1
+				? fileName + suffix
+				: fileName.substring(0, ext) + suffix + fileName.substring(ext);
 	}
 }
