@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
 
 /**
@@ -14,7 +12,6 @@ import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
  * @author Lennart Glauer
  * @notice Thread safe
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentFolderTreeNode {
 
 	public String folderId;

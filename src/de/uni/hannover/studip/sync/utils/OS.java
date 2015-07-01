@@ -37,7 +37,7 @@ public enum OS {
 	/**
 	 * Detect current operating system.
 	 * 
-	 * @return
+	 * @return Current operating system
 	 */
 	private static OS detectOS() {
 		final String os = System.getProperty("os.name").toLowerCase(Locale.GERMANY);

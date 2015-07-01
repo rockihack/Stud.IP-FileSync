@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,9 +26,9 @@ public final class ConfigFile<T> {
 	/**
 	 * Open and read config file.
 	 * 
-	 * @param dir
-	 * @param file
-	 * @param type
+	 * @param dir Directory name
+	 * @param file File name
+	 * @param type Datamodel class
 	 * @throws IOException
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
@@ -53,8 +52,6 @@ public final class ConfigFile<T> {
 	/**
 	 * Init config file.
 	 * 
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
 	 * @throws IOException
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
@@ -85,8 +82,6 @@ public final class ConfigFile<T> {
 	/**
 	 * Write config file.
 	 * 
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
 	public synchronized void write() throws IOException {

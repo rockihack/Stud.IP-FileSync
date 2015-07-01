@@ -24,8 +24,8 @@ public final class FileBrowser {
 	/**
 	 * Opens a file or directory in the users default browser.
 	 * 
-	 * @param file
-	 * @return
+	 * @param file File/Folder to open
+	 * @return True if successful
 	 * @throws IOException 
 	 */
 	public static boolean open(final Path file) throws IOException {
@@ -68,8 +68,8 @@ public final class FileBrowser {
 	/**
 	 * Run a shell command.
 	 * 
-	 * @param cmd
-	 * @return
+	 * @param cmd Command to execute
+	 * @return True if successful
 	 */
 	private static boolean runCommand(final String... cmd) {
 		try {
@@ -84,8 +84,9 @@ public final class FileBrowser {
 	/**
 	 * Remove/replace illegal chars from path/file name.
 	 * 
-	 * @param file
-	 * @return
+	 * @param fileName Original filename
+	 * @param replaceWhitespaces Replace option
+	 * @return New filename
 	 */
 	public static String removeIllegalCharacters(String fileName, final int replaceWhitespaces) {
 		/* Remove leading and trailing whitespaces. */
@@ -112,8 +113,8 @@ public final class FileBrowser {
 	/**
 	 * Remove/replace illegal chars from path/file name.
 	 * 
-	 * @param file
-	 * @return
+	 * @param fileName Original filename
+	 * @return New filename
 	 */
 	public static String removeIllegalCharacters(final String fileName) {
 		return removeIllegalCharacters(fileName, Config.getInstance().getReplaceWhitespaces());
@@ -122,9 +123,9 @@ public final class FileBrowser {
 	/**
 	 * Appends the suffix to the filename (before file extension).
 	 * 
-	 * @param filename
-	 * @param suffix
-	 * @return
+	 * @param fileName Original filename
+	 * @param suffix Suffix to append
+	 * @return New filename
 	 */
 	public static String appendFilename(final String fileName, final String suffix) {
 		final int ext = fileName.lastIndexOf('.');

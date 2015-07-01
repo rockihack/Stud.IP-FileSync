@@ -23,8 +23,8 @@ public final class FileDownload {
 	/**
 	 * Write inputstream to file.
 	 * 
-	 * @param is
-	 * @param file
+	 * @param is Response input stream
+	 * @param file Path to file destination
 	 * @throws IOException
 	 */
 	public static void get(final InputStream is, final Path file) throws IOException {

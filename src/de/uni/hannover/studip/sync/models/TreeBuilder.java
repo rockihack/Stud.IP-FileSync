@@ -19,8 +19,6 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.elanev.studip.android.app.backend.datamodel.*;
@@ -87,9 +85,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * 
 	 * This method always creates a new tree!
 	 * 
-	 * @param tree
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
+	 * @param tree Path to tree file
 	 * @throws IOException
 	 */
 	public synchronized int build(final Path tree) throws IOException {
@@ -125,9 +121,8 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Update existing semester/course/folder/document tree.
 	 * 
-	 * @param tree
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
+	 * @param tree Path to tree file
+	 * @param doAllSemesters If true all semesters will be updated, otherwise only the current semester
 	 * @throws IOException
 	 */
 	public synchronized int update(final Path tree, final boolean doAllSemesters) throws IOException {
@@ -205,7 +200,7 @@ public class TreeBuilder implements AutoCloseable {
 		 * Constructor.
 		 * 
 		 * @param phaser
-		 * @param rootNode
+		 * @param rootNode Root tree-node
 		 */
 		public BuildSemestersJob(final Phaser phaser, final SemestersTreeNode rootNode) {
 			this.phaser = phaser;
@@ -279,7 +274,7 @@ public class TreeBuilder implements AutoCloseable {
 		 * Constructor.
 		 * 
 		 * @param phaser
-		 * @param semesterNode
+		 * @param semesterNode Semester tree-node
 		 */
 		public BuildCoursesJob(final Phaser phaser, final SemesterTreeNode semesterNode) {
 			this.phaser = phaser;
@@ -362,8 +357,8 @@ public class TreeBuilder implements AutoCloseable {
 		 * Constructor.
 		 * 
 		 * @param phaser
-		 * @param courseNode
-		 * @param parentNode 
+		 * @param courseNode Course tree-node
+		 * @param parentNode Folder tree-node
 		 */
 		public BuildDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final DocumentFolderTreeNode parentNode) {
 			this.phaser = phaser;
@@ -501,8 +496,9 @@ public class TreeBuilder implements AutoCloseable {
 		 * Constructor.
 		 * 
 		 * @param phaser
-		 * @param courseNode
-		 * @param now
+		 * @param semesterNode Semester tree-node
+		 * @param courseNode Course tree-node
+		 * @param now Current unix timestamp
 		 */
 		public UpdateDocumentsJob(final Phaser phaser, final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final long now) {
 			this.phaser = phaser;
@@ -514,8 +510,8 @@ public class TreeBuilder implements AutoCloseable {
 		/**
 		 * Build folder index, so we can access the folder nodes in constant time.
 		 * 
-		 * @param parentFolder
-		 * @return
+		 * @param folderIndex Folder index
+		 * @param parentFolder Foler tree-node
 		 */
 		private void buildFolderIndex(final HashMap<String, DocumentFolderTreeNode> folderIndex, final DocumentFolderTreeNode parentFolder) {
 			for (DocumentFolderTreeNode folder : parentFolder.folders) {
@@ -528,9 +524,9 @@ public class TreeBuilder implements AutoCloseable {
 		/**
 		 * Remove document node if it exists.
 		 * 
-		 * @param folderNode
-		 * @param document
-		 * @return
+		 * @param folderNode Parent folder tree-node
+		 * @param document Document to remove
+		 * @return True if document was removed
 		 */
 		private boolean removeDocument(final DocumentFolderTreeNode folderNode, final Document document) {
 			final Iterator<DocumentTreeNode> iter = folderNode.documents.iterator();
@@ -551,9 +547,9 @@ public class TreeBuilder implements AutoCloseable {
 		 * Test if the folder contains a document with same filename.
 		 * Ignore case because Windows and MacOS filesystems are case insensitive.
 		 * 
-		 * @param folderNode
-		 * @param document
-		 * @return
+		 * @param folderNode Parent folder tree-node
+		 * @param document Document to compare
+		 * @return True if duplicate exists
 		 */
 		private boolean hasDuplicates(final DocumentFolderTreeNode folderNode, final Document document) {
 			final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
@@ -664,7 +660,8 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Set gui progress indicator and label.
 	 * 
-	 * @param progress
+	 * @param progress Progress indicator
+	 * @param label Progress label
 	 */
 	public void setProgress(final ProgressIndicator progress, final Label label) {
 		progressIndicator = progress;
@@ -674,7 +671,7 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Update gui progress label.
 	 * 
-	 * @param text
+	 * @param text Progress status
 	 */
 	protected void updateProgressLabel(final String text) {
 		if (progressLabel != null) {

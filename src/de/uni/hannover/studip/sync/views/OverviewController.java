@@ -83,7 +83,10 @@ public class OverviewController extends AbstractController {
 						}
 
 						// Update sync button.
-						Platform.runLater(() -> syncButton.setText("Downloading..."));
+						Platform.runLater(() -> {
+								progressLabel.setText("");
+								syncButton.setText("Downloading...");
+						});
 
 						// Download documents.
 						numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());

@@ -7,9 +7,6 @@ import java.nio.file.Paths;
 
 import org.scribe.model.Token;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.uni.hannover.studip.sync.datamodel.SettingsFile;
 import de.uni.hannover.studip.sync.datamodel.OAuthFile;
@@ -22,27 +19,27 @@ import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
  *
  */
 public final class Config {
-	
+
 	/**
 	 * Singleton instance.
 	 */
 	private static final Config INSTANCE = new Config();
-	
+
 	/**
 	 * Config directory name.
 	 */
 	private static final String CONFIG_DIR = ".studip-sync";
-	
+
 	/**
 	 * Config file name.
 	 */
 	private static final String SETTINGS_FILE_NAME = "config.json";
-	
+
 	/**
 	 * OAuth config file name.
 	 */
 	private static final String OAUTH_FILE_NAME = "oauth.json";
-	
+
 	/**
 	 * Tree file name.
 	 */
@@ -52,12 +49,12 @@ public final class Config {
 	 * Global config file.
 	 */
 	private final ConfigFile<SettingsFile> settings;
-	
+
 	/**
 	 * OAuth config file.
 	 */
 	private final ConfigFile<OAuthFile> oauth;
-	
+
 	/**
 	 * Singleton instance getter.
 	 * 
@@ -66,7 +63,7 @@ public final class Config {
 	public static Config getInstance() {
 		return INSTANCE;
 	}
-	
+
 	/**
 	 * Constructor.
 	 */
@@ -98,8 +95,6 @@ public final class Config {
 	/**
 	 * Init oauth config file.
 	 * 
-	 * @throws JsonGenerationException
-	 * @throws JsonMappingException
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 * @throws IOException
@@ -112,119 +107,136 @@ public final class Config {
 	 * Get root directoy.
 	 */
 	public String getRootDirectory() {
-		return settings.data.rootDir;
+		synchronized (settings) {
+			return settings.data.rootDir;
+		}
 	}
 
 	/**
 	 * Set root directoy.
 	 * 
 	 * @throws IOException 
-	 * @throws JsonMappingException 
-	 * @throws JsonGenerationException 
 	 */
 	public void setRootDirectory(final String rootDir) throws IOException {
-		settings.data.rootDir = rootDir;
-		settings.write();
+		synchronized (settings) {
+			settings.data.rootDir = rootDir;
+			settings.write();
+		}
 	}
 
 	/**
 	 * Check if overwrite files setting is enabled.
 	 */
 	public boolean isOverwriteFiles() {
-		return settings.data.overwriteFiles;
+		synchronized (settings) {
+			return settings.data.overwriteFiles;
+		}
 	}
 
 	/**
 	 * Set overwrite files setting.
 	 * 
 	 * @throws IOException 
-	 * @throws JsonMappingException 
-	 * @throws JsonGenerationException 
 	 */
 	public void setOverwriteFiles(final boolean value) throws IOException {
-		settings.data.overwriteFiles = value;
-		settings.write();
+		synchronized (settings) {
+			settings.data.overwriteFiles = value;
+			settings.write();
+		}
 	}
 
 	/**
 	 * Check if download all semesters setting is enabled.
 	 */
 	public boolean isDownloadAllSemesters() {
-		return settings.data.downloadAllSemesters;
+		synchronized (settings) {
+			return settings.data.downloadAllSemesters;
+		}
 	}
 
 	/**
 	 * Set download all semesters setting.
 	 * 
 	 * @throws IOException 
-	 * @throws JsonMappingException 
-	 * @throws JsonGenerationException 
 	 */
 	public void setDownloadAllSemesters(final boolean value) throws IOException {
-		settings.data.downloadAllSemesters = value;
-		settings.write();
+		synchronized (settings) {
+			settings.data.downloadAllSemesters = value;
+			settings.write();
+		}
 	}
 
 	/**
 	 * Get replace whitespaces setting.
 	 */
 	public int getReplaceWhitespaces() {
-		return settings.data.replaceWhitespaces;
+		synchronized (settings) {
+			return settings.data.replaceWhitespaces;
+		}
 	}
 
 	/**
 	 * Set replace whitespace setting.
 	 * 
 	 * @throws IOException 
-	 * @throws JsonMappingException 
-	 * @throws JsonGenerationException 
 	 */
 	public void setReplaceWhitespaces(final int value) throws IOException {
-		settings.data.replaceWhitespaces = value;
-		settings.write();
+		synchronized (settings) {
+			settings.data.replaceWhitespaces = value;
+			settings.write();
+		}
 	}
 
 	/**
 	 * Get logged in user firstname.
 	 */
 	public String getFirstName() {
-		return oauth.data.firstName;
+		synchronized (oauth) {
+			return oauth.data.firstName;
+		}
 	}
 
 	/**
 	 * Get logged in user lastname.
 	 */
 	public String getLastName() {
-		return oauth.data.lastName;
+		synchronized (oauth) {
+			return oauth.data.lastName;
+		}
 	}
 
 	/**
 	 * Get logged in user name.
 	 */
 	public String getUserName() {
-		return oauth.data.userName;
+		synchronized (oauth) {
+			return oauth.data.userName;
+		}
 	}
 
 	/**
 	 * Get logged in user id.
 	 */
 	public String getUserId() {
-		return oauth.data.userId;
+		synchronized (oauth) {
+			return oauth.data.userId;
+		}
 	}
 
 	/**
 	 * Get the OAuth access token.
 	 * 
 	 * @see OAuth.restoreAccessToken()
-	 * @param accessToken
 	 * @throws UnauthorizedException 
 	 */
 	public Token getAccessToken() throws UnauthorizedException {
-		try {
-			return new Token(oauth.data.token, oauth.data.secret);
+		synchronized (oauth) {
+			try {
+				return new Token(oauth.data.token, oauth.data.secret);
 
-		} catch (IllegalArgumentException e) {
-			throw new UnauthorizedException(e.getMessage());
+			} catch (IllegalArgumentException e) {
+				throw new UnauthorizedException(e.getMessage());
+			}
 		}
 	}
 
@@ -232,15 +244,18 @@ public final class Config {
 	 * Set the OAuth access token.
 	 * 
 	 * @param accessToken
+	 * @param currentUser
 	 * @throws IOException 
 	 */
 	public void setAccessToken(final Token accessToken, final User currentUser) throws IOException {
-		oauth.data.firstName = currentUser.forename;
-		oauth.data.lastName = currentUser.lastname;
-		oauth.data.userName = currentUser.username;
-		oauth.data.userId = currentUser.user_id;
-		oauth.data.token = accessToken.getToken();
-		oauth.data.secret = accessToken.getSecret();
-		oauth.write();
+		synchronized (oauth) {
+			oauth.data.firstName = currentUser.forename;
+			oauth.data.lastName = currentUser.lastname;
+			oauth.data.userName = currentUser.username;
+			oauth.data.userId = currentUser.user_id;
+			oauth.data.token = accessToken.getToken();
+			oauth.data.secret = accessToken.getSecret();
+			oauth.write();
+		}
 	}
 }

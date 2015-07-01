@@ -48,6 +48,11 @@ public class Main extends Application {
 	public static final String ABOUT = "About";
 
 	/**
+	 * Logger instance.
+	 */
+	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
+	/**
 	 * Keep track of previous views.
 	 */
 	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
@@ -73,10 +78,10 @@ public class Main extends Application {
 			// Signal worker threads to terminate gracefully.
 			stopPending = true;
 
-			Platform.runLater(() -> {
-				final StringWriter writer = new StringWriter();
-				throwable.printStackTrace(new PrintWriter(writer));
+			final StringWriter writer = new StringWriter();
+			throwable.printStackTrace(new PrintWriter(writer));
 
+			Platform.runLater(() -> {
 				final Alert alert = new Alert(AlertType.ERROR);
 				alert.setTitle("UncaughtExceptionHandler");
 				alert.setHeaderText(throwable.getMessage());
@@ -88,7 +93,16 @@ public class Main extends Application {
 			});
 		});
 
-		Logger.getLogger(Logger.GLOBAL_LOGGER_NAME).setLevel(Level.WARNING);
+		LOG.setLevel(Level.WARNING);
+	}
+
+	/**
+	 * Main method.
+	 * 
+	 * @param args
+	 */
+	public static void main(final String[] args) {
+		launch(args);
 	}
 
 	/**
@@ -96,11 +110,11 @@ public class Main extends Application {
 	 */
 	@Override
 	public void start(final Stage primaryStage) {
-		this.primaryStage = primaryStage;
-
 		try {
 			// Acquire system wide app mutex to allow only one running instance.
 			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
+
+			this.primaryStage = primaryStage;
 
 			initRootLayout();
 
@@ -201,15 +215,6 @@ public class Main extends Application {
 				setView(VIEW_HISTORY.pop());
 			}
 		}
-	}
-
-	/**
-	 * Main method.
-	 * 
-	 * @param args
-	 */
-	public static void main(final String[] args) {
-		launch(args);
 	}
 
 	/**

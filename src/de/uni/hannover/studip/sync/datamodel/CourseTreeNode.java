@@ -1,7 +1,5 @@
 package de.uni.hannover.studip.sync.datamodel;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import de.elanev.studip.android.app.backend.datamodel.Course;
 
 /**
@@ -10,7 +8,6 @@ import de.elanev.studip.android.app.backend.datamodel.Course;
  * @author Lennart Glauer
  * @notice Thread safe
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class CourseTreeNode {
 
 	public String courseId;

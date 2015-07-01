@@ -2,7 +2,6 @@ package de.uni.hannover.studip.sync.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -28,7 +27,6 @@ public final class FileHash {
 	 * 
 	 * @param file
 	 * @return
-	 * @throws FileNotFoundException
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 */

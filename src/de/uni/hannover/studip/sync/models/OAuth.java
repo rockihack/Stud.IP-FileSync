@@ -118,13 +118,13 @@ public final class OAuth {
 
 		return accessToken;
 	}
-	
+
 	/**
 	 * Step 5: Sign and send request.
 	 * 
 	 * @param verb Request method
-	 * @param url Request address
-	 * @return New OAuthRequest
+	 * @param url Request url
+	 * @return OAuth response
 	 * @throws UnauthorizedException 
 	 */
 	public Response sendRequest(final Verb method, final String url) throws UnauthorizedException {
@@ -141,12 +141,13 @@ public final class OAuth {
 	/**
 	 * Restore a previously used access token.
 	 * 
-	 * @return True if the access token could be restored.
 	 * @throws UnauthorizedException 
 	 */
 	public synchronized void restoreAccessToken() throws UnauthorizedException {
-		accessToken = CONFIG.getAccessToken();
-		state = OAuthState.READY;
+		if (state != OAuthState.READY) {
+			accessToken = CONFIG.getAccessToken();
+			state = OAuthState.READY;
+		}
 	}
 
 	/**

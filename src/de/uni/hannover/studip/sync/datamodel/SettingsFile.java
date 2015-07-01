@@ -1,13 +1,10 @@
 package de.uni.hannover.studip.sync.datamodel;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 /**
  * Config data model used for json object binding.
  * 
  * @author Lennart Glauer
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class SettingsFile {
 
 	/**
@@ -34,11 +31,4 @@ public class SettingsFile {
 	 */
 	public int replaceWhitespaces;
 
-	public SettingsFile() {
-		// Needed for json object binding.
-	}
-
-	public SettingsFile(final String rootDir) {
-		this.rootDir = rootDir;
-	}
 }

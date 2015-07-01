@@ -1,7 +1,5 @@
 package de.uni.hannover.studip.sync.datamodel;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import de.elanev.studip.android.app.backend.datamodel.Document;
 
 /**
@@ -10,7 +8,6 @@ import de.elanev.studip.android.app.backend.datamodel.Document;
  * @author Lennart Glauer
  * @notice Thread safe
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentTreeNode {
 
 	public String documentId;

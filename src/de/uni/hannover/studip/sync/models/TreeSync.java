@@ -8,8 +8,6 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.Main;
@@ -37,7 +35,7 @@ public class TreeSync extends TreeBuilder {
 	/**
 	 * Constructor.
 	 * 
-	 * @param rootDirectory
+	 * @param rootDirectory Path to sync root directory
 	 */
 	public TreeSync(final Path rootDirectory) {
 		// Start threadpool in super class.
@@ -53,9 +51,8 @@ public class TreeSync extends TreeBuilder {
 	/**
 	 * Synchronize all documents.
 	 * 
-	 * @param tree
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
+	 * @param tree Path to tree file
+	 * @param doAllSemesters If true documents from all semesters will be downloaded, otherwise only from current semester
 	 * @throws IOException
 	 */
 	public synchronized int sync(final Path tree, final boolean doAllSemesters) throws IOException {
@@ -118,8 +115,8 @@ public class TreeSync extends TreeBuilder {
 	 * Folder node handler.
 	 * 
 	 * @param phaser
-	 * @param folderNode The folder node
-	 * @param parentDirectory The parent directory
+	 * @param folderNode Folder tree-node
+	 * @param parentDirectory Path to parent directory
 	 * @throws IOException 
 	 */
 	private void doFolder(final Phaser phaser, final DocumentFolderTreeNode folderNode, final Path parentDirectory) throws IOException {
@@ -143,9 +140,9 @@ public class TreeSync extends TreeBuilder {
 	 * Document node handler.
 	 * 
 	 * @param phaser
-	 * @param folderNode
-	 * @param documentNode
-	 * @param parentDirectory
+	 * @param folderNode Parent folder tree-node
+	 * @param documentNode Document tree-node
+	 * @param parentDirectory Path to parent directory
 	 * @throws IOException 
 	 */
 	private void doDocument(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final Path parentDirectory) throws IOException {
@@ -226,8 +223,9 @@ public class TreeSync extends TreeBuilder {
 		 * Download document job.
 		 * 
 		 * @param phaser
-		 * @param documentNode The document node to download
-		 * @param documentFile The file location to store the document
+		 * @param folderNode Parent folder tree-node
+		 * @param documentNode Document tree-node to download
+		 * @param documentFile Path to document file destination
 		 */
 		public DownloadDocumentJob(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final Path documentFile) {
 			this.phaser = phaser;
