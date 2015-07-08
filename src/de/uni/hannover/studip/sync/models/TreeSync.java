@@ -156,7 +156,7 @@ public class TreeSync extends TreeBuilder {
 			threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
 
 			if (LOG.isLoggable(Level.INFO)) {
-				LOG.info("New: " + documentNode.name);
+				LOG.info("New: " + originalFileName);
 			}
 
 		} else if (Files.size(documentFile) != documentNode.fileSize || Files.getLastModifiedTime(documentFile).toMillis() != documentNode.chDate * 1000L) {
@@ -175,7 +175,7 @@ public class TreeSync extends TreeBuilder {
 				Files.move(documentFile, renameFile);
 
 				if (LOG.isLoggable(Level.WARNING)) {
-					LOG.warning("Renamed: " + documentNode.name + " to " + renameFile.getFileName());
+					LOG.warning("Renamed: " + originalFileName + " to " + renameFile.getFileName());
 				}
 			}
 
@@ -185,7 +185,7 @@ public class TreeSync extends TreeBuilder {
 			threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
 
 			if (LOG.isLoggable(Level.WARNING)) {
-				LOG.warning("Modified: " + documentNode.name);
+				LOG.warning("Modified: " + originalFileName);
 			}
 		}
 	}
