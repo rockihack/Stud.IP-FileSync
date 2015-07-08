@@ -22,6 +22,8 @@ public abstract class AbstractController {
 
 	@FXML
 	public void handlePrev() {
-		main.setPrevView();
+		if (main != null) {
+			main.setPrevView();
+		}
 	}
 }
