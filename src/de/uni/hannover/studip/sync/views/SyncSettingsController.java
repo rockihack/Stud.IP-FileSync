@@ -8,6 +8,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.datamodel.CourseTreeNode;
@@ -105,8 +107,8 @@ public class SyncSettingsController extends AbstractController {
 				renameDocuments(oldValue, newValue);
 				CONFIG.setReplaceWhitespaces(newValue);
 
-			} catch (NoSuchFileException e) {
-				// Tree file does not exist yet.
+			} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
+				// Tree file is invalid or does not exist yet.
 				CONFIG.setReplaceWhitespaces(newValue);
 
 			} catch (IOException e) {
