@@ -19,6 +19,7 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.elanev.studip.android.app.backend.datamodel.*;
@@ -133,6 +134,10 @@ public class TreeBuilder implements AutoCloseable {
 		/* Read existing tree. */
 		final ObjectMapper mapper = new ObjectMapper();
 		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(tree), SemestersTreeNode.class);
+
+		if (rootNode.semesters.isEmpty()) {
+			throw new JsonMappingException("No semesters found!");
+		}
 
 		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		final Phaser phaser = new Phaser(1); /* = self. */
