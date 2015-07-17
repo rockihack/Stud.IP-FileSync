@@ -8,6 +8,8 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 
+import org.scribe.exceptions.OAuthConnectionException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.Main;
@@ -56,7 +58,7 @@ public class TreeSync extends TreeBuilder {
 	 * @throws IOException
 	 */
 	public synchronized int sync(final Path tree, final boolean doAllSemesters) throws IOException {
-		if (Main.stopPending) {
+		if (stopPending || Main.exitPending) {
 			return 0;
 		}
 
@@ -99,7 +101,7 @@ public class TreeSync extends TreeBuilder {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
-		if (!Main.stopPending) {
+		if (!stopPending && !Main.exitPending) {
 			if (isDirty) {
 				/* Serialize the tree to json and store it in the tree file. */
 				mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
@@ -252,9 +254,13 @@ public class TreeSync extends TreeBuilder {
 				 */
 				Files.setLastModifiedTime(documentFile, FileTime.fromMillis(documentNode.chDate * 1000L));
 
+			} catch (OAuthConnectionException e) {
+				/* Connection failed. */
+				stopPending = true;
+
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
-				Main.stopPending = true;
+				stopPending = true;
 
 				OAuth.getInstance().removeAccessToken();
 
@@ -275,7 +281,7 @@ public class TreeSync extends TreeBuilder {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.stopPending) {
+				if (!stopPending && !Main.exitPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -285,7 +291,7 @@ public class TreeSync extends TreeBuilder {
 				updateProgressLabel(documentNode.name);
 				phaser.arrive();
 
-				if (Main.stopPending) {
+				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
 				}
 			}

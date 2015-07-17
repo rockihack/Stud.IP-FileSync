@@ -14,6 +14,8 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.scribe.exceptions.OAuthConnectionException;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
@@ -44,12 +46,17 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Time in seconds a semester will be updated after it's end date.
 	 */
-	protected static final long SEMESTER_THRESHOLD = 15 * 24 * 60 * 60;
+	protected static final long SEMESTER_THRESHOLD = 30 * 24 * 60 * 60;
 
 	/**
 	 * Thread pool.
 	 */
 	protected final ExecutorService threadPool;
+
+	/**
+	 * Flag to signal graceful shutdown of worker threads.
+	 */
+	protected volatile boolean stopPending;
 
 	/**
 	 * Signals if the tree is dirty and needs to be written to disk.
@@ -90,7 +97,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public synchronized int build(final Path tree) throws IOException {
-		if (Main.stopPending) {
+		if (stopPending || Main.exitPending) {
 			return 0;
 		}
 
@@ -108,7 +115,7 @@ public class TreeBuilder implements AutoCloseable {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
-		if (!Main.stopPending) {
+		if (!stopPending && !Main.exitPending) {
 			/* Serialize the tree to json and store it in the tree file. */
 			final ObjectMapper mapper = new ObjectMapper();
 			mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
@@ -127,7 +134,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public synchronized int update(final Path tree, final boolean doAllSemesters) throws IOException {
-		if (Main.stopPending) {
+		if (stopPending || Main.exitPending) {
 			return 0;
 		}
 
@@ -172,7 +179,7 @@ public class TreeBuilder implements AutoCloseable {
 		/* Wait until all jobs are done. */
 		phaser.arriveAndAwaitAdvance();
 
-		if (!Main.stopPending) {
+		if (!stopPending && !Main.exitPending) {
 			if (isDirty) {
 				/* Serialize the tree to json and store it in the tree file. */
 				mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
@@ -231,9 +238,13 @@ public class TreeBuilder implements AutoCloseable {
 					LOG.info(semesterNode.title);
 				}
 
+			} catch (OAuthConnectionException e) {
+				/* Connection failed. */
+				stopPending = true;
+
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
-				Main.stopPending = true;
+				stopPending = true;
 
 				OAuth.getInstance().removeAccessToken();
 
@@ -241,7 +252,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.stopPending) {
+				if (!stopPending && !Main.exitPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -250,7 +261,7 @@ public class TreeBuilder implements AutoCloseable {
 				//updateProgress(phaser);
 				phaser.arrive();
 
-				if (Main.stopPending) {
+				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
 				}
 			}
@@ -304,10 +315,14 @@ public class TreeBuilder implements AutoCloseable {
 					
 					LOG.info(courseNode.title);
 				}
-				
+
+			} catch (OAuthConnectionException e) {
+				/* Connection failed. */
+				stopPending = true;
+
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
-				Main.stopPending = true;
+				stopPending = true;
 
 				OAuth.getInstance().removeAccessToken();
 
@@ -319,7 +334,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.stopPending) {
+				if (!stopPending && !Main.exitPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -328,7 +343,7 @@ public class TreeBuilder implements AutoCloseable {
 				updateProgressLabel(semesterNode.title);
 				phaser.arrive();
 
-				if (Main.stopPending) {
+				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
 				}
 			}
@@ -436,9 +451,13 @@ public class TreeBuilder implements AutoCloseable {
 					LOG.info(documentNode.name);
 				}
 
+			} catch (OAuthConnectionException e) {
+				/* Connection failed. */
+				stopPending = true;
+
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
-				Main.stopPending = true;
+				stopPending = true;
 
 				OAuth.getInstance().removeAccessToken();
 
@@ -453,7 +472,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.stopPending) {
+				if (!stopPending && !Main.exitPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -462,7 +481,7 @@ public class TreeBuilder implements AutoCloseable {
 				updateProgressLabel(courseNode.title);
 				phaser.arrive();
 
-				if (Main.stopPending) {
+				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
 				}
 			}
@@ -623,9 +642,13 @@ public class TreeBuilder implements AutoCloseable {
 
 				isDirty = true;
 
+			} catch (OAuthConnectionException e) {
+				/* Connection failed. */
+				stopPending = true;
+
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
-				Main.stopPending = true;
+				stopPending = true;
 
 				OAuth.getInstance().removeAccessToken();
 
@@ -646,7 +669,7 @@ public class TreeBuilder implements AutoCloseable {
 				throw new IllegalStateException(e);
 
 			} catch (RejectedExecutionException e) {
-				if (!Main.stopPending) {
+				if (!stopPending && !Main.exitPending) {
 					throw new IllegalStateException(e);
 				}
 
@@ -655,7 +678,7 @@ public class TreeBuilder implements AutoCloseable {
 				updateProgressLabel(courseNode.title);
 				phaser.arrive();
 
-				if (Main.stopPending) {
+				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
 				}
 			}

@@ -58,9 +58,9 @@ public class Main extends Application {
 	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
 
 	/**
-	 * Flag to signal graceful shutdown of worker threads.
+	 * Global flag to signal graceful shutdown of worker threads on app exit.
 	 */
-	public static volatile boolean stopPending;
+	public static volatile boolean exitPending;
 
 	private Stage primaryStage;
 	private BorderPane rootLayout;
@@ -70,14 +70,15 @@ public class Main extends Application {
 	@SuppressWarnings("unused")
 	private static ServerSocket globalAppMutex;
 
-	/**
-	 * Default Uncaught Exception Handler.
-	 */
 	static {
+		/**
+		 * Default Uncaught Exception Handler.
+		 */
 		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
 			// Signal worker threads to terminate gracefully.
-			stopPending = true;
+			exitPending = true;
 
+			// Show stacktrace and terminate app.
 			final StringWriter writer = new StringWriter();
 			throwable.printStackTrace(new PrintWriter(writer));
 
@@ -93,6 +94,9 @@ public class Main extends Application {
 			});
 		});
 
+		/**
+		 * Global log level.
+		 */
 		LOG.setLevel(Level.WARNING);
 	}
 
@@ -155,12 +159,10 @@ public class Main extends Application {
 					new Image(Main.class.getResourceAsStream("icon_256.png")),
 					new Image(Main.class.getResourceAsStream("icon_512.png")));
 			primaryStage.setTitle(APP_NAME);
-			//primaryStage.setMinWidth(640);
-			//primaryStage.setMinHeight(480);
 
 			primaryStage.setOnCloseRequest(event -> {
 				// Signal worker threads to terminate gracefully.
-				stopPending = true;
+				exitPending = true;
 
 				Platform.exit();
 			});
