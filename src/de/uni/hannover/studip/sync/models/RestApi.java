@@ -23,9 +23,6 @@ import de.uni.hannover.studip.sync.utils.FileDownload;
  */
 public final class RestApi {
 
-	/**
-	 * Logger instance.
-	 */
 	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**

@@ -24,9 +24,6 @@ import de.uni.hannover.studip.sync.utils.FileBrowser;
  */
 public class TreeSync extends TreeBuilder {
 
-	/**
-	 * Config instance.
-	 */
 	private static final Config CONFIG = Config.getInstance();
 
 	/**
@@ -66,10 +63,7 @@ public class TreeSync extends TreeBuilder {
 		final ObjectMapper mapper = new ObjectMapper();
 		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(tree), SemestersTreeNode.class);
 
-		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		final Phaser phaser = new Phaser(1); /* = self. */
-
-		/* Current unix timestamp. */
 		final long now = System.currentTimeMillis() / 1000L;
 
 		isDirty = false;
@@ -261,7 +255,6 @@ public class TreeSync extends TreeBuilder {
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
 				stopPending = true;
-
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {
@@ -270,7 +263,6 @@ public class TreeSync extends TreeBuilder {
 				 * or document does not exist.
 				 */
 				folderNode.documents.remove(documentNode);
-
 				isDirty = true;
 
 				if (LOG.isLoggable(Level.WARNING)) {

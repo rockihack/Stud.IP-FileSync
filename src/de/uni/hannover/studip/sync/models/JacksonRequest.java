@@ -22,9 +22,6 @@ import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
  */
 public class JacksonRequest<T> {
 
-	/**
-	 * OAuth service.
-	 */
 	private static final OAuth OAUTH = OAuth.getInstance();
 
 	/**

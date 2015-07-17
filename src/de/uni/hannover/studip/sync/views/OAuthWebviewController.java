@@ -34,7 +34,6 @@ import javafx.scene.web.WebView;
 public class OAuthWebviewController extends AbstractController {
 
 	private static final Config CONFIG = Config.getInstance();
-
 	private static final OAuth OAUTH = OAuth.getInstance();
 
 	@FXML

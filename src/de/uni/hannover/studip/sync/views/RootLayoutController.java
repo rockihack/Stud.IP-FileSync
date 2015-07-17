@@ -91,6 +91,8 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleExit() {
+		Main.exitPending = true;
+
 		Platform.exit();
 	}
 

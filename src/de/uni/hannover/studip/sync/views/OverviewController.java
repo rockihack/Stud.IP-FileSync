@@ -4,10 +4,9 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.scribe.exceptions.OAuthConnectionException;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -32,14 +31,10 @@ import javafx.scene.control.Alert.AlertType;
  */
 public class OverviewController extends AbstractController {
 
-	/**
-	 * Logger instance.
-	 */
 	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-
 	private static final Config CONFIG = Config.getInstance();
-
 	private static final OAuth OAUTH = OAuth.getInstance();
+	private static final ReentrantLock LOCK = new ReentrantLock();
 
 	@FXML
 	protected ProgressIndicator progress;
@@ -52,14 +47,21 @@ public class OverviewController extends AbstractController {
 
 	@FXML
 	public void handleSync() {
-		getMain().getRootLayoutController().getMenu().setDisable(true);
-		syncButton.setDisable(true);
-		syncButton.setText("Updating...");
-
 		(new Thread() {
 			@Override
 			public void run() {
+				if (!LOCK.tryLock()) {
+					// Already running.
+					return;
+				}
+
 				try {
+					Platform.runLater(() -> {
+						getMain().getRootLayoutController().getMenu().setDisable(true);
+						syncButton.setDisable(true);
+						syncButton.setText("Updating...");
+					});
+
 					OAUTH.restoreAccessToken();
 
 					final String rootDir = CONFIG.getRootDirectory();
@@ -82,7 +84,6 @@ public class OverviewController extends AbstractController {
 							numberOfRequests = tree.build(treeFile);
 						}
 
-						// Update sync button.
 						Platform.runLater(() -> {
 								progressLabel.setText("");
 								syncButton.setText("Downloading...");
@@ -101,7 +102,7 @@ public class OverviewController extends AbstractController {
 
 					Platform.runLater(() -> getMain().setView(Main.OAUTH));
 
-				} catch (IOException | OAuthConnectionException e) {
+				} catch (IOException e) {
 					Platform.runLater(() -> {
 						final Alert alert = new Alert(AlertType.ERROR);
 						alert.setTitle("Fehler");
@@ -117,6 +118,8 @@ public class OverviewController extends AbstractController {
 						syncButton.setDisable(false);
 						getMain().getRootLayoutController().getMenu().setDisable(false);
 					});
+
+					LOCK.unlock();
 				}
 			}
 		}).start();

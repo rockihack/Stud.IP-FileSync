@@ -90,6 +90,7 @@ public class SyncSettingsController extends AbstractController {
 	}
 
 	/**
+	 * Rename documents.
 	 * 
 	 * @param oldValue
 	 * @param newValue
@@ -129,6 +130,7 @@ public class SyncSettingsController extends AbstractController {
 	}
 
 	/**
+	 * Rename documents.
 	 * 
 	 * @param oldValue
 	 * @param newValue
@@ -181,7 +183,7 @@ public class SyncSettingsController extends AbstractController {
 	 * @return
 	 * @throws IOException 
 	 */
-	private synchronized static void doFolder(final DocumentFolderTreeNode folderNode, final Path parentDirectory, final int oldValue, final int newValue) throws IOException {
+	private static synchronized void doFolder(final DocumentFolderTreeNode folderNode, final Path parentDirectory, final int oldValue, final int newValue) throws IOException {
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
 			final Path oldFolderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name, oldValue));
 			if (!Files.exists(oldFolderDirectory)) {

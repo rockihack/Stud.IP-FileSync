@@ -140,6 +140,7 @@ public class NewDocumentsController extends AbstractController {
 				};
 			});
 
+			// Set list items.
 			tableView.setItems(documentList);
 
 			// Sort columns accordingly to the document chdate.

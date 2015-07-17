@@ -10,7 +10,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class NewDocumentsModel {
 
-	private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss", Locale.GERMANY);
+	protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss", Locale.GERMANY);
 
 	private final SimpleStringProperty semesterTitle;
 	private final SimpleStringProperty courseTitle;

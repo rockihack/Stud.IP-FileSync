@@ -1,6 +1,8 @@
 package de.uni.hannover.studip.sync.models;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.scribe.builder.ServiceBuilder;
 import org.scribe.model.OAuthRequest;
@@ -20,20 +22,18 @@ import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
  */
 public final class OAuth {
 
-	/**
-	 * Singleton instance.
-	 */
 	private static final OAuth INSTANCE = new OAuth();
-
-	/**
-	 * Config instance.
-	 */
 	private static final Config CONFIG = Config.getInstance();
 
 	/**
 	 * Service object.
 	 */
 	private final OAuthService service;
+
+	/**
+	 * Reentrant read/write lock.
+	 */
+	public final ReentrantReadWriteLock lock;
 
 	/**
 	 * Request token.
@@ -43,12 +43,12 @@ public final class OAuth {
 	/**
 	 * Access token.
 	 */
-	private volatile Token accessToken;
+	private Token accessToken;
 
 	/**
 	 * Current state.
 	 */
-	private volatile OAuthState state;
+	private OAuthState state;
 
 	/**
 	 * Singleton instance getter.
@@ -79,28 +79,41 @@ public final class OAuth {
 			.callback(StudIPApiProvider.API_CALLBACK)
 			.build();
 
+		lock = new ReentrantReadWriteLock();
 		state = OAuthState.GET_REQUEST_TOKEN;
 	}
-	
+
 	/**
 	 * Step 2: Get the request token.
 	 */
-	public synchronized void getRequestToken() {
-		if (state == OAuthState.GET_REQUEST_TOKEN) {
-			requestToken = service.getRequestToken();
-			state = OAuthState.GET_ACCESS_TOKEN;
+	public void getRequestToken() {
+		lock.writeLock().lock();
+		try {
+			if (state == OAuthState.GET_REQUEST_TOKEN) {
+				requestToken = service.getRequestToken();
+				state = OAuthState.GET_ACCESS_TOKEN;
+			}
+
+		} finally {
+			lock.writeLock().unlock();
 		}
 	}
 
 	/**
 	 * Step 3: Making the user validate your request token.
 	 */
-	public synchronized String getAuthUrl() {
-		if (state != OAuthState.GET_ACCESS_TOKEN) {
-			throw new IllegalStateException("Request token not found!");
-		}
+	public String getAuthUrl() {
+		lock.readLock().lock();
+		try {
+			if (state != OAuthState.GET_ACCESS_TOKEN) {
+				throw new IllegalStateException("Request token not found!");
+			}
 
-		return service.getAuthorizationUrl(requestToken);
+			return service.getAuthorizationUrl(requestToken);
+
+		} finally {
+			lock.readLock().unlock();
+		}
 	}
 
 	/**
@@ -108,15 +121,21 @@ public final class OAuth {
 	 * 
 	 * @param verifier Provided by the service and entered by the user
 	 */
-	public synchronized Token getAccessToken(final String verifier) {
-		if (state != OAuthState.GET_ACCESS_TOKEN) {
-			throw new IllegalStateException("Request token not found!");
+	public Token getAccessToken(final String verifier) {
+		lock.writeLock().lock();
+		try {
+			if (state != OAuthState.GET_ACCESS_TOKEN) {
+				throw new IllegalStateException("Request token not found!");
+			}
+
+			accessToken = service.getAccessToken(requestToken, new Verifier(verifier));
+			state = OAuthState.READY;
+
+			return accessToken;
+
+		} finally {
+			lock.writeLock().unlock();
 		}
-
-		accessToken = service.getAccessToken(requestToken, new Verifier(verifier));
-		state = OAuthState.READY;
-
-		return accessToken;
 	}
 
 	/**
@@ -128,13 +147,22 @@ public final class OAuth {
 	 * @throws UnauthorizedException 
 	 */
 	public Response sendRequest(final Verb method, final String url) throws UnauthorizedException {
-		if (state != OAuthState.READY) {
-			throw new UnauthorizedException("Access token not found!");
+		final OAuthRequest request = new OAuthRequest(method, url);
+		request.setConnectTimeout(10, TimeUnit.SECONDS);
+		request.setConnectionKeepAlive(true);
+
+		lock.readLock().lock();
+		try {
+			if (state != OAuthState.READY) {
+				throw new UnauthorizedException("Access token not found!");
+			}
+
+			service.signRequest(accessToken, request);
+
+		} finally {
+			lock.readLock().unlock();
 		}
 
-		final OAuthRequest request = new OAuthRequest(method, url);
-		request.setConnectionKeepAlive(true);
-		service.signRequest(accessToken, request);
 		return request.send();
 	}
 
@@ -143,24 +171,36 @@ public final class OAuth {
 	 * 
 	 * @throws UnauthorizedException 
 	 */
-	public synchronized void restoreAccessToken() throws UnauthorizedException {
-		if (state != OAuthState.READY) {
-			accessToken = CONFIG.getAccessToken();
-			state = OAuthState.READY;
+	public void restoreAccessToken() throws UnauthorizedException {
+		lock.writeLock().lock();
+		try {
+			if (state != OAuthState.READY) {
+				accessToken = CONFIG.getAccessToken();
+				state = OAuthState.READY;
+			}
+
+		} finally {
+			lock.writeLock().unlock();
 		}
 	}
 
 	/**
 	 * Remove access token.
 	 */
-	public synchronized void removeAccessToken() {
+	public void removeAccessToken() {
 		try {
 			CONFIG.initOAuthFile();
 
-			// We must not acquire a second request token until
-			// we got a access token for the first one.
-			if (state != OAuthState.GET_ACCESS_TOKEN) {
-				state = OAuthState.GET_REQUEST_TOKEN;
+			lock.writeLock().lock();
+			try {
+				// We must not acquire a second request token until
+				// we got a access token for the first one.
+				if (state != OAuthState.GET_ACCESS_TOKEN) {
+					state = OAuthState.GET_REQUEST_TOKEN;
+				}
+
+			} finally {
+				lock.writeLock().unlock();
 			}
 
 		} catch (IOException | InstantiationException | IllegalAccessException e) {

@@ -20,39 +20,14 @@ import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
  */
 public final class Config {
 
-	/**
-	 * Singleton instance.
-	 */
 	private static final Config INSTANCE = new Config();
 
-	/**
-	 * Config directory name.
-	 */
 	private static final String CONFIG_DIR = ".studip-sync";
-
-	/**
-	 * Config file name.
-	 */
 	private static final String SETTINGS_FILE_NAME = "config.json";
-
-	/**
-	 * OAuth config file name.
-	 */
 	private static final String OAUTH_FILE_NAME = "oauth.json";
-
-	/**
-	 * Tree file name.
-	 */
 	private static final String TREE_FILE_NAME = "tree.json";
 
-	/**
-	 * Global config file.
-	 */
 	private final ConfigFile<SettingsFile> settings;
-
-	/**
-	 * OAuth config file.
-	 */
 	private final ConfigFile<OAuthFile> oauth;
 
 	/**
@@ -107,8 +82,12 @@ public final class Config {
 	 * Get root directoy.
 	 */
 	public String getRootDirectory() {
-		synchronized (settings) {
+		settings.lock.readLock().lock();
+		try {
 			return settings.data.rootDir;
+
+		} finally {
+			settings.lock.readLock().unlock();
 		}
 	}
 
@@ -118,9 +97,13 @@ public final class Config {
 	 * @throws IOException 
 	 */
 	public void setRootDirectory(final String rootDir) throws IOException {
-		synchronized (settings) {
+		settings.lock.writeLock().lock();
+		try {
 			settings.data.rootDir = rootDir;
 			settings.write();
+
+		} finally {
+			settings.lock.writeLock().unlock();
 		}
 	}
 
@@ -128,8 +111,12 @@ public final class Config {
 	 * Check if overwrite files setting is enabled.
 	 */
 	public boolean isOverwriteFiles() {
-		synchronized (settings) {
+		settings.lock.readLock().lock();
+		try {
 			return settings.data.overwriteFiles;
+
+		} finally {
+			settings.lock.readLock().unlock();
 		}
 	}
 
@@ -139,9 +126,13 @@ public final class Config {
 	 * @throws IOException 
 	 */
 	public void setOverwriteFiles(final boolean value) throws IOException {
-		synchronized (settings) {
+		settings.lock.writeLock().lock();
+		try {
 			settings.data.overwriteFiles = value;
 			settings.write();
+
+		} finally {
+			settings.lock.writeLock().unlock();
 		}
 	}
 
@@ -149,8 +140,12 @@ public final class Config {
 	 * Check if download all semesters setting is enabled.
 	 */
 	public boolean isDownloadAllSemesters() {
-		synchronized (settings) {
+		settings.lock.readLock().lock();
+		try {
 			return settings.data.downloadAllSemesters;
+
+		} finally {
+			settings.lock.readLock().unlock();
 		}
 	}
 
@@ -160,9 +155,13 @@ public final class Config {
 	 * @throws IOException 
 	 */
 	public void setDownloadAllSemesters(final boolean value) throws IOException {
-		synchronized (settings) {
+		settings.lock.writeLock().lock();
+		try {
 			settings.data.downloadAllSemesters = value;
 			settings.write();
+
+		} finally {
+			settings.lock.writeLock().unlock();
 		}
 	}
 
@@ -170,8 +169,12 @@ public final class Config {
 	 * Get replace whitespaces setting.
 	 */
 	public int getReplaceWhitespaces() {
-		synchronized (settings) {
+		settings.lock.readLock().lock();
+		try {
 			return settings.data.replaceWhitespaces;
+
+		} finally {
+			settings.lock.readLock().unlock();
 		}
 	}
 
@@ -181,9 +184,13 @@ public final class Config {
 	 * @throws IOException 
 	 */
 	public void setReplaceWhitespaces(final int value) throws IOException {
-		synchronized (settings) {
+		settings.lock.writeLock().lock();
+		try {
 			settings.data.replaceWhitespaces = value;
 			settings.write();
+
+		} finally {
+			settings.lock.writeLock().unlock();
 		}
 	}
 
@@ -191,8 +198,12 @@ public final class Config {
 	 * Get logged in user firstname.
 	 */
 	public String getFirstName() {
-		synchronized (oauth) {
+		oauth.lock.readLock().lock();
+		try {
 			return oauth.data.firstName;
+
+		} finally {
+			oauth.lock.readLock().unlock();
 		}
 	}
 
@@ -200,8 +211,12 @@ public final class Config {
 	 * Get logged in user lastname.
 	 */
 	public String getLastName() {
-		synchronized (oauth) {
+		oauth.lock.readLock().lock();
+		try {
 			return oauth.data.lastName;
+
+		} finally {
+			oauth.lock.readLock().unlock();
 		}
 	}
 
@@ -209,8 +224,12 @@ public final class Config {
 	 * Get logged in user name.
 	 */
 	public String getUserName() {
-		synchronized (oauth) {
+		oauth.lock.readLock().lock();
+		try {
 			return oauth.data.userName;
+
+		} finally {
+			oauth.lock.readLock().unlock();
 		}
 	}
 
@@ -218,8 +237,12 @@ public final class Config {
 	 * Get logged in user id.
 	 */
 	public String getUserId() {
-		synchronized (oauth) {
+		oauth.lock.readLock().lock();
+		try {
 			return oauth.data.userId;
+
+		} finally {
+			oauth.lock.readLock().unlock();
 		}
 	}
 
@@ -230,13 +253,16 @@ public final class Config {
 	 * @throws UnauthorizedException 
 	 */
 	public Token getAccessToken() throws UnauthorizedException {
-		synchronized (oauth) {
-			try {
-				return new Token(oauth.data.token, oauth.data.secret);
-
-			} catch (IllegalArgumentException e) {
-				throw new UnauthorizedException(e.getMessage());
+		oauth.lock.readLock().lock();
+		try {
+			if (oauth.data.token == null || oauth.data.secret == null) {
+				throw new UnauthorizedException("Unauthorized.");
 			}
+
+			return new Token(oauth.data.token, oauth.data.secret);
+
+		} finally {
+			oauth.lock.readLock().unlock();
 		}
 	}
 
@@ -248,7 +274,8 @@ public final class Config {
 	 * @throws IOException 
 	 */
 	public void setAccessToken(final Token accessToken, final User currentUser) throws IOException {
-		synchronized (oauth) {
+		oauth.lock.writeLock().lock();
+		try {
 			oauth.data.firstName = currentUser.forename;
 			oauth.data.lastName = currentUser.lastname;
 			oauth.data.userName = currentUser.username;
@@ -256,6 +283,9 @@ public final class Config {
 			oauth.data.token = accessToken.getToken();
 			oauth.data.secret = accessToken.getSecret();
 			oauth.write();
+
+		} finally {
+			oauth.lock.writeLock().unlock();
 		}
 	}
 }

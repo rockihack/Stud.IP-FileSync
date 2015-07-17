@@ -47,9 +47,6 @@ public class Main extends Application {
 	public static final String HELP = "Help";
 	public static final String ABOUT = "About";
 
-	/**
-	 * Logger instance.
-	 */
 	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
@@ -194,7 +191,6 @@ public class Main extends Application {
 				currentController = loader.getController();
 				currentController.setMain(this);
 
-				// Push view.
 				VIEW_HISTORY.push(fxml);
 
 			} catch (IOException e) {

@@ -38,9 +38,6 @@ import de.uni.hannover.studip.sync.utils.FileBrowser;
  */
 public class TreeBuilder implements AutoCloseable {
 
-	/**
-	 * Logger instance.
-	 */
 	protected static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
@@ -104,7 +101,6 @@ public class TreeBuilder implements AutoCloseable {
 		/* Create empty root node. */
 		final SemestersTreeNode rootNode = new SemestersTreeNode();
 
-		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		final Phaser phaser = new Phaser(2); /* = self + first job. */
 
 		/* Build tree with multiple threads. */
@@ -146,10 +142,7 @@ public class TreeBuilder implements AutoCloseable {
 			throw new JsonMappingException("No semesters found!");
 		}
 
-		/* A phaser is actually a up and down latch, it's used to wait until all jobs are done. */
 		final Phaser phaser = new Phaser(1); /* = self. */
-
-		/* Current unix timestamp. */
 		final long now = System.currentTimeMillis() / 1000L;
 
 		isDirty = false;
@@ -226,7 +219,6 @@ public class TreeBuilder implements AutoCloseable {
 				
 				/* Get all visible semesters. */
 				final Semesters semesters = RestApi.getAllSemesters();
-				
 				phaser.bulkRegister(semesters.semesters.size());
 				
 				for (Semester semester : semesters.semesters) {
@@ -245,7 +237,6 @@ public class TreeBuilder implements AutoCloseable {
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
 				stopPending = true;
-
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (IOException e) {
@@ -258,7 +249,6 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				//updateProgress(phaser);
 				phaser.arrive();
 
 				if (stopPending || Main.exitPending) {
@@ -304,7 +294,6 @@ public class TreeBuilder implements AutoCloseable {
 
 				/* Get subscribed courses. */
 				final Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semesterId);
-
 				phaser.bulkRegister(courses.courses.size());
 				
 				for (Course course : courses.courses) {
@@ -323,7 +312,6 @@ public class TreeBuilder implements AutoCloseable {
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
 				stopPending = true;
-
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (NotFoundException e) {
@@ -399,7 +387,6 @@ public class TreeBuilder implements AutoCloseable {
 				 * If parent node is the root course folder the folder id is null.
 				 */
 				final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.courseId, parentNode.folderId);
-
 				phaser.bulkRegister(folders.folders.size());
 
 				/* Folders. */
@@ -458,7 +445,6 @@ public class TreeBuilder implements AutoCloseable {
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
 				stopPending = true;
-
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {
@@ -599,7 +585,6 @@ public class TreeBuilder implements AutoCloseable {
 				if (!newDocuments.documents.isEmpty()) {
 					/* Build a folder index for this course, so we can easily access the folders. */
 					final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
-
 					buildFolderIndex(folderIndex, courseNode.root);
 
 					for (Document document : newDocuments.documents) {
@@ -607,7 +592,6 @@ public class TreeBuilder implements AutoCloseable {
 						if (folderNode == null) {
 							/* Folder does not exist locally, we need to re-sync all course folders. */
 							phaser.register();
-
 							threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode()));
 							break;
 						}
@@ -639,7 +623,6 @@ public class TreeBuilder implements AutoCloseable {
 
 				/* Update unix timestamp. */
 				courseNode.updateTime = now;
-
 				isDirty = true;
 
 			} catch (OAuthConnectionException e) {
@@ -649,7 +632,6 @@ public class TreeBuilder implements AutoCloseable {
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
 				stopPending = true;
-
 				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {
@@ -658,7 +640,6 @@ public class TreeBuilder implements AutoCloseable {
 				 * or course does not exist.
 				 */
 				semesterNode.courses.remove(courseNode);
-
 				isDirty = true;
 
 				if (LOG.isLoggable(Level.WARNING)) {
