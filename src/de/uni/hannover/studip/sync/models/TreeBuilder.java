@@ -236,8 +236,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 				stopPending = true;
-				OAuth.getInstance().removeAccessToken();
 
 			} catch (IOException e) {
 				throw new IllegalStateException(e);
@@ -311,8 +311,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 				stopPending = true;
-				OAuth.getInstance().removeAccessToken();
 
 			} catch (NotFoundException e) {
 				/* Course does not exist. */
@@ -444,8 +444,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 				stopPending = true;
-				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {
 				/*
@@ -631,8 +631,8 @@ public class TreeBuilder implements AutoCloseable {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 				stopPending = true;
-				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {
 				/*

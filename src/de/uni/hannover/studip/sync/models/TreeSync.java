@@ -8,6 +8,8 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 
+import javafx.application.Platform;
+
 import org.scribe.exceptions.OAuthConnectionException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -254,8 +256,8 @@ public class TreeSync extends TreeBuilder {
 
 			} catch (UnauthorizedException e) {
 				/* Invalid oauth access token. */
+				Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 				stopPending = true;
-				OAuth.getInstance().removeAccessToken();
 
 			} catch (ForbiddenException | NotFoundException e) {
 				/*
