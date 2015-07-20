@@ -10,7 +10,7 @@ import java.util.Locale;
  */
 public enum OS {
 
-	UNKOWN,
+	UNKNOWN,
 	WINDOWS,
 	MACOS,
 	LINUX,
@@ -55,7 +55,7 @@ public enum OS {
 			return SOLARIS;
 
 		} else {
-			return UNKOWN;
+			return UNKNOWN;
 		}
 	}
 
