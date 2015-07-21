@@ -18,6 +18,7 @@
           <Menu mnemonicParsing="false" text="Hilfe">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#handleHelp" text="Hilfe" />
+              <MenuItem mnemonicParsing="false" onAction="#handleExportMat" text="Export Materialsammlung" />
               <MenuItem mnemonicParsing="false" onAction="#handleUpdateSeminars" text="Neue Veranstaltungen suchen" />
               <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="Über FileSync" />
             </items>

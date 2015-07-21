@@ -59,6 +59,10 @@ public class NewDocumentsController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
+		if (!Main.TREE_LOCK.tryLock()) {
+			return;
+		}
+
 		try {
 			final String rootDir = Config.getInstance().getRootDirectory();
 			if (rootDir == null || rootDir.isEmpty()) {
@@ -166,6 +170,9 @@ public class NewDocumentsController extends AbstractController {
 
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
+
+		} finally {
+			Main.TREE_LOCK.unlock();
 		}
 	}
 

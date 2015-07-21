@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -53,6 +54,11 @@ public class Main extends Application {
 	 * Keep track of previous views.
 	 */
 	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
+
+	/**
+	 * Global tree file lock.
+	 */
+	public static final ReentrantLock TREE_LOCK = new ReentrantLock();
 
 	/**
 	 * Global flag to signal graceful shutdown of worker threads on app exit.

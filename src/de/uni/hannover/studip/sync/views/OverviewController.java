@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -34,7 +33,6 @@ public class OverviewController extends AbstractController {
 	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	private static final Config CONFIG = Config.getInstance();
 	private static final OAuth OAUTH = OAuth.getInstance();
-	private static final ReentrantLock LOCK = new ReentrantLock();
 
 	@FXML
 	protected ProgressIndicator progress;
@@ -50,8 +48,7 @@ public class OverviewController extends AbstractController {
 		(new Thread() {
 			@Override
 			public void run() {
-				if (!LOCK.tryLock()) {
-					// Already running.
+				if (!Main.TREE_LOCK.tryLock()) {
 					return;
 				}
 
@@ -119,7 +116,7 @@ public class OverviewController extends AbstractController {
 						getMain().getRootLayoutController().getMenu().setDisable(false);
 					});
 
-					LOCK.unlock();
+					Main.TREE_LOCK.unlock();
 				}
 			}
 		}).start();

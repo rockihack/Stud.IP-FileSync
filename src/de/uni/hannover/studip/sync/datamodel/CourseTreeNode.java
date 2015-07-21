@@ -14,7 +14,23 @@ public class CourseTreeNode {
 	public String title;
 	public Long startTime;
 	public Long durationTime;
-	/* "1": Vorlesung, "2": Seminar, "3": Übung, "4": Projekt, "99": Studiengruppe. */
+	/*
+	 * Stud.IP default values:
+	 * 1: Vorlesung
+	 * 2: Seminar
+	 * 3: Übung
+	 * 4: Praktikum
+	 * 5: Colloquium
+	 * 6: Forschungsgruppe
+	 * 7: sonstige
+	 * 8: Gremium
+	 * 9: Projektgruppe
+	 * 10: sonstige
+	 * 11: Kulturforum
+	 * 12: Veranstaltungsboard
+	 * 13: sonstige
+	 * 99: Studiengruppe
+	 */
 	public int type;
 
 	/* Last update time used for request caching. */
