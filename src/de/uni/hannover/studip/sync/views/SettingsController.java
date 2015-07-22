@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Optional;
 
 import de.uni.hannover.studip.sync.Main;
@@ -48,8 +49,11 @@ public class SettingsController extends AbstractController {
 
 			// User has an access token, we do not check if it's valid here.
 
-			if (CONFIG.getFirstName() != null && CONFIG.getLastName() != null && CONFIG.getUserName() != null) {
-				userLabel.setText("Eingeloggt als " + CONFIG.getFirstName() + " " + CONFIG.getLastName() + ", " + CONFIG.getUserName());
+			final String firstName = CONFIG.getFirstName();
+			final String lastName = CONFIG.getLastName();
+			final String userName = CONFIG.getUserName();
+			if (firstName != null && lastName != null && userName != null) {
+				userLabel.setText(String.format(Locale.GERMANY, "Eingeloggt als %s %s, %s", firstName, lastName, userName));
 			}
 
 			logoutButton.setDisable(false);

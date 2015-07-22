@@ -564,6 +564,12 @@ public class TreeBuilder implements AutoCloseable {
 		private boolean hasDuplicates(final DocumentFolderTreeNode folderNode, final Document document) {
 			final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
 
+			for (DocumentFolderTreeNode folder : folderNode.folders) {
+				if (fileName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(folder.name))) {
+					return true;
+				}
+			}
+
 			for (DocumentTreeNode doc : folderNode.documents) {
 				if (fileName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(doc.fileName))
 						&& !document.document_id.equals(doc.documentId)) {

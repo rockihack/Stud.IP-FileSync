@@ -109,8 +109,8 @@ public final class Export {
 		calendar.setTimeInMillis(begin * 1000L);
 
 		final StringBuilder str = new StringBuilder();
-		str.append(calendar.get(Calendar.YEAR) % 100);
-		str.append(calendar.get(Calendar.MONTH) < 6 ? "ss" : "ws");
+		str.append(calendar.get(Calendar.YEAR) % 100)
+			.append(calendar.get(Calendar.MONTH) < 6 ? "ss" : "ws");
 
 		return str.toString();
 	}

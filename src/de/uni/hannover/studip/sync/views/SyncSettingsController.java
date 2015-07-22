@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.CourseTreeNode;
 import de.uni.hannover.studip.sync.datamodel.DocumentFolderTreeNode;
 import de.uni.hannover.studip.sync.datamodel.DocumentTreeNode;
@@ -78,9 +79,10 @@ public class SyncSettingsController extends AbstractController {
 
 		replaceWhitespacesChoicebox.getSelectionModel().selectedIndexProperty().addListener(
 			(observableValue, oldValue, newValue) -> {
-				if (CONFIG.getReplaceWhitespaces() != newValue.intValue()) {
+				final int replaceWhitespaces = CONFIG.getReplaceWhitespaces();
+				if (replaceWhitespaces != newValue.intValue()) {
 					try {
-						handleRenameDocuments(CONFIG.getReplaceWhitespaces(), newValue.intValue());
+						handleRenameDocuments(replaceWhitespaces, newValue.intValue());
 
 					} catch (IOException e) {
 						throw new IllegalStateException(e);
@@ -96,7 +98,7 @@ public class SyncSettingsController extends AbstractController {
 	 * @param newValue
 	 * @throws IOException
 	 */
-	private synchronized void handleRenameDocuments(final int oldValue, final int newValue) throws IOException {
+	private void handleRenameDocuments(final int oldValue, final int newValue) throws IOException {
 		final Alert confirm = new Alert(AlertType.CONFIRMATION);
 		confirm.setTitle("Bestätigen");
 		confirm.setHeaderText(null);
@@ -104,6 +106,11 @@ public class SyncSettingsController extends AbstractController {
 		final Optional<ButtonType> result = confirm.showAndWait();
 
 		if (result.get() == ButtonType.OK) {
+			if (!Main.TREE_LOCK.tryLock()) {
+				replaceWhitespacesChoicebox.getSelectionModel().select(oldValue);
+				return;
+			}
+
 			try {
 				renameDocuments(oldValue, newValue);
 				CONFIG.setReplaceWhitespaces(newValue);
@@ -122,6 +129,9 @@ public class SyncSettingsController extends AbstractController {
 				alert.setHeaderText(null);
 				alert.setContentText("Es konnten nicht alle Dokumente umbenannt werden.\nDie Änderungen wurden rückgängig gemacht.");
 				alert.showAndWait();
+
+			} finally {
+				Main.TREE_LOCK.unlock();
 			}
 
 		} else {
@@ -137,7 +147,7 @@ public class SyncSettingsController extends AbstractController {
 	 * @return
 	 * @throws IOException
 	 */
-	private static synchronized void renameDocuments(final int oldValue, final int newValue) throws IOException {
+	private static void renameDocuments(final int oldValue, final int newValue) throws IOException {
 		final String rooDir = CONFIG.getRootDirectory();
 		if (oldValue == newValue || rooDir == null || rooDir.isEmpty()) {
 			return;
@@ -168,7 +178,7 @@ public class SyncSettingsController extends AbstractController {
 				final Path newCourseDirectory = newSemesterDirectory.resolve(FileBrowser.removeIllegalCharacters(course.title, newValue));
 				Files.move(oldCourseDirectory, newCourseDirectory, StandardCopyOption.REPLACE_EXISTING);
 
-				doFolder(course.root, newCourseDirectory, oldValue, newValue);
+				renameDoFolder(course.root, newCourseDirectory, oldValue, newValue);
 			}
 		}
 	}
@@ -183,7 +193,7 @@ public class SyncSettingsController extends AbstractController {
 	 * @return
 	 * @throws IOException 
 	 */
-	private static synchronized void doFolder(final DocumentFolderTreeNode folderNode, final Path parentDirectory, final int oldValue, final int newValue) throws IOException {
+	private static void renameDoFolder(final DocumentFolderTreeNode folderNode, final Path parentDirectory, final int oldValue, final int newValue) throws IOException {
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
 			final Path oldFolderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name, oldValue));
 			if (!Files.exists(oldFolderDirectory)) {
@@ -193,7 +203,7 @@ public class SyncSettingsController extends AbstractController {
 			final Path newFolderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name, newValue));
 			Files.move(oldFolderDirectory, newFolderDirectory, StandardCopyOption.REPLACE_EXISTING);
 
-			doFolder(folder, newFolderDirectory, oldValue, newValue);
+			renameDoFolder(folder, newFolderDirectory, oldValue, newValue);
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
