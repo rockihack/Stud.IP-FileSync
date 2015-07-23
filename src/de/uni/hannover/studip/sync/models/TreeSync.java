@@ -48,7 +48,7 @@ public class TreeSync extends TreeBuilder {
 
 		this.rootDirectory = rootDirectory;
 	}
-	
+
 	/**
 	 * Synchronize all documents.
 	 * 
@@ -74,17 +74,11 @@ public class TreeSync extends TreeBuilder {
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
-				final Path semesterDirectory = rootDirectory.resolve(FileBrowser.removeIllegalCharacters(semester.title));
-
-				if (!Files.isDirectory(semesterDirectory)) {
-					Files.createDirectory(semesterDirectory);
-				}
-
 				for (CourseTreeNode course : semester.courses) {
-					final Path courseDirectory = semesterDirectory.resolve(FileBrowser.removeIllegalCharacters(course.title));
+					final Path courseDirectory = new PathBuilder(":semester/:course", rootDirectory, semester, course).toPath();
 
 					if (!Files.isDirectory(courseDirectory)) {
-						Files.createDirectory(courseDirectory);
+						Files.createDirectories(courseDirectory);
 					}
 
 					doFolder(phaser, course.root, courseDirectory);

@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.models.Config;
+import de.uni.hannover.studip.sync.models.PathBuilder;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -82,10 +83,8 @@ public class NewDocumentsController extends AbstractController {
 
 			// Build list of documents.
 			for (SemesterTreeNode semester : rootNode.semesters) {
-				final Path semesterDirectory = rootDirectory.resolve(FileBrowser.removeIllegalCharacters(semester.title));
-
 				for (CourseTreeNode course : semester.courses) {
-					doFolder(semester, course, course.root, semesterDirectory.resolve(FileBrowser.removeIllegalCharacters(course.title)));
+					doFolder(semester, course, course.root, new PathBuilder(":semester/:course", rootDirectory, semester, course).toPath());
 				}
 			}
 
