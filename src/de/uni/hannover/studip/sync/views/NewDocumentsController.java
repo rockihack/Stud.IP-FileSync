@@ -81,10 +81,12 @@ public class NewDocumentsController extends AbstractController {
 			final ObjectMapper mapper = new ObjectMapper();
 			final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(Config.openTreeFile()), SemestersTreeNode.class);
 
+			final String folderStructure = Config.getInstance().getFolderStructure();
+
 			// Build list of documents.
 			for (SemesterTreeNode semester : rootNode.semesters) {
 				for (CourseTreeNode course : semester.courses) {
-					doFolder(semester, course, course.root, new PathBuilder(":semester/:course", rootDirectory, semester, course).toPath());
+					doFolder(semester, course, course.root, new PathBuilder(folderStructure, rootDirectory, semester, course).toPath());
 				}
 			}
 

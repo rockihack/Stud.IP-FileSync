@@ -31,25 +31,22 @@
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                 <RowConstraints vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Stud.IP Account:" underline="true" GridPane.columnIndex="1">
-                  </Label>
-                  <Button fx:id="logoutButton" disable="true" mnemonicParsing="false" onAction="#handleLogout" onMouseClicked="#handleLogout" text="Ausloggen" GridPane.columnIndex="3">
-                  </Button>
-                  <Label fx:id="userLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
-                  </Label>
-                  <Label text="Ziel Ordner:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                  </Label>
-                  <Button mnemonicParsing="false" onAction="#handleRootDir" onMouseClicked="#handleRootDir" text="Ordner wählen" GridPane.columnIndex="3" GridPane.rowIndex="2">
-                  </Button>
-                  <Label fx:id="rootDirLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="3">
-                  </Label>
-                  <Label text="Sync:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                  </Label>
-                  <Button mnemonicParsing="false" onAction="#handleSyncOptions" onMouseClicked="#handleSyncOptions" text="Optionen" GridPane.columnIndex="3" GridPane.rowIndex="4">
-                  </Button>
+                  <Label text="Stud.IP Account:" underline="true" GridPane.columnIndex="1" />
+                  <Button fx:id="logoutButton" disable="true" mnemonicParsing="false" onAction="#handleLogout" text="Ausloggen" GridPane.columnIndex="3" />
+                  <Label fx:id="userLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+                  <Label text="Ziel Ordner:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Button mnemonicParsing="false" onAction="#handleRootDir" text="Ordner wählen" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                  <Label fx:id="rootDirLabel" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="3" />
+                  <Label text="Ordnerstruktur:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Button mnemonicParsing="false" onAction="#handleStructureOptions" text="Anpassen" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+                  <Label fx:id="structureLabel" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <Label text="Sync:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                  <Button mnemonicParsing="false" onAction="#handleSyncOptions" text="Optionen" GridPane.columnIndex="3" GridPane.rowIndex="6" />
                </children>
             </GridPane>
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">

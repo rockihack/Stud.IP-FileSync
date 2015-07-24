@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.StructureSettingsController">
+   <children>
+      <GridPane layoutX="0" layoutY="0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
+          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
+        </rowConstraints>
+         <children>
+            <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="20.0" />
+                  <ColumnConstraints hgrow="NEVER" minWidth="325.0" prefWidth="325.0" />
+                  <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="125.0" prefWidth="125.0" />
+                  <ColumnConstraints hgrow="ALWAYS" minWidth="20.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="50.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="50.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="50.0" vgrow="NEVER" />
+                <RowConstraints vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="Ordnerstruktur:" underline="true" GridPane.columnIndex="1" />
+                  <RadioButton mnemonicParsing="false" selected="true" text=":semester/:course" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="structureGroup" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton mnemonicParsing="false" text=":semester/:lecture/:type" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <RadioButton mnemonicParsing="false" text=":lecture/:sem/:type" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <RadioButton mnemonicParsing="false" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <TextField fx:id="structureField" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                     <GridPane.margin>
+                        <Insets left="25.0" />
+                     </GridPane.margin>
+                  </TextField>
+                  <Button mnemonicParsing="false" onAction="#handleSave" text="Speichern" GridPane.columnIndex="3" GridPane.rowIndex="4" />
+               </children>
+            </GridPane>
+            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <center>
+                  <Button mnemonicParsing="false" onAction="#handlePrev" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
+                  </Button>
+               </center>
+            </BorderPane>
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>

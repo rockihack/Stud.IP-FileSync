@@ -44,6 +44,7 @@ public class Main extends Application {
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
 	public static final String SETTINGS = "Settings";
+	public static final String STRUCTURE_SETTINGS = "StructureSettings";
 	public static final String SYNC_SETTINGS = "SyncSettings";
 	public static final String HELP = "Help";
 	public static final String ABOUT = "About";

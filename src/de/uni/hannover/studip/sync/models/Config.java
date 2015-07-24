@@ -108,6 +108,36 @@ public final class Config {
 	}
 
 	/**
+	 * 
+	 */
+	public String getFolderStructure() {
+		settings.lock.readLock().lock();
+		try {
+			return (settings.data.folderStructure == null || settings.data.folderStructure.isEmpty())
+					? ":semester/:course"
+					: settings.data.folderStructure;
+
+		} finally {
+			settings.lock.readLock().unlock();
+		}
+	}
+
+	/**
+	 * 
+	 * @throws IOException 
+	 */
+	public void setFolderStructure(final String template) throws IOException {
+		settings.lock.writeLock().lock();
+		try {
+			settings.data.folderStructure = template;
+			settings.write();
+
+		} finally {
+			settings.lock.writeLock().unlock();
+		}
+	}
+
+	/**
 	 * Check if overwrite files setting is enabled.
 	 */
 	public boolean isOverwriteFiles() {

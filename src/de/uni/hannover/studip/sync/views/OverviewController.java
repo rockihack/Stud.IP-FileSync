@@ -45,80 +45,77 @@ public class OverviewController extends AbstractController {
 
 	@FXML
 	public void handleSync() {
-		(new Thread() {
-			@Override
-			public void run() {
-				if (!Main.TREE_LOCK.tryLock()) {
-					return;
-				}
-
-				try {
-					Platform.runLater(() -> {
-						getMain().getRootLayoutController().getMenu().setDisable(true);
-						syncButton.setDisable(true);
-						syncButton.setText("Updating...");
-					});
-
-					OAUTH.restoreAccessToken();
-
-					final String rootDir = CONFIG.getRootDirectory();
-					if (rootDir == null || rootDir.isEmpty()) {
-						throw new IOException("Kein Ziel Ordner gewählt.");
-					}
-
-					try (TreeSync tree = new TreeSync(Paths.get(rootDir))) {
-						final Path treeFile = Config.openTreeFile();
-						int numberOfRequests;
-
-						tree.setProgress(progress, progressLabel);
-
-						// Update documents.
-						try {
-							numberOfRequests = tree.update(treeFile, false);
-
-						} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
-							// Invalid tree file, lets build a new one.
-							numberOfRequests = tree.build(treeFile);
-						}
-
-						Platform.runLater(() -> {
-								progressLabel.setText("");
-								syncButton.setText("Downloading...");
-						});
-
-						// Download documents.
-						numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
-
-						if (LOG.isLoggable(Level.INFO)) {
-							LOG.info("Number of requests: " + numberOfRequests);
-						}
-					}
-
-				} catch (UnauthorizedException e) {
-					OAUTH.removeAccessToken();
-
-					Platform.runLater(() -> getMain().setView(Main.OAUTH));
-
-				} catch (IOException e) {
-					Platform.runLater(() -> {
-						final Alert alert = new Alert(AlertType.ERROR);
-						alert.setTitle("Fehler");
-						alert.setHeaderText(null);
-						alert.setContentText(e.getMessage());
-						alert.showAndWait();
-					});
-
-				} finally {
-					Platform.runLater(() -> {
-						progressLabel.setText("");
-						syncButton.setText("Sync");
-						syncButton.setDisable(false);
-						getMain().getRootLayoutController().getMenu().setDisable(false);
-					});
-
-					Main.TREE_LOCK.unlock();
-				}
+		(new Thread(() -> {
+			if (!Main.TREE_LOCK.tryLock()) {
+				return;
 			}
-		}).start();
+
+			try {
+				Platform.runLater(() -> {
+					getMain().getRootLayoutController().getMenu().setDisable(true);
+					syncButton.setDisable(true);
+					syncButton.setText("Updating...");
+				});
+
+				OAUTH.restoreAccessToken();
+
+				final String rootDir = CONFIG.getRootDirectory();
+				if (rootDir == null || rootDir.isEmpty()) {
+					throw new IOException("Kein Ziel Ordner gewählt.");
+				}
+
+				try (TreeSync tree = new TreeSync(Paths.get(rootDir))) {
+					final Path treeFile = Config.openTreeFile();
+					int numberOfRequests;
+
+					tree.setProgress(progress, progressLabel);
+
+					// Update documents.
+					try {
+						numberOfRequests = tree.update(treeFile, false);
+
+					} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
+						// Invalid tree file, lets build a new one.
+						numberOfRequests = tree.build(treeFile);
+					}
+
+					Platform.runLater(() -> {
+							progressLabel.setText("");
+							syncButton.setText("Downloading...");
+					});
+
+					// Download documents.
+					numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
+
+					if (LOG.isLoggable(Level.INFO)) {
+						LOG.info("Number of requests: " + numberOfRequests);
+					}
+				}
+
+			} catch (UnauthorizedException e) {
+				OAUTH.removeAccessToken();
+
+				Platform.runLater(() -> getMain().setView(Main.OAUTH));
+
+			} catch (IOException e) {
+				Platform.runLater(() -> {
+					final Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Fehler");
+					alert.setHeaderText(null);
+					alert.setContentText(e.getMessage());
+					alert.showAndWait();
+				});
+
+			} finally {
+				Platform.runLater(() -> {
+					progressLabel.setText("");
+					syncButton.setText("Sync");
+					syncButton.setDisable(false);
+					getMain().getRootLayoutController().getMenu().setDisable(false);
+				});
+
+				Main.TREE_LOCK.unlock();
+			}
+		})).start();
 	}
 }

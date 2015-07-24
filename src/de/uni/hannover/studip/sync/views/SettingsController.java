@@ -38,6 +38,9 @@ public class SettingsController extends AbstractController {
 	@FXML
 	private Label rootDirLabel;
 
+	@FXML
+	private Label structureLabel;
+
 	/**
 	 * The initialize method is automatically invoked by the FXMLLoader.
 	 */
@@ -65,6 +68,9 @@ public class SettingsController extends AbstractController {
 
 		// Root dir.
 		setRootDirLabel(CONFIG.getRootDirectory());
+
+		// Folder structure.
+		structureLabel.setText("Aktuell: " + CONFIG.getFolderStructure());
 	}
 
 	@FXML
@@ -122,6 +128,12 @@ public class SettingsController extends AbstractController {
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
+	}
+
+	@FXML
+	public void handleStructureOptions() {
+		// Redirect to structure settings.
+		getMain().setView(Main.STRUCTURE_SETTINGS);
 	}
 
 	@FXML

@@ -46,7 +46,6 @@ public class PathBuilder {
 	/**
 	 * Return the short name of given semester (e.g. 15ss or 15ws).
 	 * 
-	 * @param begin
 	 * @return
 	 */
 	private String getSemesterShortTitle() {
@@ -100,6 +99,8 @@ public class PathBuilder {
 			return "uebung";
 		case 4:
 			return "praktikum";
+		case 99:
+			return "studiengruppe";
 		default:
 			final String courseTitleLowerCase = course.title.toLowerCase(Locale.GERMANY);
 			if (courseTitleLowerCase.contains("vorlesung")) {
@@ -144,7 +145,7 @@ public class PathBuilder {
 				str.append(getCourseType());
 				break;
 			default:
-				throw new IllegalArgumentException("Invalid template!");
+				throw new IllegalArgumentException("Invalid folder structure!");
 			}
 			str.append('/');
 		}

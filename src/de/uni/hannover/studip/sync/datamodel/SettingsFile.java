@@ -13,6 +13,11 @@ public class SettingsFile {
 	public String rootDir;
 
 	/**
+	 * Folder structure template.
+	 */
+	public String folderStructure;
+
+	/**
 	 * If true existing files will be overwritten,
 	 * otherwise a version number is appended.
 	 */

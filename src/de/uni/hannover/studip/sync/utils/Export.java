@@ -82,7 +82,8 @@ public final class Export {
 					continue;
 				}
 
-				final Path courseDirectory = new PathBuilder(":semester/:course", rootDirectory, semester, course).toPath();
+				final String folderStructure = Config.getInstance().getFolderStructure();
+				final Path courseDirectory = new PathBuilder(folderStructure, rootDirectory, semester, course).toPath();
 				if (!Files.isDirectory(courseDirectory)) {
 					continue;
 				}

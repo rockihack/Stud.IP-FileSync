@@ -67,6 +67,7 @@ public class TreeSync extends TreeBuilder {
 
 		final Phaser phaser = new Phaser(1); /* = self. */
 		final long now = System.currentTimeMillis() / 1000L;
+		final String folderStructure = CONFIG.getFolderStructure();
 
 		isDirty = false;
 
@@ -75,7 +76,7 @@ public class TreeSync extends TreeBuilder {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
 				for (CourseTreeNode course : semester.courses) {
-					final Path courseDirectory = new PathBuilder(":semester/:course", rootDirectory, semester, course).toPath();
+					final Path courseDirectory = new PathBuilder(folderStructure, rootDirectory, semester, course).toPath();
 
 					if (!Files.isDirectory(courseDirectory)) {
 						Files.createDirectories(courseDirectory);
