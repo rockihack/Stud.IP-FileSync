@@ -216,14 +216,14 @@ public class TreeBuilder implements AutoCloseable {
 		public void run() {
 			try {
 				SemesterTreeNode semesterNode;
-				
+
 				/* Get all visible semesters. */
 				final Semesters semesters = RestApi.getAllSemesters();
 				phaser.bulkRegister(semesters.semesters.size());
-				
+
 				for (Semester semester : semesters.semesters) {
 					rootNode.semesters.add(semesterNode = new SemesterTreeNode(semester));
-					
+
 					/* Add build courses job. */
 					threadPool.execute(new BuildCoursesJob(phaser, semesterNode));
 
@@ -249,10 +249,11 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				phaser.arrive();
-
 				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
+					threadPool.shutdownNow();
+				} else {
+					phaser.arrive();
 				}
 			}
 		}
@@ -328,11 +329,12 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				updateProgressLabel(semesterNode.title);
-				phaser.arrive();
-
 				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
+					threadPool.shutdownNow();
+				} else {
+					updateProgressLabel(semesterNode.title);
+					phaser.arrive();
 				}
 			}
 		}
@@ -464,11 +466,12 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				updateProgressLabel(courseNode.title);
-				phaser.arrive();
-
 				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
+					threadPool.shutdownNow();
+				} else {
+					updateProgressLabel(courseNode.title);
+					phaser.arrive();
 				}
 			}
 		}
@@ -662,11 +665,12 @@ public class TreeBuilder implements AutoCloseable {
 
 			} finally {
 				/* Job done. */
-				updateProgressLabel(courseNode.title);
-				phaser.arrive();
-
 				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
+					threadPool.shutdownNow();
+				} else {
+					updateProgressLabel(courseNode.title);
+					phaser.arrive();
 				}
 			}
 		}

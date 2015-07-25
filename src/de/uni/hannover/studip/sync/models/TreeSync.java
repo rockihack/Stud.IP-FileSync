@@ -276,12 +276,13 @@ public class TreeSync extends TreeBuilder {
 
 			} finally {
 				/* Job done. */
-				// TODO: Add course name in new line.
-				updateProgressLabel(documentNode.name);
-				phaser.arrive();
-
 				if (stopPending || Main.exitPending) {
 					phaser.forceTermination();
+					threadPool.shutdownNow();
+				} else {
+					// TODO: Add course name in new line.
+					updateProgressLabel(documentNode.name);
+					phaser.arrive();
 				}
 			}
 		}

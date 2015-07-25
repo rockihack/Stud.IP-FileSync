@@ -122,58 +122,66 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleExportMat() {
-		if (!Main.TREE_LOCK.tryLock()) {
+		/* Root directory. */
+		final String rootDir = Config.getInstance().getRootDirectory();
+		if (rootDir == null || rootDir.isEmpty()) {
+			final Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Fehler");
+			alert.setHeaderText(null);
+			alert.setContentText("Kein Ziel Ordner gewählt.");
+			alert.showAndWait();
 			return;
 		}
 
-		try {
-			/* Root directory. */
-			final String rootDir = Config.getInstance().getRootDirectory();
-			if (rootDir == null || rootDir.isEmpty()) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Kein Ziel Ordner gewählt.");
-				alert.showAndWait();
-				return;
-			}
+		/* Export directory. */
+		final DirectoryChooser chooser = new DirectoryChooser();
+		chooser.setTitle("Export Ordner wählen");
+		chooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
-			/* Export directory. */
-			final DirectoryChooser chooser = new DirectoryChooser();
-			chooser.setTitle("Export Ordner wählen");
-			chooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-			final File exportDir = chooser.showDialog(getMain().getPrimaryStage());
-			if (exportDir == null) {
-				return;
-			}
-
-			Export.exportMat(Paths.get(rootDir), exportDir.toPath());
-
-		} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
-			Platform.runLater(() -> {
-				final Alert confirm = new Alert(AlertType.CONFIRMATION);
-				confirm.setTitle("Bestätigen");
-				confirm.setHeaderText(null);
-				confirm.setContentText("Keine Dokumente gefunden.\nMöchten Sie Ihre Dokumente jetzt synchronisieren?");
-				final Optional<ButtonType> result = confirm.showAndWait();
-
-				if (result.get() == ButtonType.OK) {
-					// Redirect to overview.
-					getMain().setView(Main.OVERVIEW);
-
-					// Start the sync.
-					final OverviewController overview = (OverviewController) getMain().getController();
-					overview.handleSync();
-				}
-			});
-
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-
-		} finally {
-			Main.TREE_LOCK.unlock();
+		final File exportDir = chooser.showDialog(getMain().getPrimaryStage());
+		if (exportDir == null) {
+			return;
 		}
+
+		(new Thread(() -> {
+			if (!Main.TREE_LOCK.tryLock()) {
+				return;
+			}
+
+			try {
+				Export.exportMat(Paths.get(rootDir), exportDir.toPath());
+
+			} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
+				Platform.runLater(() -> {
+					final Alert confirm = new Alert(AlertType.CONFIRMATION);
+					confirm.setTitle("Bestätigen");
+					confirm.setHeaderText(null);
+					confirm.setContentText("Keine Dokumente gefunden.\nMöchten Sie Ihre Dokumente jetzt synchronisieren?");
+					final Optional<ButtonType> result = confirm.showAndWait();
+
+					if (result.get() == ButtonType.OK) {
+						// Redirect to overview.
+						getMain().setView(Main.OVERVIEW);
+
+						// Start the sync.
+						final OverviewController overview = (OverviewController) getMain().getController();
+						overview.handleSync();
+					}
+				});
+
+			} catch (IOException e) {
+				Platform.runLater(() -> {
+					final Alert alert = new Alert(AlertType.ERROR);
+					alert.setTitle("Fehler");
+					alert.setHeaderText(null);
+					alert.setContentText(e.getMessage());
+					alert.showAndWait();
+				});
+
+			} finally {
+				Main.TREE_LOCK.unlock();
+			}
+		})).start();
 	}
 
 	/**
