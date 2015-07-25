@@ -103,9 +103,7 @@ public class PathBuilder {
 			return "studiengruppe";
 		default:
 			final String courseTitleLowerCase = course.title.toLowerCase(Locale.GERMANY);
-			if (courseTitleLowerCase.contains("vorlesung")) {
-				return "vorlesung";
-			} else if (courseTitleLowerCase.contains("seminar")) {
+			if (courseTitleLowerCase.contains("seminar")) {
 				return "seminar";
 			} else if (courseTitleLowerCase.contains("übung") || courseTitleLowerCase.contains("uebung")) {
 				return "uebung";
@@ -114,7 +112,7 @@ public class PathBuilder {
 			} else if (courseTitleLowerCase.contains("projekt")) {
 				return "projekt";
 			} else {
-				return "default";
+				return "vorlesung";
 			}
 		}
 	}
