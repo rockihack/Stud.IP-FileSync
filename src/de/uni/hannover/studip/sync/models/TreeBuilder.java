@@ -396,17 +396,7 @@ public class TreeBuilder implements AutoCloseable {
 					/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
 					final String folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
 
-					/*
-					 * Maybe the folder contains multiple folders with same name,
-					 * we need to assign a unique name in this case.
-					 */
-					if (fileNames.contains(folderName)) {
-						if (LOG.isLoggable(Level.WARNING)) {
-							LOG.warning("Duplicate foldername: " + folder.name);
-						}
-
-						folder.name = FileBrowser.appendFilename(folder.name, "_" + folder.folder_id);
-					}
+					/* Merge folders with same name. */
 
 					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
 					fileNames.add(folderName);
