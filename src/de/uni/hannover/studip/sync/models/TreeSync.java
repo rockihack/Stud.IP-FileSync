@@ -115,6 +115,12 @@ public class TreeSync extends TreeBuilder {
 	private void doFolder(final Phaser phaser, final DocumentFolderTreeNode folderNode, final Path parentDirectory) throws IOException {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
+			if (folder.name.equals("Allgemeiner Dateiordner")) {
+				/* Redirect default folder content to course directory. */
+				doFolder(phaser, folder, parentDirectory);
+				continue;
+			}
+
 			final Path folderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name));
 
 			if (!Files.isDirectory(folderDirectory)) {
