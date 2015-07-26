@@ -3,10 +3,14 @@ package de.uni.hannover.studip.sync.models;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
@@ -301,7 +305,7 @@ public class TreeBuilder implements AutoCloseable {
 					semesterNode.courses.add(courseNode = new CourseTreeNode(course));
 					
 					/* Add build documents job. */
-					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root));
+					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root, new HashSet<String>()));
 					
 					LOG.info(courseNode.title);
 				}
@@ -364,16 +368,106 @@ public class TreeBuilder implements AutoCloseable {
 		private final DocumentFolderTreeNode parentNode;
 
 		/**
+		 * File index for duplicate check.
+		 */
+		private final Set<String> fileIndex;
+
+		/**
 		 * Constructor.
 		 * 
 		 * @param phaser
 		 * @param courseNode Course tree-node
 		 * @param parentNode Folder tree-node
 		 */
-		public BuildDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final DocumentFolderTreeNode parentNode) {
+		public BuildDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final DocumentFolderTreeNode parentNode, final Set<String> fileIndex) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
 			this.parentNode = parentNode;
+			this.fileIndex = fileIndex;
+		}
+
+		/**
+		 * Resolve folder name conflict.
+		 * 
+		 * @param folder
+		 * @param fileIndexMap
+		 */
+		private Set<String> resolveFolderNameConflict(final DocumentFolder folder, final Map<String, Set<String>> fileIndexMap) {
+			/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
+			String folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
+
+			if (fileIndexMap.get(folderName) == null) {
+				/* Folder does not exist. */
+				synchronized (fileIndex) {
+					if (fileIndex.contains(folderName)) {
+						/* Resolve file name conflict. */
+						if (LOG.isLoggable(Level.WARNING)) {
+							LOG.warning("Folder/file name conflict: " + folderName);
+						}
+
+						folder.name = FileBrowser.appendFilename(folder.name, "_" + folder.folder_id);
+						folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
+					}
+
+					fileIndex.add(folderName);
+				}
+
+				fileIndexMap.put(folderName, new HashSet<String>());
+
+			} else {
+				/* Merge folders. */
+				if (LOG.isLoggable(Level.WARNING)) {
+					LOG.warning("Merge folders: " + folderName);
+				}
+			}
+
+			return fileIndexMap.get(folderName);
+		}
+
+		/**
+		 * Resolve file name conflict.
+		 * 
+		 * @param document
+		 */
+		private void resolveFileNameConflict(final Document document) {
+			/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
+			String fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+
+			synchronized (fileIndex) {
+				if (fileIndex.contains(fileName)) {
+					/* File name already exists. */
+					if (LOG.isLoggable(Level.WARNING)) {
+						LOG.warning("File name conflict: " + fileName);
+					}
+
+					/* 1. Append Stud.IP name. */
+					if (!document.name.isEmpty() && !document.name.equals(document.filename)) {
+						document.filename = FileBrowser.appendFilename(document.filename, " (" + document.name + ")");
+						fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+					}
+
+					if (fileIndex.contains(fileName)) {
+						final Date chDate = new Date(document.chdate * 1000L);
+						final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy_HH-mm-ss");
+
+						/* 2. Append change date.*/
+						document.filename = FileBrowser.appendFilename(document.filename, " " + format.format(chDate));
+						fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+
+						if (fileIndex.contains(fileName)) {
+							/* 3. Append Stud.IP document id. */
+							document.filename = FileBrowser.appendFilename(document.filename, " " + document.document_id);
+							fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+						}
+					}
+
+					if (LOG.isLoggable(Level.WARNING)) {
+						LOG.warning("Resolved to: " + fileName);
+					}
+				}
+
+				fileIndex.add(fileName);
+			}
 		}
 
 		@Override
@@ -382,52 +476,37 @@ public class TreeBuilder implements AutoCloseable {
 				DocumentFolderTreeNode folderNode;
 				DocumentTreeNode documentNode;
 
-				final HashSet<String> fileNames = new HashSet<String>();
+				final Map<String, Set<String>> fileIndexMap = new HashMap<String, Set<String>>();
 
-				/*
-				 * Get course folder content.
-				 * If parent node is the root course folder the folder id is null.
-				 */
-				final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.courseId, parentNode.folderId);
-				phaser.bulkRegister(folders.folders.size());
-
-				/* Folders. */
-				for (DocumentFolder folder : folders.folders) {
-					/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
-					final String folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
-
-					/* Merge folders with same name. */
-
-					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
-					fileNames.add(folderName);
-
-					/* Add update files job (recursive). */
-					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, folderNode));
-
-					LOG.info(folderNode.name);
-				}
-
-				/* Documents. */
-				for (Document document : folders.documents) {
-					/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
-					final String fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
-
+				/* Folder merges must be mutually exclusive. */
+				synchronized (fileIndex) {
 					/*
-					 * Maybe the folder contains multiple documents with same filename,
-					 * we need to assign a unique filename in this case.
+					 * Get course folder content.
+					 * If parent node is the root course folder the folder id is null.
 					 */
-					if (fileNames.contains(fileName)) {
-						if (LOG.isLoggable(Level.WARNING)) {
-							LOG.warning("Duplicate filename: " + document.filename);
-						}
+					final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.courseId, parentNode.folderId);
+					phaser.bulkRegister(folders.folders.size());
 
-						document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
+					/* Folders. */
+					for (DocumentFolder folder : folders.folders) {
+						final Set<String> folderFileIndex = resolveFolderNameConflict(folder, fileIndexMap);
+
+						parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
+
+						/* Add update files job (recursive). */
+						threadPool.execute(new BuildDocumentsJob(phaser, courseNode, folderNode, folderFileIndex));
+
+						LOG.info(folderNode.name);
 					}
 
-					parentNode.documents.add(documentNode = new DocumentTreeNode(document));
-					fileNames.add(fileName);
+					/* Documents. */
+					for (Document document : folders.documents) {
+						resolveFileNameConflict(document);
 
-					LOG.info(documentNode.name);
+						parentNode.documents.add(documentNode = new DocumentTreeNode(document));
+
+						LOG.info(documentNode.name);
+					}
 				}
 
 			} catch (OAuthConnectionException e) {
@@ -516,9 +595,10 @@ public class TreeBuilder implements AutoCloseable {
 		 * @param folderIndex Folder index
 		 * @param parentFolder Foler tree-node
 		 */
-		private void buildFolderIndex(final HashMap<String, DocumentFolderTreeNode> folderIndex, final DocumentFolderTreeNode parentFolder) {
+		private void buildFolderIndex(final HashMap<String, DocumentFolderTreeNode> folderIndex, final HashMap<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode parentFolder) {
 			for (DocumentFolderTreeNode folder : parentFolder.folders) {
-				buildFolderIndex(folderIndex, folder);
+				parentIndex.put(folder.folderId, parentFolder);
+				buildFolderIndex(folderIndex, parentIndex, folder);
 			}
 
 			folderIndex.put(parentFolder.folderId, parentFolder);
@@ -547,30 +627,64 @@ public class TreeBuilder implements AutoCloseable {
 		}
 
 		/**
-		 * Test if the folder contains a document with same filename.
+		 * Resolve file name conflicts.
 		 * Ignore case because Windows and MacOS filesystems are case insensitive.
 		 * 
+		 * @param parentIndex
 		 * @param folderNode Parent folder tree-node
 		 * @param document Document to compare
 		 * @return True if duplicate exists
 		 */
-		private boolean hasDuplicates(final DocumentFolderTreeNode folderNode, final Document document) {
-			final String fileName = FileBrowser.removeIllegalCharacters(document.filename);
+		private void resolveFileNameConflict(final HashMap<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode folderNode, final Document document) {
+			final DocumentFolderTreeNode parentNode = parentIndex.get(folderNode.folderId);
+			final Set<String> fileIndex = new HashSet<String>();
+			final String folderName = FileBrowser.removeIllegalCharacters(folderNode.name);
 
-			for (DocumentFolderTreeNode folder : folderNode.folders) {
-				if (fileName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(folder.name))) {
-					return true;
+			/* Build file index for merged folders. */
+			for (DocumentFolderTreeNode folder : parentNode.folders) {
+				if (folderName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(folder.name))) {
+					for (DocumentFolderTreeNode folder2 : folder.folders) {
+						fileIndex.add(FileBrowser.removeIllegalCharacters(folder2.name).toLowerCase(Locale.GERMANY));
+					}
+
+					for (DocumentTreeNode doc : folder.documents) {
+						fileIndex.add(FileBrowser.removeIllegalCharacters(doc.fileName).toLowerCase(Locale.GERMANY));
+					}
 				}
 			}
 
-			for (DocumentTreeNode doc : folderNode.documents) {
-				if (fileName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(doc.fileName))
-						&& !document.document_id.equals(doc.documentId)) {
-					return true;
+			String fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+
+			if (fileIndex.contains(fileName)) {
+				/* File name already exists. */
+				if (LOG.isLoggable(Level.WARNING)) {
+					LOG.warning("File name conflict: " + fileName);
+				}
+
+				/* 1. Append Stud.IP name. */
+				if (!document.name.isEmpty() && !document.name.equals(document.filename)) {
+					document.filename = FileBrowser.appendFilename(document.filename, " (" + document.name + ")");
+					fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+				}
+
+				if (fileIndex.contains(fileName)) {
+					final Date chDate = new Date(document.chdate * 1000L);
+					final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yy_HH-mm-ss");
+
+					/* 2. Append change date.*/
+					document.filename = FileBrowser.appendFilename(document.filename, " " + format.format(chDate));
+					fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+
+					if (fileIndex.contains(fileName)) {
+						/* 3. Append Stud.IP document id. */
+						document.filename = FileBrowser.appendFilename(document.filename, " " + document.document_id);
+					}
+				}
+
+				if (LOG.isLoggable(Level.WARNING)) {
+					LOG.warning("Resolved to: " + fileName);
 				}
 			}
-
-			return false;
 		}
 
 		@Override
@@ -584,14 +698,15 @@ public class TreeBuilder implements AutoCloseable {
 				if (!newDocuments.documents.isEmpty()) {
 					/* Build a folder index for this course, so we can easily access the folders. */
 					final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
-					buildFolderIndex(folderIndex, courseNode.root);
+					final HashMap<String, DocumentFolderTreeNode> parentIndex = new HashMap<String, DocumentFolderTreeNode>();
+					buildFolderIndex(folderIndex, parentIndex, courseNode.root);
 
 					for (Document document : newDocuments.documents) {
 						folderNode = folderIndex.get(document.folder_id);
 						if (folderNode == null) {
 							/* Folder does not exist locally, we need to re-sync all course folders. */
 							phaser.register();
-							threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode()));
+							threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode(), new HashSet<String>()));
 							break;
 						}
 
@@ -601,17 +716,7 @@ public class TreeBuilder implements AutoCloseable {
 						 */
 						removeDocument(folderNode, document);
 
-						/*
-						 * Maybe the folder contains multiple documents with same filename,
-						 * we need to assign a unique filename in this case.
-						 */
-						if (hasDuplicates(folderNode, document)) {
-							if (LOG.isLoggable(Level.WARNING)) {
-								LOG.warning("Duplicate filename: " + document.filename);
-							}
-
-							document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
-						}
+						resolveFileNameConflict(parentIndex, folderNode, document);
 
 						/* Add document to existing folder. */
 						folderNode.documents.add(documentNode = new DocumentTreeNode(document));
