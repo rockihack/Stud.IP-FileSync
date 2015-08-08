@@ -187,7 +187,9 @@ public class NewDocumentsController extends AbstractController {
 	 */
 	private void doFolder(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final Path parentDirectory) {
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			doFolder(semesterNode, courseNode, folder, parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name)));
+			doFolder(semesterNode, courseNode, folder, folder.name.trim().equals("Allgemeiner Dateiordner")
+					? parentDirectory
+					: parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name)));
 		}
 
 		for (DocumentTreeNode document : folderNode.documents) {
