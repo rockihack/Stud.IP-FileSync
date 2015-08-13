@@ -75,13 +75,13 @@ public class StructureSettingsController extends AbstractController {
 		try {
 			final RadioButton selected = (RadioButton) structureGroup.getSelectedToggle();
 
-			if (selected == option1) {
+			if (option1.equals(selected)) {
 				CONFIG.setFolderStructure(":semester/:course");
 				structureField.setText(":semester/:course");
-			} else if (selected == option2) {
+			} else if (option2.equals(selected)) {
 				CONFIG.setFolderStructure(":semester/:lecture/:type");
 				structureField.setText(":semester/:lecture/:type");
-			} else if (selected == option3) {
+			} else if (option3.equals(selected)) {
 				CONFIG.setFolderStructure(":lecture/:sem/:type");
 				structureField.setText(":lecture/:sem/:type");
 			} else {

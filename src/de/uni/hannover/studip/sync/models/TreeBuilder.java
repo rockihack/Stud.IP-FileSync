@@ -304,7 +304,7 @@ public class TreeBuilder implements AutoCloseable {
 					semesterNode.courses.add(courseNode = new CourseTreeNode(course));
 					
 					/* Add build documents job. */
-					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root, new HashSet<String>(), null));
+					threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root, new HashSet<String>()));
 					
 					LOG.info(courseNode.title);
 				}
@@ -371,35 +371,29 @@ public class TreeBuilder implements AutoCloseable {
 		private final Set<String> fileIndex;
 
 		/**
-		 * Parent file index for default folder redirect.
-		 */
-		private final Set<String> parentFileIndex;
-
-		/**
 		 * Constructor.
 		 * 
 		 * @param phaser
 		 * @param courseNode Course tree-node
 		 * @param parentNode Folder tree-node
 		 */
-		public BuildDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final DocumentFolderTreeNode parentNode, final Set<String> fileIndex, final Set<String> parentFileIndex) {
+		public BuildDocumentsJob(final Phaser phaser, final CourseTreeNode courseNode, final DocumentFolderTreeNode parentNode, final Set<String> fileIndex) {
 			this.phaser = phaser;
 			this.courseNode = courseNode;
 			this.parentNode = parentNode;
 			this.fileIndex = fileIndex;
-			this.parentFileIndex = parentFileIndex;
 		}
 
 		@Override
 		public void run() {
 			try {
-				DocumentFolderTreeNode folderNode;
-				DocumentTreeNode documentNode;
-
-				final Map<String, Set<String>> fileIndexMap = new HashMap<String, Set<String>>();
-
 				/* Folder merges must be mutually exclusive. */
 				synchronized (fileIndex) {
+					DocumentFolderTreeNode folderNode;
+					DocumentTreeNode documentNode;
+
+					final Map<String, Set<String>> fileIndexMap = new HashMap<String, Set<String>>();
+
 					/*
 					 * Get course folder content.
 					 * If parent node is the root course folder the folder id is null.
@@ -407,22 +401,15 @@ public class TreeBuilder implements AutoCloseable {
 					final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.courseId, parentNode.folderId);
 					phaser.bulkRegister(folders.folders.size());
 
-					/* Redirect default folder content to course directory. */
-					if (parentFileIndex != null && parentNode.name.trim().equals("Allgemeiner Dateiordner")) {
-						synchronized (parentFileIndex) {
-							fileIndex.addAll(parentFileIndex);
-							fileIndex.remove(FileBrowser.removeIllegalCharacters(parentNode.name).toLowerCase(Locale.GERMANY));
-						}
-					}
-
 					/* Folders. */
 					for (DocumentFolder folder : folders.folders) {
+						/* Get folder index (merged folders use the same index). */
 						final Set<String> folderFileIndex = resolveFolderNameConflict(fileIndex, fileIndexMap, folder);
 
 						parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
 
 						/* Add update files job (recursive). */
-						threadPool.execute(new BuildDocumentsJob(phaser, courseNode, folderNode, folderFileIndex, fileIndex));
+						threadPool.execute(new BuildDocumentsJob(phaser, courseNode, folderNode, folderFileIndex));
 
 						LOG.info(folderNode.name);
 					}
@@ -522,7 +509,7 @@ public class TreeBuilder implements AutoCloseable {
 		 * @param folderIndex Folder index
 		 * @param parentFolder Foler tree-node
 		 */
-		private void buildFolderIndex(final HashMap<String, DocumentFolderTreeNode> folderIndex, final HashMap<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode parentFolder) {
+		private void buildFolderIndex(final Map<String, DocumentFolderTreeNode> folderIndex, final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode parentFolder) {
 			for (DocumentFolderTreeNode folder : parentFolder.folders) {
 				parentIndex.put(folder.folderId, parentFolder);
 				buildFolderIndex(folderIndex, parentIndex, folder);
@@ -562,7 +549,7 @@ public class TreeBuilder implements AutoCloseable {
 		 * @param document Document to compare
 		 * @return True if duplicate exists
 		 */
-		private void resolveFileNameConflictUpdate(final HashMap<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode folderNode, final Document document) {
+		private void resolveFileNameConflictUpdate(final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode folderNode, final Document document) {
 			final DocumentFolderTreeNode parentNode = parentIndex.get(folderNode.folderId);
 			final Set<String> fileIndex = new HashSet<String>();
 
@@ -603,8 +590,8 @@ public class TreeBuilder implements AutoCloseable {
 				final Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.courseId, courseNode.updateTime);
 				if (!newDocuments.documents.isEmpty()) {
 					/* Build a folder index for this course, so we can easily access the folders. */
-					final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
-					final HashMap<String, DocumentFolderTreeNode> parentIndex = new HashMap<String, DocumentFolderTreeNode>();
+					final Map<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
+					final Map<String, DocumentFolderTreeNode> parentIndex = new HashMap<String, DocumentFolderTreeNode>();
 					buildFolderIndex(folderIndex, parentIndex, courseNode.root);
 
 					for (Document document : newDocuments.documents) {
@@ -612,7 +599,7 @@ public class TreeBuilder implements AutoCloseable {
 						if (folderNode == null) {
 							/* Folder does not exist locally, we need to re-sync all course folders. */
 							phaser.register();
-							threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode(), new HashSet<String>(), null));
+							threadPool.execute(new BuildDocumentsJob(phaser, courseNode, courseNode.root = new DocumentFolderTreeNode(), new HashSet<String>()));
 							break;
 						}
 
@@ -684,11 +671,16 @@ public class TreeBuilder implements AutoCloseable {
 	 * @param fileIndexMap
 	 */
 	private static Set<String> resolveFolderNameConflict(final Set<String> fileIndex, final Map<String, Set<String>> fileIndexMap, final DocumentFolder folder) {
+		/* Merge default folder with parent. */
+		if (folder.name.trim().equals("Allgemeiner Dateiordner")) {
+			return fileIndex;
+		}
+
 		/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
 		String folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
 
 		if (fileIndexMap.get(folderName) == null) {
-			/* Folder does not exist. */
+			/* Folder does not exist yet. */
 			synchronized (fileIndex) {
 				if (fileIndex.contains(folderName)) {
 					/* Resolve file name conflict. */
@@ -740,7 +732,7 @@ public class TreeBuilder implements AutoCloseable {
 
 				if (fileIndex.contains(fileName)) {
 					final Date chDate = new Date(document.chdate * 1000L);
-					final SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy_HH-mm-ss", Locale.GERMANY);
+					final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.GERMANY);
 
 					/* 2. Append change date.*/
 					document.filename = FileBrowser.appendFilename(document.filename, "_" + format.format(chDate));
