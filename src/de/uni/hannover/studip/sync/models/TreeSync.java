@@ -3,20 +3,14 @@ package de.uni.hannover.studip.sync.models;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 import java.util.concurrent.Phaser;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
-
-import javafx.application.Platform;
-
-import org.scribe.exceptions.OAuthConnectionException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.*;
-import de.uni.hannover.studip.sync.exceptions.*;
+import de.uni.hannover.studip.sync.models.jobs.DownloadDocumentJob;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 
 /**
@@ -152,7 +146,7 @@ public class TreeSync extends TreeBuilder {
 			phaser.register();
 
 			/* Download new file. */
-			threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
+			threadPool.execute(new DownloadDocumentJob(this, phaser, folderNode, documentNode, documentFile));
 
 			if (LOG.isLoggable(Level.INFO)) {
 				LOG.info("New: " + originalFileName);
@@ -181,115 +175,10 @@ public class TreeSync extends TreeBuilder {
 			phaser.register();
 
 			/* Download modified file. */
-			threadPool.execute(new DownloadDocumentJob(phaser, folderNode, documentNode, documentFile));
+			threadPool.execute(new DownloadDocumentJob(this, phaser, folderNode, documentNode, documentFile));
 
 			if (LOG.isLoggable(Level.WARNING)) {
 				LOG.warning("Modified: " + originalFileName);
-			}
-		}
-	}
-	
-	/**
-	 * Download document job.
-	 * 
-	 * @author Lennart Glauer
-	 */
-	private class DownloadDocumentJob implements Runnable {
-
-		/**
-		 * Phaser.
-		 */
-		private final Phaser phaser;
-
-		/**
-		 * Folder node.
-		 */
-		private final DocumentFolderTreeNode folderNode;
-
-		/**
-		 * Document node.
-		 * The document node to download.
-		 */
-		private final DocumentTreeNode documentNode;
-
-		/**
-		 * Document file.
-		 * The file location to store the document.
-		 */
-		private final Path documentFile;
-
-		/**
-		 * Download document job.
-		 * 
-		 * @param phaser
-		 * @param folderNode Parent folder tree-node
-		 * @param documentNode Document tree-node to download
-		 * @param documentFile Path to document file destination
-		 */
-		public DownloadDocumentJob(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final Path documentFile) {
-			this.phaser = phaser;
-			this.folderNode = folderNode;
-			this.documentNode = documentNode;
-			this.documentFile = documentFile;
-		}
-
-		@Override
-		public void run() {
-			try {
-				final long startTime = System.currentTimeMillis();
-				RestApi.downloadDocumentById(documentNode.documentId, documentFile);
-				final long endTime = System.currentTimeMillis();
-
-				if (LOG.isLoggable(Level.INFO)) {
-					LOG.info("Downloaded " + documentFile + " in " + (endTime - startTime) + "ms");
-				}
-
-				/*
-				 * We use the last modified timestamp to detect file changes.
-				 * The timestamp must be the same as in the document node,
-				 * otherwise the file will be downloaded again.
-				 */
-				Files.setLastModifiedTime(documentFile, FileTime.fromMillis(documentNode.chDate * 1000L));
-
-			} catch (OAuthConnectionException e) {
-				/* Connection failed. */
-				stopPending = true;
-
-			} catch (UnauthorizedException e) {
-				/* Invalid oauth access token. */
-				Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
-				stopPending = true;
-
-			} catch (ForbiddenException | NotFoundException e) {
-				/*
-				 * User does not have the required permissions
-				 * or document does not exist.
-				 */
-				folderNode.documents.remove(documentNode);
-				isDirty = true;
-
-				if (LOG.isLoggable(Level.WARNING)) {
-					LOG.warning("Removed document: " + documentNode.fileName);
-				}
-
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
-
-			} catch (RejectedExecutionException e) {
-				if (!stopPending && !Main.exitPending) {
-					throw new IllegalStateException(e);
-				}
-
-			} finally {
-				/* Job done. */
-				if (stopPending || Main.exitPending) {
-					phaser.forceTermination();
-					threadPool.shutdownNow();
-				} else {
-					// TODO: Add course name in new line.
-					updateProgressLabel(documentNode.name);
-					phaser.arrive();
-				}
 			}
 		}
 	}
