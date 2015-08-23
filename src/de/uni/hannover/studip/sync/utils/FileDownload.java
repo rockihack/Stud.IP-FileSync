@@ -27,14 +27,18 @@ public final class FileDownload {
 	 * @param file Path to file destination
 	 * @throws IOException
 	 */
-	public static void get(final InputStream is, final Path file) throws IOException {
+	public static long get(final InputStream is, final Path file) throws IOException {
 		try (BufferedInputStream in = new BufferedInputStream(is); FileOutputStream out = new FileOutputStream(file.toFile())) {
 			final byte buffer[] = new byte[BUFFER_SIZE];
+			long bytesWritten = 0;
 			int count;
 
 			while ((count = in.read(buffer, 0, BUFFER_SIZE)) > 0) {
 				out.write(buffer, 0, count);
+				bytesWritten += count;
 			}
+
+			return bytesWritten;
 		}
 	}
 }

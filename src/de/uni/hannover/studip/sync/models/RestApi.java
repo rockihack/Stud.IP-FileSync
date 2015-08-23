@@ -305,7 +305,7 @@ public final class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static void downloadDocumentById(final String documentId, final Path documentFile) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+	public static long downloadDocumentById(final String documentId, final Path documentFile) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
 		if (!documentId.matches(STUDIP_ID_REGEX)) {
 			throw new IllegalArgumentException("Invalid document id!");
 		}
@@ -315,9 +315,8 @@ public final class RestApi {
 
 		switch (request.getCode()) {
 		case 200:
-			FileDownload.get(request.getStream(), documentFile);
+			return FileDownload.get(request.getStream(), documentFile);
 
-			break;
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 403:

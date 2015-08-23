@@ -54,12 +54,12 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Gui progress indicator.
 	 */
-	protected ProgressIndicator progressIndicator;
+	private ProgressIndicator progressIndicator;
 
 	/**
 	 * Gui progress label.
 	 */
-	protected Label progressLabel;
+	private Label progressLabel;
 
 	/**
 	 * Start the threadpool.

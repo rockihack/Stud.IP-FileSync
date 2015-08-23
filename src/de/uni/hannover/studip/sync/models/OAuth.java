@@ -33,7 +33,7 @@ public final class OAuth {
 	/**
 	 * Reentrant read/write lock.
 	 */
-	public final ReentrantReadWriteLock lock;
+	private final ReentrantReadWriteLock lock;
 
 	/**
 	 * Request token.
