@@ -18,7 +18,7 @@ public final class StudIPApiProvider extends DefaultApi10a
 	/**
 	 * OAuth service callback address.
 	 */
-	public static final String API_CALLBACK = "https://elearning.uni-hannover.de/index.php";
+	public static final String API_CALLBACK = "https://elearning.uni-hannover.de/dispatch.php/start";
 
 	/**
 	 * Logout address.

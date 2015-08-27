@@ -88,7 +88,7 @@ public class UpdateDocumentsJob implements Runnable {
 	 * @param folderIndex Folder index
 	 * @param parentFolder Foler tree-node
 	 */
-	private void buildFolderIndex(final Map<String, DocumentFolderTreeNode> folderIndex, final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode parentFolder) {
+	private static void buildFolderIndex(final Map<String, DocumentFolderTreeNode> folderIndex, final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode parentFolder) {
 		for (DocumentFolderTreeNode folder : parentFolder.folders) {
 			parentIndex.put(folder.folderId, parentFolder);
 			buildFolderIndex(folderIndex, parentIndex, folder);
@@ -104,7 +104,7 @@ public class UpdateDocumentsJob implements Runnable {
 	 * @param document Document to remove
 	 * @return True if document was removed
 	 */
-	private boolean removeDocument(final DocumentFolderTreeNode folderNode, final Document document) {
+	private static boolean removeDocument(final DocumentFolderTreeNode folderNode, final Document document) {
 		final Iterator<DocumentTreeNode> iter = folderNode.documents.iterator();
 
 		while (iter.hasNext()) {
@@ -128,7 +128,7 @@ public class UpdateDocumentsJob implements Runnable {
 	 * @param document Document to compare
 	 * @return True if duplicate exists
 	 */
-	private void resolveFileNameConflictUpdate(final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode folderNode, final Document document) {
+	private static void resolveFileNameConflictUpdate(final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode folderNode, final Document document) {
 		final DocumentFolderTreeNode parentNode = parentIndex.get(folderNode.folderId);
 		final Set<String> fileIndex = new HashSet<String>();
 
