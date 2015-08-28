@@ -16,6 +16,7 @@ import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.PathBuilder;
+import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -187,7 +188,8 @@ public class NewDocumentsController extends AbstractController {
 	 */
 	private void doFolder(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final Path parentDirectory) {
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			doFolder(semesterNode, courseNode, folder, folder.name.trim().equals("Allgemeiner Dateiordner")
+			doFolder(semesterNode, courseNode, folder,
+					StudIPApiProvider.DEFAULT_FOLDER.equals(folder.name.trim())
 					? parentDirectory
 					: parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name)));
 		}

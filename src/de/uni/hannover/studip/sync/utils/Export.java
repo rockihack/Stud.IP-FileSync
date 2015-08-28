@@ -70,10 +70,11 @@ public final class Export {
 	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public static void exportMat(final Path rootDirectory, final Path exportDirectory) throws JsonParseException, JsonMappingException, IOException {
+	public static void exportMat(final Path rootDirectory, final Path exportDirectory) throws IOException {
 		/* Read existing tree. */
 		final ObjectMapper mapper = new ObjectMapper();
 		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(Config.openTreeFile()), SemestersTreeNode.class);
+		final String folderStructure = Config.getInstance().getFolderStructure();
 
 		for (SemesterTreeNode semester : rootNode.semesters) {
 			for (CourseTreeNode course : semester.courses) {
@@ -82,7 +83,6 @@ public final class Export {
 					continue;
 				}
 
-				final String folderStructure = Config.getInstance().getFolderStructure();
 				final Path courseDirectory = new PathBuilder(folderStructure, rootDirectory, semester, course).toPath();
 				if (!Files.isDirectory(courseDirectory)) {
 					continue;

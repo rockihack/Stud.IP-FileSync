@@ -30,6 +30,7 @@ import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeBuilder;
 import de.uni.hannover.studip.sync.models.TreeConflict;
+import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 
 /**
@@ -128,12 +129,12 @@ public class UpdateDocumentsJob implements Runnable {
 	 * @param document Document to compare
 	 * @return True if duplicate exists
 	 */
-	private static void resolveFileNameConflictUpdate(final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode folderNode, final Document document) {
+	private static void resolveFileNameConflict(final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode folderNode, final Document document) {
 		final DocumentFolderTreeNode parentNode = parentIndex.get(folderNode.folderId);
 		final Set<String> fileIndex = new HashSet<String>();
 
 		/* Merge default folder with parent. */
-		if (folderNode.name.trim().equals("Allgemeiner Dateiordner")) {
+		if (StudIPApiProvider.DEFAULT_FOLDER.equals(folderNode.name.trim())) {
 			for (DocumentTreeNode doc : parentNode.documents) {
 				fileIndex.add(FileBrowser.removeIllegalCharacters(doc.fileName).toLowerCase(Locale.GERMANY));
 			}
@@ -188,7 +189,7 @@ public class UpdateDocumentsJob implements Runnable {
 					 */
 					removeDocument(folderNode, document);
 
-					resolveFileNameConflictUpdate(parentIndex, folderNode, document);
+					resolveFileNameConflict(parentIndex, folderNode, document);
 
 					/* Add document to existing folder. */
 					folderNode.documents.add(documentNode = new DocumentTreeNode(document));

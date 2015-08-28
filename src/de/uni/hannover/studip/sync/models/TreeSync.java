@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.models.jobs.DownloadDocumentJob;
+import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 
 /**
@@ -109,8 +110,8 @@ public class TreeSync extends TreeBuilder {
 	private void doFolder(final Phaser phaser, final DocumentFolderTreeNode folderNode, final Path parentDirectory) throws IOException {
 		/* Traverse folder structure (recursive). */
 		for (DocumentFolderTreeNode folder : folderNode.folders) {
-			if (folder.name.trim().equals("Allgemeiner Dateiordner")) {
-				/* Redirect default folder content to course directory. */
+			if (StudIPApiProvider.DEFAULT_FOLDER.equals(folder.name.trim())) {
+				/* Merge default folder with parent. */
 				doFolder(phaser, folder, parentDirectory);
 				continue;
 			}

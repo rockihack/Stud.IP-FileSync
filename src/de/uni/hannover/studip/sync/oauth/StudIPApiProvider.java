@@ -40,6 +40,11 @@ public final class StudIPApiProvider extends DefaultApi10a
 	 */
 	public static final int CACHE_TIME = 10 * 60;
 
+	/**
+	 * Stud.IP course default folder name.
+	 */
+	public static final String DEFAULT_FOLDER = "Allgemeiner Dateiordner";
+
 	@Override
 	public String getAccessTokenEndpoint()
 	{

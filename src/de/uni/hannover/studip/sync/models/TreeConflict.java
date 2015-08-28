@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import de.elanev.studip.android.app.backend.datamodel.Document;
 import de.elanev.studip.android.app.backend.datamodel.DocumentFolder;
+import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
 
 public final class TreeConflict {
@@ -29,7 +30,7 @@ public final class TreeConflict {
 	 */
 	public static Set<String> resolveFolderNameConflict(final Set<String> fileIndex, final Map<String, Set<String>> fileIndexMap, final DocumentFolder folder) {
 		/* Merge default folder with parent. */
-		if (folder.name.trim().equals("Allgemeiner Dateiordner")) {
+		if (StudIPApiProvider.DEFAULT_FOLDER.equals(folder.name.trim())) {
 			return fileIndex;
 		}
 
