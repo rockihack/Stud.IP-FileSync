@@ -78,7 +78,11 @@ public class JacksonRequest<T> {
 			mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
 		}
 
-		return mapper.readValue(response.getStream(), datamodel);
+		/*
+		 * Use getBody instead of getStream, otherwise keep alive doesn't work
+		 * and creating new ssl connections is expensive.
+		 */
+		return mapper.readValue(response.getBody(), datamodel);
 	}
 
 	/**
