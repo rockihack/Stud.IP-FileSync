@@ -18,7 +18,6 @@ import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import javafx.application.Platform;
-import javafx.concurrent.Worker.State;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -49,31 +48,15 @@ public class OAuthWebviewController extends AbstractController {
 
 		// On status change event.
 		webEngine.setOnStatusChanged(event -> {
-			if (event.getEventType() == WebEvent.STATUS_CHANGED && webEngine.getLocation().contains("oauth_verifier")) {
-				getOAuthVerifier(webEngine);
+			final String url = webEngine.getLocation();
+
+			if (event.getEventType() == WebEvent.STATUS_CHANGED && url.contains("oauth_verifier")) {
+				getOAuthVerifier(url);
+
+				// End login session.
+				webEngine.load(StudIPApiProvider.LOGOUT);
 			}
 		});
-
-		// On load event.
-		webEngine.getLoadWorker().stateProperty().addListener(
-			(observableValue, oldState, newState) -> {
-				if (newState == State.SUCCEEDED) {
-					// Scroll to login box or oauth authorize button.
-					webEngine.executeScript("if (typeof $ === 'function') {"
-						+ "var login = $('form[name=\"login\"]');"
-						+ "if (login.length) {"
-							+ "$('html, body').animate({"
-								+ "scrollTop: login.offset().top - 100,"
-								+ "scrollLeft: login.offset().left - 100"
-							+ "}, 500);"
-						+ "} else if ($('section.oauth.authorize').length) {"
-							+ "$('html, body').animate({"
-								+ "scrollLeft: $(window).width() / 2"
-							+ "}, 500);"
-						+ "}"
-					+ "}");
-				}
-			});
 
 		Platform.runLater(() -> {
 			try {
@@ -108,11 +91,11 @@ public class OAuthWebviewController extends AbstractController {
 	 * 
 	 * @param url 
 	 */
-	private void getOAuthVerifier(final WebEngine engine) {
+	private void getOAuthVerifier(final String url) {
 		try {
 			// Parse oauth verifier.
 			final Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
-			final Matcher matcher = pattern.matcher(engine.getLocation());
+			final Matcher matcher = pattern.matcher(url);
 
 			if (!matcher.find()) {
 				return;
@@ -132,9 +115,6 @@ public class OAuthWebviewController extends AbstractController {
 					rootDir != null && Files.isDirectory(Paths.get(rootDir))
 					? Main.OVERVIEW
 					: Main.OAUTH_COMPLETE);
-
-			// End login session.
-			engine.load(StudIPApiProvider.LOGOUT);
 
 		} catch (OAuthException | UnauthorizedException | NotFoundException e) {
 			OAUTH.removeAccessToken();
