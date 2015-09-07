@@ -28,7 +28,7 @@ public final class FileDownload {
 	 * @throws IOException
 	 */
 	public static long get(final InputStream is, final Path file) throws IOException {
-		try (BufferedInputStream in = new BufferedInputStream(is); FileOutputStream out = new FileOutputStream(file.toFile())) {
+		try (final BufferedInputStream in = new BufferedInputStream(is); final FileOutputStream out = new FileOutputStream(file.toFile())) {
 			final byte buffer[] = new byte[BUFFER_SIZE];
 			long bytesWritten = 0;
 			int count;

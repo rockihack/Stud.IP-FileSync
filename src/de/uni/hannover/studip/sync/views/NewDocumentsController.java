@@ -129,7 +129,7 @@ public class NewDocumentsController extends AbstractController {
 						});
 
 						// Tooltip.
-						Tooltip tooltip = new Tooltip();
+						final Tooltip tooltip = new Tooltip();
 						tooltip.setWrapText(true);
 						tooltip.setMaxWidth(600);
 						setTooltip(tooltip);

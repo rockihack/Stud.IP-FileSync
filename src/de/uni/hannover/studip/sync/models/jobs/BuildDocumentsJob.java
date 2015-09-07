@@ -30,6 +30,7 @@ import de.uni.hannover.studip.sync.models.TreeConflict;
  * Build files job.
  * 
  * @author Lennart Glauer
+ * @notice Thread safe
  */
 public class BuildDocumentsJob implements Runnable {
 	

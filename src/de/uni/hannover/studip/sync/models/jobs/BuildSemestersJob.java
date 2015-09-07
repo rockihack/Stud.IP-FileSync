@@ -23,6 +23,7 @@ import de.uni.hannover.studip.sync.models.TreeBuilder;
  * Build semesters job.
  * 
  * @author Lennart Glauer
+ * @notice Thread safe
  */
 public class BuildSemestersJob implements Runnable {
 	

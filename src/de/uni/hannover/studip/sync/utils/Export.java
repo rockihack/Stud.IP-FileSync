@@ -93,7 +93,7 @@ public final class Export {
 					Files.createDirectories(exportCourseDirectory);
 				}
 
-				Export.deepCopy(courseDirectory, exportCourseDirectory);
+				deepCopy(courseDirectory, exportCourseDirectory);
 			}
 		}
 	}

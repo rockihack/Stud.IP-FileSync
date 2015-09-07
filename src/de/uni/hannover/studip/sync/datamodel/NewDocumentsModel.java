@@ -8,6 +8,12 @@ import java.util.Locale;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+/**
+ * New documents table datamodel.
+ * 
+ * @author Lennart Glauer
+ * @notice Thread safe (immutable object)
+ */
 public class NewDocumentsModel {
 
 	protected final SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yy HH:mm:ss", Locale.GERMANY);

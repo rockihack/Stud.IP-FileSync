@@ -31,7 +31,7 @@ public final class FileHash {
 	 * @throws NoSuchAlgorithmException
 	 */
 	public static String getMd5(final File file) throws IOException, NoSuchAlgorithmException {
-		try (FileInputStream in = new FileInputStream(file)) {
+		try (final FileInputStream in = new FileInputStream(file)) {
 			final MessageDigest digest = MessageDigest.getInstance("MD5");
 
 			final byte buffer[] = new byte[BUFFER_SIZE];
@@ -54,7 +54,7 @@ public final class FileHash {
 	private static String bytesToHex(final byte[] bytes) {
 		final char[] hexChars = new char[bytes.length * 2];
 
-		for ( int j = 0; j < bytes.length; j++ ) {
+		for (int j = 0; j < bytes.length; j++) {
 			final int v = bytes[j] & 0xFF;
 			hexChars[j * 2] = HEX[v >>> 4];
 			hexChars[j * 2 + 1] = HEX[v & 0x0F];

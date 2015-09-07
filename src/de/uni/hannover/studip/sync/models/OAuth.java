@@ -19,6 +19,7 @@ import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
  * OAuth model.
  * 
  * @author Lennart Glauer
+ * @notice Thread safe
  */
 public final class OAuth {
 
@@ -199,8 +200,10 @@ public final class OAuth {
 
 			lock.writeLock().lock();
 			try {
-				// We must not acquire a second request token until
-				// we got a access token for the first one.
+				/*
+				 * We must not acquire a second request token until
+				 * we got a access token for the first one.
+				 */
 				if (state != OAuthState.GET_ACCESS_TOKEN) {
 					state = OAuthState.GET_REQUEST_TOKEN;
 				}

@@ -16,7 +16,7 @@ import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
  * Global config wrapper class.
  * 
  * @author Lennart Glauer
- *
+ * @notice Thread safe
  */
 public final class Config {
 

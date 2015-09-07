@@ -17,8 +17,9 @@ import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 /**
  * Jackson request.
  * 
- * @param <T> Response data model.
  * @author Lennart Glauer
+ * @notice Thread safe (immutable object)
+ * @param <T> Response data model.
  */
 public class JacksonRequest<T> {
 

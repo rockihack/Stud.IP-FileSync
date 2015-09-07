@@ -85,7 +85,7 @@ public class StructureSettingsController extends AbstractController {
 				CONFIG.setFolderStructure(":lecture/:sem/:type");
 				structureField.setText(":lecture/:sem/:type");
 			} else {
-				// TODO Validate input.
+				// FIXME Validate input.
 				CONFIG.setFolderStructure(structureField.getText());
 			}
 

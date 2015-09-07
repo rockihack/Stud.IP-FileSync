@@ -37,6 +37,7 @@ import de.uni.hannover.studip.sync.utils.FileBrowser;
  * Update files job.
  * 
  * @author Lennart Glauer
+ * @notice Thread safe
  */
 public class UpdateDocumentsJob implements Runnable {
 

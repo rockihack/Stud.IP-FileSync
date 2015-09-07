@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * Config file wrapper class.
  * 
  * @author Lennart Glauer
- *
+ * @notice Thread safe
  * @param <T> Config datamodel
  */
 public final class ConfigFile<T> {

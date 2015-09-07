@@ -27,6 +27,7 @@ import de.uni.hannover.studip.sync.models.TreeSync;
  * Download document job.
  * 
  * @author Lennart Glauer
+ * @notice Thread safe
  */
 public class DownloadDocumentJob implements Runnable {
 
