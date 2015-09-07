@@ -18,7 +18,7 @@ import javafx.stage.DirectoryChooser;
  * @author Lennart Glauer
  *
  */
-public class OAuthCompleteController extends AbstractController {
+public class SetupRootDirController extends AbstractController {
 
 	private File dir;
 

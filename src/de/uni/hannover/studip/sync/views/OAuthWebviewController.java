@@ -114,7 +114,7 @@ public class OAuthWebviewController extends AbstractController {
 			getMain().setView(
 					rootDir != null && Files.isDirectory(Paths.get(rootDir))
 					? Main.OVERVIEW
-					: Main.OAUTH_COMPLETE);
+					: Main.SETUP_ROOTDIR);
 
 		} catch (OAuthException | UnauthorizedException | NotFoundException e) {
 			OAUTH.removeAccessToken();

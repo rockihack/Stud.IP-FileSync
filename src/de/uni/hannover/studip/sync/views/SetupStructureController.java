@@ -97,6 +97,8 @@ public class SetupStructureController extends AbstractController {
 
 	@FXML
 	public void handleNext() {
+		handleSave();
+
 		getMain().setView(Main.OVERVIEW);
 	}
 }

@@ -42,7 +42,7 @@ public class Main extends Application {
 	public static final String NEW_DOCUMENTS = "NewDocuments";
 	public static final String OAUTH = "OAuth";
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
-	public static final String OAUTH_COMPLETE = "OAuthComplete";
+	public static final String SETUP_ROOTDIR = "SetupRootDir";
 	public static final String SETUP_STRUCTURE = "SetupStructure";
 	public static final String SETTINGS = "Settings";
 	public static final String STRUCTURE_SETTINGS = "StructureSettings";
