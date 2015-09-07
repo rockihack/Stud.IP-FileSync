@@ -33,7 +33,7 @@ public class Main extends Application {
 	/**
 	 * App name (titlebar).
 	 */
-	public static final String APP_NAME = "Stud.IP FileSync **Beta**";
+	public static final String APP_NAME = "Stud.IP FileSync";
 
 	/**
 	 * Views.
@@ -43,6 +43,7 @@ public class Main extends Application {
 	public static final String OAUTH = "OAuth";
 	public static final String OAUTH_WEBVIEW = "OAuthWebview";
 	public static final String OAUTH_COMPLETE = "OAuthComplete";
+	public static final String SETUP_STRUCTURE = "SetupStructure";
 	public static final String SETTINGS = "Settings";
 	public static final String STRUCTURE_SETTINGS = "StructureSettings";
 	public static final String SYNC_SETTINGS = "SyncSettings";
@@ -79,6 +80,8 @@ public class Main extends Application {
 		 * Default Uncaught Exception Handler.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+			throwable.printStackTrace();
+
 			// Signal worker threads to terminate gracefully.
 			exitPending = true;
 

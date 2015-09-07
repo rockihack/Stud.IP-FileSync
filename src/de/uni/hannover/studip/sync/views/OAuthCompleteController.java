@@ -65,8 +65,7 @@ public class OAuthCompleteController extends AbstractController {
 			// Store root directory.
 			Config.getInstance().setRootDirectory(rootDir.toAbsolutePath().toString());
 
-			// Redirect to overview.
-			getMain().setView(Main.OVERVIEW);
+			getMain().setView(Main.SETUP_STRUCTURE);
 
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
