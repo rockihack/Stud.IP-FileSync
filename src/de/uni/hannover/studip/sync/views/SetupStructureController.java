@@ -99,6 +99,6 @@ public class SetupStructureController extends AbstractController {
 	public void handleNext() {
 		handleSave();
 
-		getMain().setView(Main.OVERVIEW);
+		getMain().setView(Main.SETUP_SYNC);
 	}
 }

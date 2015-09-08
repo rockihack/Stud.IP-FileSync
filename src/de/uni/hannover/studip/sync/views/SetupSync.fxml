@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.SetupSyncController">
+   <children>
+      <GridPane layoutX="0" layoutY="0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="20.0" prefHeight="20.0" vgrow="NEVER" />
+          <RowConstraints vgrow="SOMETIMES" />
+          <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
+        </rowConstraints>
+         <children>
+            <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+              <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="20.0" />
+                  <ColumnConstraints hgrow="NEVER" minWidth="325.0" prefWidth="325.0" />
+                  <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="20.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="125.0" prefWidth="125.0" />
+                  <ColumnConstraints hgrow="ALWAYS" minWidth="20.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                <RowConstraints vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1">
+                  </Label>
+                  <ChoiceBox fx:id="downloadAllSemestersChoicebox" prefWidth="150.0" GridPane.columnIndex="3">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Alle Semester" />
+                           <String fx:value="Aktuelles Semester" />
+                        </FXCollections>
+                     </items>
+                  </ChoiceBox>
+                  <Label text="Sollen geänderte Dateien überschrieben werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  </Label>
+                  <ChoiceBox fx:id="overwriteChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Überschreiben" />
+                           <String fx:value="Versionsnummer anhängen" />
+                        </FXCollections>
+                     </items>
+                  </ChoiceBox>
+                  <Label text="Sollen Leerzeichen in Dateinamen ersetzt werden?" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <ChoiceBox fx:id="replaceWhitespacesChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                     <items>
+                        <FXCollections fx:factory="observableArrayList">
+                           <String fx:value="Nein" />
+                           <String fx:value="Ja, durch einen Bindestrich" />
+                           <String fx:value="Ja, durch einen Unterstrich" />
+                        </FXCollections>
+                     </items>
+                  </ChoiceBox>
+               </children>
+            </GridPane>
+            <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
+               <center>
+                  <Button mnemonicParsing="false" onAction="#handleNext" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Fertig" BorderPane.alignment="CENTER">
+                  </Button>
+               </center>
+            </BorderPane>
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>

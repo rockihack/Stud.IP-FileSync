@@ -1,8 +1,6 @@
 package de.uni.hannover.studip.sync.views;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -110,11 +108,7 @@ public class OAuthWebviewController extends AbstractController {
 			// Store access token.
 			CONFIG.setAccessToken(accessToken, currentUser);
 
-			final String rootDir = CONFIG.getRootDirectory();
-			getMain().setView(
-					rootDir != null && Files.isDirectory(Paths.get(rootDir))
-					? Main.OVERVIEW
-					: Main.SETUP_ROOTDIR);
+			getMain().setView(Main.SETUP_ROOTDIR);
 
 		} catch (OAuthException | UnauthorizedException | NotFoundException e) {
 			OAUTH.removeAccessToken();
