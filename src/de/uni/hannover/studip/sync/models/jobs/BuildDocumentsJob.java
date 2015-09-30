@@ -94,7 +94,7 @@ public class BuildDocumentsJob implements Runnable {
 				phaser.bulkRegister(folders.folders.size());
 
 				/* Folders. */
-				for (DocumentFolder folder : folders.folders) {
+				for (final DocumentFolder folder : folders.folders) {
 					/* Get folder index (merged folders use the same index). */
 					final Set<String> folderFileIndex = TreeConflict.resolveFolderNameConflict(fileIndex, fileIndexMap, folder);
 
@@ -107,7 +107,7 @@ public class BuildDocumentsJob implements Runnable {
 				}
 
 				/* Documents. */
-				for (Document document : folders.documents) {
+				for (final Document document : folders.documents) {
 					TreeConflict.resolveFileNameConflict(fileIndex, document);
 
 					parentNode.documents.add(documentNode = new DocumentTreeNode(document));

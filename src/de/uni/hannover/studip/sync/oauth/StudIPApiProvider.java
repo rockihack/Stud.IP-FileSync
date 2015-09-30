@@ -36,9 +36,14 @@ public final class StudIPApiProvider extends DefaultApi10a
 	public static final String API_SECRET = "";
 
 	/**
-	 * Request cache time in seconds (update).
+	 * Request cache time in seconds (current semester).
 	 */
 	public static final int CACHE_TIME = 10 * 60;
+
+	/**
+	 * Request cache time in seconds (old semester).
+	 */
+	public static final int LARGE_CACHE_TIME = 24 * 60 * 60;
 
 	/**
 	 * Stud.IP course default folder name.

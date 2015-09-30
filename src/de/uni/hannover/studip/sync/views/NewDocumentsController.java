@@ -85,9 +85,9 @@ public class NewDocumentsController extends AbstractController {
 			final String folderStructure = Config.getInstance().getFolderStructure();
 
 			// Build list of documents.
-			for (SemesterTreeNode semester : rootNode.semesters) {
-				for (CourseTreeNode course : semester.courses) {
-					doFolder(semester, course, course.root, new PathBuilder(folderStructure, rootDirectory, semester, course).toPath());
+			for (final SemesterTreeNode semester : rootNode.semesters) {
+				for (final CourseTreeNode course : semester.courses) {
+					doFolder(semester, course, course.root, PathBuilder.toPath(folderStructure, rootDirectory, semester, course));
 				}
 			}
 
@@ -187,14 +187,14 @@ public class NewDocumentsController extends AbstractController {
 	 * @param parentDirectory
 	 */
 	private void doFolder(final SemesterTreeNode semesterNode, final CourseTreeNode courseNode, final DocumentFolderTreeNode folderNode, final Path parentDirectory) {
-		for (DocumentFolderTreeNode folder : folderNode.folders) {
+		for (final DocumentFolderTreeNode folder : folderNode.folders) {
 			doFolder(semesterNode, courseNode, folder,
 					StudIPApiProvider.DEFAULT_FOLDER.equals(folder.name.trim())
 					? parentDirectory
 					: parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name)));
 		}
 
-		for (DocumentTreeNode document : folderNode.documents) {
+		for (final DocumentTreeNode document : folderNode.documents) {
 			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, parentDirectory.resolve(FileBrowser.removeIllegalCharacters(document.fileName))));
 		}
 	}

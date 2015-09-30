@@ -14,33 +14,10 @@ import de.uni.hannover.studip.sync.utils.FileBrowser;
  * @author Lennart Glauer
  *
  */
-public class PathBuilder {
+public final class PathBuilder {
 
-	/**
-	 * Path template (e.g. ":semester/:course" or ":semester/:lecture/:type").
-	 */
-	private final String template;
-
-	/**
-	 * Root directory.
-	 */
-	private final Path rootDir;
-
-	/**
-	 * Semester tree node.
-	 */
-	private final SemesterTreeNode semester;
-
-	/**
-	 * Course tree node.
-	 */
-	private final CourseTreeNode course;
-
-	public PathBuilder(final String template, final Path rootDir, final SemesterTreeNode semester, final CourseTreeNode course) {
-		this.template = template;
-		this.rootDir = rootDir;
-		this.semester = semester;
-		this.course = course;
+	private PathBuilder() {
+		// Utility class.
 	}
 
 	/**
@@ -48,7 +25,7 @@ public class PathBuilder {
 	 * 
 	 * @return
 	 */
-	private String getSemesterShortTitle() {
+	private static String getSemesterShortTitle(final SemesterTreeNode semester) {
 		final Calendar calendar = Calendar.getInstance(Locale.GERMANY);
 		calendar.setTimeInMillis(semester.begin * 1000L);
 
@@ -64,13 +41,13 @@ public class PathBuilder {
 	 * 
 	 * @return
 	 */
-	private String getCourseTitle() {
+	private static String getCourseTitle(final SemesterTreeNode semester, final CourseTreeNode course) {
 		final String courseTitle = FileBrowser.removeIllegalCharacters(course.title);
 		final String courseTitleLowerCase = courseTitle.toLowerCase(Locale.GERMANY);
 
 		if (course.type == 3 || courseTitleLowerCase.contains("übung") || courseTitleLowerCase.contains("uebung")) {
 			// Search lecture for this exercise.
-			for (CourseTreeNode lecture : semester.courses) {
+			for (final CourseTreeNode lecture : semester.courses) {
 				final String lectureTitle = FileBrowser.removeIllegalCharacters(lecture.title);
 				final String lectureTitleLowerCase = lectureTitle.toLowerCase(Locale.GERMANY);
 
@@ -89,7 +66,7 @@ public class PathBuilder {
 	 * 
 	 * @return
 	 */
-	private String getCourseType() {
+	private static String getCourseType(final CourseTreeNode course) {
 		switch (course.type) {
 		case 1:
 			return "vorlesung";
@@ -120,8 +97,7 @@ public class PathBuilder {
 	/**
 	 * String.
 	 */
-	@Override
-	public String toString() {
+	public static String toString(final String template, final SemesterTreeNode semester, final CourseTreeNode course) {
 		final StringBuilder str = new StringBuilder();
 		final StringTokenizer tokens = new StringTokenizer(template, "/");
 
@@ -134,13 +110,13 @@ public class PathBuilder {
 				str.append(FileBrowser.removeIllegalCharacters(course.title));
 				break;
 			case ":sem":
-				str.append(getSemesterShortTitle());
+				str.append(getSemesterShortTitle(semester));
 				break;
 			case ":lecture":
-				str.append(getCourseTitle());
+				str.append(getCourseTitle(semester, course));
 				break;
 			case ":type":
-				str.append(getCourseType());
+				str.append(getCourseType(course));
 				break;
 			default:
 				throw new IllegalArgumentException("Invalid folder structure!");
@@ -156,7 +132,7 @@ public class PathBuilder {
 	 * 
 	 * @return
 	 */
-	public Path toPath() {
-		return rootDir.resolve(toString());
+	public static Path toPath(final String template, final Path rootDir, final SemesterTreeNode semester, final CourseTreeNode course) {
+		return rootDir.resolve(toString(template, semester, course));
 	}
 }

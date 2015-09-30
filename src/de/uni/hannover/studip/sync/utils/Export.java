@@ -76,19 +76,19 @@ public final class Export {
 		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(Config.openTreeFile()), SemestersTreeNode.class);
 		final String folderStructure = Config.getInstance().getFolderStructure();
 
-		for (SemesterTreeNode semester : rootNode.semesters) {
-			for (CourseTreeNode course : semester.courses) {
+		for (final SemesterTreeNode semester : rootNode.semesters) {
+			for (final CourseTreeNode course : semester.courses) {
 				if (course.type == 99) {
 					// Studiengruppe.
 					continue;
 				}
 
-				final Path courseDirectory = new PathBuilder(folderStructure, rootDirectory, semester, course).toPath();
+				final Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);
 				if (!Files.isDirectory(courseDirectory)) {
 					continue;
 				}
 
-				final Path exportCourseDirectory = new PathBuilder(":lecture/:sem/:type", exportDirectory, semester, course).toPath();
+				final Path exportCourseDirectory = PathBuilder.toPath(":lecture/:sem/:type", exportDirectory, semester, course);
 				if (!Files.isDirectory(exportCourseDirectory)) {
 					Files.createDirectories(exportCourseDirectory);
 				}

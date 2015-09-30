@@ -67,11 +67,11 @@ public class TreeSync extends TreeBuilder {
 		isDirty = false;
 
 		/* Sync tree with multiple threads. */
-		for (SemesterTreeNode semester : rootNode.semesters) {
+		for (final SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only update the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
-				for (CourseTreeNode course : semester.courses) {
-					final Path courseDirectory = new PathBuilder(folderStructure, rootDirectory, semester, course).toPath();
+				for (final CourseTreeNode course : semester.courses) {
+					final Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);
 
 					if (!Files.isDirectory(courseDirectory)) {
 						Files.createDirectories(courseDirectory);
@@ -109,7 +109,7 @@ public class TreeSync extends TreeBuilder {
 	 */
 	private void doFolder(final Phaser phaser, final DocumentFolderTreeNode folderNode, final Path parentDirectory) throws IOException {
 		/* Traverse folder structure (recursive). */
-		for (DocumentFolderTreeNode folder : folderNode.folders) {
+		for (final DocumentFolderTreeNode folder : folderNode.folders) {
 			if (StudIPApiProvider.DEFAULT_FOLDER.equals(folder.name.trim())) {
 				/* Merge default folder with parent. */
 				doFolder(phaser, folder, parentDirectory);
@@ -125,7 +125,7 @@ public class TreeSync extends TreeBuilder {
 			doFolder(phaser, folder, folderDirectory);
 		}
 
-		for (DocumentTreeNode document : folderNode.documents) {
+		for (final DocumentTreeNode document : folderNode.documents) {
 			doDocument(phaser, folderNode, document, parentDirectory);
 		}
 	}

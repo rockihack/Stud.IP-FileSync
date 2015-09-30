@@ -120,7 +120,7 @@ public class TreeBuilder implements AutoCloseable {
 	 * @param doAllSemesters If true all semesters will be updated, otherwise only the current semester
 	 * @throws IOException
 	 */
-	public synchronized int update(final Path tree, final boolean doAllSemesters) throws IOException {
+	public synchronized int update(final Path tree) throws IOException {
 		if (stopPending || Main.exitPending) {
 			return 0;
 		}
@@ -139,21 +139,17 @@ public class TreeBuilder implements AutoCloseable {
 		isDirty = false;
 
 		/* Update tree with multiple threads. */
-		for (SemesterTreeNode semester : rootNode.semesters) {
-			/* If doAllSemesters is false we will only update the current semester. */
-			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
-				for (CourseTreeNode course : semester.courses) {
-					/* Request caching. */
-					if (now - course.updateTime > StudIPApiProvider.CACHE_TIME) {
-						phaser.register();
+		for (final SemesterTreeNode semester : rootNode.semesters) {
+			final int timeDelta = (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)
+					? StudIPApiProvider.CACHE_TIME /* Current semester. */
+					: StudIPApiProvider.LARGE_CACHE_TIME; /* Old semester. */
 
-						/*
-						 * If Rest.IP plugin 0.9.9.6 or later is installed we can use UpdateDocumentsJob.
-						 * Since this version the api offers a more efficient route for updating documents,
-						 * otherwise we need to rebuild the folder tree every time.
-						 */
-						threadPool.execute(new UpdateDocumentsJob(this, phaser, semester, course, now));
-					}
+			for (final CourseTreeNode course : semester.courses) {
+				/* Request caching. */
+				if (now - course.updateTime > timeDelta) {
+					phaser.register();
+
+					threadPool.execute(new UpdateDocumentsJob(this, phaser, semester, course, now));
 				}
 			}
 		}

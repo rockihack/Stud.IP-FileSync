@@ -72,7 +72,7 @@ public class OverviewController extends AbstractController {
 
 					// Update documents.
 					try {
-						numberOfRequests = tree.update(treeFile, false);
+						numberOfRequests = tree.update(treeFile);
 
 					} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
 						// Invalid tree file, lets build a new one.

@@ -65,7 +65,7 @@ public class BuildSemestersJob implements Runnable {
 			final Semesters semesters = RestApi.getAllSemesters();
 			phaser.bulkRegister(semesters.semesters.size());
 
-			for (Semester semester : semesters.semesters) {
+			for (final Semester semester : semesters.semesters) {
 				rootNode.semesters.add(semesterNode = new SemesterTreeNode(semester));
 
 				/* Add build courses job. */

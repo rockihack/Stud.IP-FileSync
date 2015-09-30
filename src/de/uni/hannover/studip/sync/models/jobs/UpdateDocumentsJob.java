@@ -91,7 +91,7 @@ public class UpdateDocumentsJob implements Runnable {
 	 * @param parentFolder Foler tree-node
 	 */
 	private static void buildFolderIndex(final Map<String, DocumentFolderTreeNode> folderIndex, final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode parentFolder) {
-		for (DocumentFolderTreeNode folder : parentFolder.folders) {
+		for (final DocumentFolderTreeNode folder : parentFolder.folders) {
 			parentIndex.put(folder.folderId, parentFolder);
 			buildFolderIndex(folderIndex, parentIndex, folder);
 		}
@@ -136,10 +136,10 @@ public class UpdateDocumentsJob implements Runnable {
 
 		/* Merge default folder with parent. */
 		if (StudIPApiProvider.DEFAULT_FOLDER.equals(folderNode.name.trim())) {
-			for (DocumentTreeNode doc : parentNode.documents) {
+			for (final DocumentTreeNode doc : parentNode.documents) {
 				fileIndex.add(FileBrowser.removeIllegalCharacters(doc.fileName).toLowerCase(Locale.GERMANY));
 			}
-			for (DocumentFolderTreeNode folder : parentNode.folders) {
+			for (final DocumentFolderTreeNode folder : parentNode.folders) {
 				fileIndex.add(FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY));
 			}
 		}
@@ -147,12 +147,12 @@ public class UpdateDocumentsJob implements Runnable {
 		/* Build file index for merged folders. */
 		final String folderName = FileBrowser.removeIllegalCharacters(folderNode.name);
 
-		for (DocumentFolderTreeNode folder : parentNode.folders) {
+		for (final DocumentFolderTreeNode folder : parentNode.folders) {
 			if (folderName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(folder.name))) {
-				for (DocumentFolderTreeNode folder2 : folder.folders) {
+				for (final DocumentFolderTreeNode folder2 : folder.folders) {
 					fileIndex.add(FileBrowser.removeIllegalCharacters(folder2.name).toLowerCase(Locale.GERMANY));
 				}
-				for (DocumentTreeNode doc : folder.documents) {
+				for (final DocumentTreeNode doc : folder.documents) {
 					fileIndex.add(FileBrowser.removeIllegalCharacters(doc.fileName).toLowerCase(Locale.GERMANY));
 				}
 			}
@@ -175,7 +175,7 @@ public class UpdateDocumentsJob implements Runnable {
 				final Map<String, DocumentFolderTreeNode> parentIndex = new HashMap<String, DocumentFolderTreeNode>();
 				buildFolderIndex(folderIndex, parentIndex, courseNode.root);
 
-				for (Document document : newDocuments.documents) {
+				for (final Document document : newDocuments.documents) {
 					folderNode = folderIndex.get(document.folder_id);
 					if (folderNode == null) {
 						/* Folder does not exist locally, we need to re-sync all course folders. */

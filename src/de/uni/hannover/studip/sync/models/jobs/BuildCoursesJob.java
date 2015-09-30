@@ -67,7 +67,7 @@ public class BuildCoursesJob implements Runnable {
 			final Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semesterId);
 			phaser.bulkRegister(courses.courses.size());
 			
-			for (Course course : courses.courses) {
+			for (final Course course : courses.courses) {
 				semesterNode.courses.add(courseNode = new CourseTreeNode(course));
 				
 				/* Add build documents job. */
