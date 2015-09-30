@@ -36,13 +36,13 @@
               </rowConstraints>
                <children>
                   <Label text="Ordnerstruktur:" underline="true" GridPane.columnIndex="1" />
-                  <RadioButton fx:id="option1" mnemonicParsing="false" selected="true" text=":semester/:course" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                  <RadioButton fx:id="option1" mnemonicParsing="false" selected="true" text="Vorlesung und Übung zusammenführen (:semester/:lecture/:type)" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1">
                      <toggleGroup>
                         <ToggleGroup fx:id="structureGroup" />
                      </toggleGroup>
                   </RadioButton>
-                  <RadioButton fx:id="option2" mnemonicParsing="false" text=":semester/:lecture/:type" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <RadioButton fx:id="option3" mnemonicParsing="false" text=":lecture/:sem/:type" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <RadioButton fx:id="option2" mnemonicParsing="false" text="Alle Veranstaltungen einzeln (:semester/:course)" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <RadioButton fx:id="option3" mnemonicParsing="false" text="Materialsammlung (:lecture/:sem/:type)" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <RadioButton fx:id="option4" mnemonicParsing="false" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                   <TextField fx:id="structureField" GridPane.columnIndex="1" GridPane.rowIndex="4">
                      <GridPane.margin>
