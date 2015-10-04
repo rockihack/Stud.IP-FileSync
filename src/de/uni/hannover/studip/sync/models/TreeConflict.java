@@ -25,8 +25,10 @@ public final class TreeConflict {
 	/**
 	 * Resolve folder name conflicts.
 	 * 
-	 * @param folder
-	 * @param fileIndexMap
+	 * @notice The folder name might be modified.
+	 * @param fileIndex Parent folder's filename index.
+	 * @param fileIndexMap Maps folder name to filename index.
+	 * @param folder Current folder.
 	 */
 	public static Set<String> resolveFolderNameConflict(final Set<String> fileIndex, final Map<String, Set<String>> fileIndexMap, final DocumentFolder folder) {
 		/* Merge default folder with parent. */
@@ -37,7 +39,7 @@ public final class TreeConflict {
 		/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
 		String folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
 
-		if (fileIndexMap.get(folderName) == null) {
+		if (!fileIndexMap.containsKey(folderName)) {
 			/* Folder does not exist yet. */
 			synchronized (fileIndex) {
 				if (fileIndex.contains(folderName)) {
@@ -50,9 +52,11 @@ public final class TreeConflict {
 					folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
 				}
 
+				/* Mark name as used. */
 				fileIndex.add(folderName);
 			}
 
+			/* Create folder filename index. */
 			fileIndexMap.put(folderName, new HashSet<String>());
 
 		} else {
@@ -68,8 +72,9 @@ public final class TreeConflict {
 	/**
 	 * Resolve file name conflicts.
 	 * 
-	 * @param fileIndex
-	 * @param document
+	 * @notice The document filename might be modified.
+	 * @param fileIndex Folder filename index.
+	 * @param document Folder document.
 	 */
 	public static void resolveFileNameConflict(final Set<String> fileIndex, final Document document) {
 		/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
@@ -108,6 +113,7 @@ public final class TreeConflict {
 				}
 			}
 
+			/* Mark name as used. */
 			fileIndex.add(fileName);
 		}
 	}

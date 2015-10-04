@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
 import de.uni.hannover.studip.sync.Main;
-import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.TreeSync;
@@ -57,7 +56,11 @@ public class OverviewController extends AbstractController {
 					syncButton.setText("Updating...");
 				});
 
-				OAUTH.restoreAccessToken();
+				if (!OAUTH.restoreAccessToken()) {
+					OAUTH.removeAccessToken();
+					Platform.runLater(() -> getMain().setView(Main.OAUTH));
+					return;
+				}
 
 				final String rootDir = CONFIG.getRootDirectory();
 				if (rootDir == null || rootDir.isEmpty()) {
@@ -70,12 +73,12 @@ public class OverviewController extends AbstractController {
 
 					tree.setProgress(progress, progressLabel);
 
-					// Update documents.
+					/* Update documents. */
 					try {
 						numberOfRequests = tree.update(treeFile);
 
 					} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
-						// Invalid tree file, lets build a new one.
+						/* Invalid tree file. */
 						numberOfRequests = tree.build(treeFile);
 					}
 
@@ -84,18 +87,13 @@ public class OverviewController extends AbstractController {
 							syncButton.setText("Downloading...");
 					});
 
-					// Download documents.
+					/* Download documents. */
 					numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
 
 					if (LOG.isLoggable(Level.INFO)) {
 						LOG.info("Number of requests: " + numberOfRequests);
 					}
 				}
-
-			} catch (UnauthorizedException e) {
-				OAUTH.removeAccessToken();
-
-				Platform.runLater(() -> getMain().setView(Main.OAUTH));
 
 			} catch (IOException e) {
 				Platform.runLater(() -> {

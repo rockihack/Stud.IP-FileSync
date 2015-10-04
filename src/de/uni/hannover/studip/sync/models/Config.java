@@ -10,7 +10,6 @@ import org.scribe.model.Token;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.uni.hannover.studip.sync.datamodel.SettingsFile;
 import de.uni.hannover.studip.sync.datamodel.OAuthFile;
-import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 
 /**
  * Global config wrapper class.
@@ -114,7 +113,7 @@ public final class Config {
 		settings.lock.readLock().lock();
 		try {
 			return (settings.data.folderStructure == null || settings.data.folderStructure.isEmpty())
-					? ":semester/:course"
+					? ":semester/:lecture/:type"
 					: settings.data.folderStructure;
 
 		} finally {
@@ -280,13 +279,12 @@ public final class Config {
 	 * Get the OAuth access token.
 	 * 
 	 * @see OAuth.restoreAccessToken()
-	 * @throws UnauthorizedException 
 	 */
-	public Token getAccessToken() throws UnauthorizedException {
+	public Token getAccessToken() {
 		oauth.lock.readLock().lock();
 		try {
 			if (oauth.data.token == null || oauth.data.secret == null) {
-				throw new UnauthorizedException("Unauthorized.");
+				throw new IllegalStateException("Access token not found!");
 			}
 
 			return new Token(oauth.data.token, oauth.data.secret);

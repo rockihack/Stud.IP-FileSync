@@ -12,7 +12,6 @@ import org.scribe.model.Verb;
 import org.scribe.model.Verifier;
 import org.scribe.oauth.OAuthService;
 
-import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 
 /**
@@ -151,9 +150,8 @@ public final class OAuth {
 	 * @param verb Request method
 	 * @param url Request url
 	 * @return OAuth response
-	 * @throws UnauthorizedException 
 	 */
-	public Response sendRequest(final Verb method, final String url) throws UnauthorizedException {
+	public Response sendRequest(final Verb method, final String url) {
 		final OAuthRequest request = new OAuthRequest(method, url);
 		request.setConnectTimeout(10, TimeUnit.SECONDS);
 		request.setConnectionKeepAlive(true);
@@ -161,7 +159,7 @@ public final class OAuth {
 		lock.readLock().lock();
 		try {
 			if (state != OAuthState.READY) {
-				throw new UnauthorizedException("Access token not found!");
+				throw new IllegalStateException("Access token not found!");
 			}
 
 			service.signRequest(accessToken, request);
@@ -176,15 +174,20 @@ public final class OAuth {
 	/**
 	 * Restore a previously used access token.
 	 * 
-	 * @throws UnauthorizedException 
+	 * @return True, if an access token was restored.
 	 */
-	public void restoreAccessToken() throws UnauthorizedException {
+	public boolean restoreAccessToken() {
 		lock.writeLock().lock();
 		try {
 			if (state != OAuthState.READY) {
 				accessToken = CONFIG.getAccessToken();
 				state = OAuthState.READY;
 			}
+
+			return true;
+
+		} catch (IllegalStateException e) {
+			return false;
 
 		} finally {
 			lock.writeLock().unlock();

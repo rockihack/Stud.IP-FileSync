@@ -34,7 +34,7 @@ public class TreeSync extends TreeBuilder {
 	 * @param rootDirectory Path to sync root directory
 	 */
 	public TreeSync(final Path rootDirectory) {
-		// Start threadpool in super class.
+		/* Start threadpool in super class. */
 		super();
 
 		if (!Files.isDirectory(rootDirectory)) {
@@ -68,7 +68,7 @@ public class TreeSync extends TreeBuilder {
 
 		/* Sync tree with multiple threads. */
 		for (final SemesterTreeNode semester : rootNode.semesters) {
-			/* If doAllSemesters is false we will only update the current semester. */
+			/* If doAllSemesters is false we will only sync the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
 				for (final CourseTreeNode course : semester.courses) {
 					final Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);

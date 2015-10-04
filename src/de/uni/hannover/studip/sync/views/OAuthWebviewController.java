@@ -113,7 +113,6 @@ public class OAuthWebviewController extends AbstractController {
 		} catch (OAuthException | UnauthorizedException | NotFoundException e) {
 			OAUTH.removeAccessToken();
 
-			// Redirect to login.
 			getMain().setView(Main.OAUTH);
 
 		} catch (IOException e) {

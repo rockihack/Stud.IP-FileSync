@@ -8,7 +8,6 @@ import java.util.Locale;
 import java.util.Optional;
 
 import de.uni.hannover.studip.sync.Main;
-import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import javafx.fxml.FXML;
@@ -47,10 +46,8 @@ public class SettingsController extends AbstractController {
 	@FXML
 	public void initialize() {
 		// Stud.IP Account.
-		try {
-			OAUTH.restoreAccessToken();
-
-			// User has an access token, we do not check if it's valid here.
+		if (OAUTH.restoreAccessToken()) {
+			logoutButton.setDisable(false);
 
 			final String firstName = CONFIG.getFirstName();
 			final String lastName = CONFIG.getLastName();
@@ -59,10 +56,7 @@ public class SettingsController extends AbstractController {
 				userLabel.setText(String.format(Locale.GERMANY, "Eingeloggt als %s %s, %s", firstName, lastName, userName));
 			}
 
-			logoutButton.setDisable(false);
-
-		} catch (UnauthorizedException e) {
-			// Not logged in.
+		} else {
 			logoutButton.setDisable(true);
 		}
 

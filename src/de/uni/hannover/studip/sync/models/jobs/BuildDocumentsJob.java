@@ -95,7 +95,7 @@ public class BuildDocumentsJob implements Runnable {
 
 				/* Folders. */
 				for (final DocumentFolder folder : folders.folders) {
-					/* Get folder index (merged folders use the same index). */
+					/* Get folder index (merged folders use same index) and rename the folder if it's name already exists. */
 					final Set<String> folderFileIndex = TreeConflict.resolveFolderNameConflict(fileIndex, fileIndexMap, folder);
 
 					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
@@ -108,6 +108,7 @@ public class BuildDocumentsJob implements Runnable {
 
 				/* Documents. */
 				for (final Document document : folders.documents) {
+					/* Rename the document if it's filename already exists. */
 					TreeConflict.resolveFileNameConflict(fileIndex, document);
 
 					parentNode.documents.add(documentNode = new DocumentTreeNode(document));
