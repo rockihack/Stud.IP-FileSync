@@ -28,7 +28,7 @@ public final class RestApi {
 	/**
 	 * Regex for studip id (MD5) validation.
 	 */
-	private static final String STUDIP_ID_REGEX = "^[a-z0-9]{32}$";
+	private static final String STUDIP_ID_REGEX = "^[a-f0-9]{32}$";
 
 	private RestApi() {
 		// Utility class.
