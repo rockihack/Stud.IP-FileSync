@@ -198,25 +198,23 @@ public final class OAuth {
 	 * Remove access token.
 	 */
 	public void removeAccessToken() {
+		lock.writeLock().lock();
 		try {
 			CONFIG.initOAuthFile();
 
-			lock.writeLock().lock();
-			try {
-				/*
-				 * We must not acquire a second request token until
-				 * we got a access token for the first one.
-				 */
-				if (state != OAuthState.GET_ACCESS_TOKEN) {
-					state = OAuthState.GET_REQUEST_TOKEN;
-				}
-
-			} finally {
-				lock.writeLock().unlock();
+			/*
+			 * We must not acquire a second request token until
+			 * we got a access token for the first one.
+			 */
+			if (state != OAuthState.GET_ACCESS_TOKEN) {
+				state = OAuthState.GET_REQUEST_TOKEN;
 			}
 
 		} catch (IOException | InstantiationException | IllegalAccessException e) {
 			throw new IllegalStateException(e);
+
+		} finally {
+			lock.writeLock().unlock();
 		}
 	}
 }
