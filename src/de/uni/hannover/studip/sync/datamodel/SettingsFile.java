@@ -36,4 +36,9 @@ public class SettingsFile {
 	 */
 	public int replaceWhitespaces;
 
+	/**
+	 * Set true to enable freely customizable folder and file names
+	 */
+	public boolean folderConf = false;
+
 }

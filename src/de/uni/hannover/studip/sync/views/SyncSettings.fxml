@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.collections.*?>
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.SyncSettingsController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.SyncSettingsController">
    <children>
       <GridPane layoutX="0" layoutY="0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columnConstraints>
@@ -28,6 +28,8 @@
                   <ColumnConstraints hgrow="ALWAYS" minWidth="20.0" />
               </columnConstraints>
               <rowConstraints>
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
@@ -66,6 +68,8 @@
                         </FXCollections>
                      </items>
                   </ChoiceBox>
+                  <Label text="Soll Option Ordnernamen-ändern aktiviert werden?" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                  <CheckBox fx:id="foldernameConfig" GridPane.columnIndex="3" GridPane.rowIndex="6" />
                </children>
             </GridPane>
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
