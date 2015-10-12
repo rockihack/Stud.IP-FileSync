@@ -1,6 +1,5 @@
 package de.uni.hannover.studip.sync.models;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -152,7 +151,7 @@ public class TreeSync extends TreeBuilder {
 		Path documentFile = parentDirectory.resolve(originalFileName);
 		final String renamedPath = RENAMEMAP.checkPath(rootDirectory.relativize(documentFile).toString());
 		documentFile = rootDirectory.resolve(renamedPath);
-		String documentFileParts[] = renamedPath.split(File.separator);
+		String documentFileParts[] = renamedPath.split("/");
 		originalFileName = documentFileParts[documentFileParts.length-1];
 
 		if (!Files.exists(documentFile)) {

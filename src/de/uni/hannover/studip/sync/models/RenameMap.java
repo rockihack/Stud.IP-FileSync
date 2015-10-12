@@ -94,11 +94,12 @@ public final class RenameMap {
 	
 	public String checkPath(String path) {
 		
-		if(renameMap == null ) {
-			return path;
-		}
 		if(File.separator.equals("\\")) {
 			path.replace("\\", "/");
+		}
+		
+		if(renameMap == null ) {
+			return path;
 		}
 
 		String pathCopy = path;
