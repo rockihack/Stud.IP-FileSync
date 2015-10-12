@@ -1,5 +1,6 @@
 package de.uni.hannover.studip.sync.models;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,9 +33,12 @@ public final class RenameMap {
 			renameMap = new HashMap<String, String>();
 		}
 		
-		String sep = System.getProperty("file.separator");
-		String newPathStr = newPath.toString().replace(sep, "/");
-		String oldPathStr = oldPath.toString().replace(sep, "/");
+		String newPathStr = newPath.toString();
+		String oldPathStr = oldPath.toString();
+		if(File.separator.equals("\\")) {
+			newPathStr = newPathStr.replace("\\", "/");
+			oldPathStr = oldPathStr.replace("\\", "/");
+		}
 		
 		// part 1 restore oldPath to real old path if parts were renamed (are inside map)		
 		int parts = oldPathStr.split("/").length; // amount of path parts
@@ -92,6 +96,9 @@ public final class RenameMap {
 		
 		if(renameMap == null ) {
 			return path;
+		}
+		if(File.separator.equals("\\")) {
+			path.replace("\\", "/");
 		}
 
 		String pathCopy = path;
