@@ -16,8 +16,6 @@ import de.uni.hannover.studip.sync.utils.FileBrowser;
  */
 public final class PathBuilder {
 
-	private static final RenameMap RENAMEMAP = RenameMap.getInstance();
-	
 	private PathBuilder() {
 		// Utility class.
 	}
@@ -135,7 +133,6 @@ public final class PathBuilder {
 	 * @return
 	 */
 	public static Path toPath(final String template, final Path rootDir, final SemesterTreeNode semester, final CourseTreeNode course) {
-		String relativePath = toString(template, semester, course);
-		return rootDir.resolve(RENAMEMAP.checkPath(relativePath));
+		return rootDir.resolve(toString(template, semester, course));
 	}
 }

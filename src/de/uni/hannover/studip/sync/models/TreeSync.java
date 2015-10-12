@@ -22,6 +22,7 @@ import de.uni.hannover.studip.sync.utils.FileBrowser;
 public class TreeSync extends TreeBuilder {
 
 	private static final Config CONFIG = Config.getInstance();
+	private static final RenameMap RENAMEMAP = RenameMap.getInstance();
 
 	/**
 	 * The sync root directory.
@@ -71,10 +72,12 @@ public class TreeSync extends TreeBuilder {
 			/* If doAllSemesters is false we will only sync the current semester. */
 			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
 				for (final CourseTreeNode course : semester.courses) {
+					
 					final Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);
-
-					if (!Files.isDirectory(courseDirectory)) {
-						Files.createDirectories(courseDirectory);
+					final Path renamedCourseDirectory = rootDirectory.resolve(RENAMEMAP.checkPath(rootDirectory.relativize(courseDirectory).toString()));
+					
+					if (!Files.isDirectory(renamedCourseDirectory)) {
+						Files.createDirectories(renamedCourseDirectory);
 					}
 
 					doFolder(phaser, course.root, courseDirectory);
@@ -117,9 +120,10 @@ public class TreeSync extends TreeBuilder {
 			}
 
 			final Path folderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name));
+			final Path renamedFolderDirectory = rootDirectory.resolve(RENAMEMAP.checkPath(rootDirectory.relativize(folderDirectory).toString()));
 
-			if (!Files.isDirectory(folderDirectory)) {
-				Files.createDirectory(folderDirectory);
+			if (!Files.isDirectory(renamedFolderDirectory)) {
+				Files.createDirectory(renamedFolderDirectory);
 			}
 
 			doFolder(phaser, folder, folderDirectory);
@@ -140,8 +144,15 @@ public class TreeSync extends TreeBuilder {
 	 * @throws IOException 
 	 */
 	private void doDocument(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final Path parentDirectory) throws IOException {
-		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
-		final Path documentFile = parentDirectory.resolve(originalFileName);
+		//final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
+		//Path documentFile = parentDirectory.resolve(originalFileName);
+		//documentFile = rootDirectory.resolve(RENAMEMAP.checkPath(rootDirectory.relativize(documentFile).toString()));
+		String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
+		Path documentFile = parentDirectory.resolve(originalFileName);
+		final String renamedPath = RENAMEMAP.checkPath(rootDirectory.relativize(documentFile).toString());
+		documentFile = rootDirectory.resolve(renamedPath);
+		String documentFileParts[] = renamedPath.split("/");
+		originalFileName = documentFileParts[documentFileParts.length-1];
 
 		if (!Files.exists(documentFile)) {
 			phaser.register();

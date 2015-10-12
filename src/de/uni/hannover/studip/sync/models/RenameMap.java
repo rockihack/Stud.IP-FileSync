@@ -16,7 +16,6 @@ public final class RenameMap {
 	private static final RenameMap INSTANCE = new RenameMap();
 	
 	public HashMap<String, String> renameMap = CONFIG.readRenameMap();
-	String sep = System.getProperty("file.separator");
 	
 	/**
 	 * Singleton instance getter.
@@ -33,11 +32,12 @@ public final class RenameMap {
 			renameMap = new HashMap<String, String>();
 		}
 		
-		String newPathStr = newPath.toString();
-		String oldPathStr = oldPath.toString();
+		String sep = System.getProperty("file.separator");
+		String newPathStr = newPath.toString().replace(sep, "/");
+		String oldPathStr = oldPath.toString().replace(sep, "/");
 		
 		// part 1 restore oldPath to real old path if parts were renamed (are inside map)		
-		int parts = oldPathStr.split(sep).length; // amount of path parts
+		int parts = oldPathStr.split("/").length; // amount of path parts
 		String[] partsChanged = new String[parts];
 		int index = 0;
 		
@@ -50,13 +50,13 @@ public final class RenameMap {
 
 		// if path was altered
 		if(index != 0) {
-			String[] wrongOldParts = oldPathStr.split(sep);			
+			String[] wrongOldParts = oldPathStr.split("/");			
 			Arrays.sort(partsChanged, 0, index-1);
 			oldPathStr = partsChanged[index-1];
-			int partPos = oldPathStr.split(sep).length;
+			int partPos = oldPathStr.split("/").length;
 			
 			for(int i = partPos; i < parts; i++) {
-				oldPathStr = oldPathStr.concat(sep + wrongOldParts[i]);
+				oldPathStr = oldPathStr.concat("/" + wrongOldParts[i]);
 			}
 		}
 		
@@ -64,11 +64,11 @@ public final class RenameMap {
 
 		for(HashMap.Entry<String, String> entry : renameMap.entrySet()){
 		    if(entry.getKey().startsWith(oldPathStr)) {
-				String[] entryParts = entry.getValue().split(sep);
+				String[] entryParts = entry.getValue().split("/");
 				String updatedEntryValue = newPathStr;
 				
 				for(int x = parts; x < entryParts.length; x++) {
-					updatedEntryValue = updatedEntryValue.concat(sep + entryParts[x]);
+					updatedEntryValue = updatedEntryValue.concat("/" + entryParts[x]);
 				}
 				
 				entry.setValue(updatedEntryValue);
@@ -95,18 +95,20 @@ public final class RenameMap {
 		}
 
 		String pathCopy = path;
-		path = path.substring(0, path.length()-1);
-		String[] paths = path.split(sep);
+		if(path.endsWith("/")) {
+			path = path.substring(0, path.length()-1);
+		}
+		String[] paths = path.split("/");
 		
 		// check if path segments are in renameMap
 		for (int i = paths.length-1; i >= 0; i--) {
 			System.out.println(path);
 			if(renameMap.containsKey(path)) {
-				path = renameMap.get(path).concat(sep);
+				path = renameMap.get(path).concat("/");
 				System.out.println("rename found: " + path);
 				for(int x = i + 1; x < paths.length; x++) {
 					
-					path = path.concat(paths[x] + sep);
+					path = path.concat(paths[x] + "/");
 				}
 				System.out.println("rename fullpath: " + path);
 				return path;
