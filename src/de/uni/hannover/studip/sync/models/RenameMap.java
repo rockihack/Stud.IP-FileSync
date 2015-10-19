@@ -95,7 +95,7 @@ public final class RenameMap {
 	public String checkPath(String path) {
 		
 		if(File.separator.equals("\\")) {
-			path.replace("\\", "/");
+			path = path.replace("\\", "/");
 		}
 		
 		if(renameMap == null ) {
