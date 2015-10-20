@@ -94,14 +94,14 @@ public final class RenameMap {
 	
 	public String checkPath(String path) {
 		
-		if(File.separator.equals("\\")) {
-			path = path.replace("\\", "/");
-		}
-		
 		if(renameMap == null ) {
 			return path;
 		}
 
+		if(File.separator.equals("\\")) {
+			path = path.replace("\\", "/");
+		}
+		
 		String pathCopy = path;
 		if(path.endsWith("/")) {
 			path = path.substring(0, path.length()-1);
@@ -110,6 +110,13 @@ public final class RenameMap {
 		
 		// check if path segments are in renameMap
 		for (int i = paths.length-1; i >= 0; i--) {
+			// check if os is windows
+			if(File.separator.equals("\\")) {
+				// remove dot if at end of string
+				if(path.endsWith(".")) {
+					path = path.substring(0, path.length()-1);
+				}
+			}
 			System.out.println(path);
 			if(renameMap.containsKey(path)) {
 				path = renameMap.get(path).concat("/");
