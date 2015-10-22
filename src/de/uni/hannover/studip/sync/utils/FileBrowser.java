@@ -105,9 +105,9 @@ public final class FileBrowser {
 		}
 
 		/* Replace separators. */
-		fileName = fileName.replaceAll("[-\\/]+", "-");
+		fileName = fileName.replaceAll("[-\\\\/]+", "-");
 		/* Remove other illegal chars. */
-		return fileName.replaceAll("[<>:\"|?*]+", "");
+		return fileName.replaceAll("([<>:\"|?*]+)|([\\.]+$)", "");
 	}
 
 	/**
