@@ -41,8 +41,8 @@
                         <ToggleGroup fx:id="structureGroup" />
                      </toggleGroup>
                   </RadioButton>
-                  <RadioButton fx:id="option2" mnemonicParsing="false" text="Alle Veranstaltungen einzeln (:semester/:course)" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <RadioButton fx:id="option3" mnemonicParsing="false" text="Materialsammlung (:lecture/:sem/:type)" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <RadioButton fx:id="option2" mnemonicParsing="false" text="Alle Veranstaltungen einzeln (:semester/:course)" toggleGroup="$structureGroup" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <RadioButton fx:id="option3" mnemonicParsing="false" text="Materialsammlung (:lecture/:sem/:type)" toggleGroup="$structureGroup" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <RadioButton fx:id="option4" mnemonicParsing="false" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                   <TextField fx:id="structureField" GridPane.columnIndex="1" GridPane.rowIndex="4">
                      <GridPane.margin>

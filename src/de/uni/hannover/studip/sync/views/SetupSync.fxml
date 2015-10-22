@@ -36,7 +36,7 @@
                 <RowConstraints vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Label text="Welche Semester sollen synchronisiert werden?" GridPane.columnIndex="1">
+                  <Label text="Welche Semester sollen synchronisiert werden?" wrapText="true" GridPane.columnIndex="1">
                   </Label>
                   <ChoiceBox fx:id="downloadAllSemestersChoicebox" prefWidth="150.0" GridPane.columnIndex="3">
                      <items>
@@ -46,7 +46,7 @@
                         </FXCollections>
                      </items>
                   </ChoiceBox>
-                  <Label text="Sollen geänderte Dateien überschrieben werden?" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  <Label text="Sollen geänderte Dateien überschrieben werden?" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2">
                   </Label>
                   <ChoiceBox fx:id="overwriteChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
                      <items>
@@ -56,7 +56,7 @@
                         </FXCollections>
                      </items>
                   </ChoiceBox>
-                  <Label text="Sollen Leerzeichen in Dateinamen ersetzt werden?" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Label text="Sollen Leerzeichen in Dateinamen ersetzt werden?" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                   <ChoiceBox fx:id="replaceWhitespacesChoicebox" prefWidth="150.0" GridPane.columnIndex="3" GridPane.rowIndex="4">
                      <items>
                         <FXCollections fx:factory="observableArrayList">
