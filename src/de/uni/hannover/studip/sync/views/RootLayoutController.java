@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -149,7 +150,10 @@ public class RootLayoutController extends AbstractController {
 			}
 
 			try {
-				Export.exportMat(Paths.get(rootDir), exportDir.toPath());
+				final Path rootDirPath = Paths.get(rootDir);
+				final Path exportDirPath = exportDir.toPath();
+				Export.exportMat(rootDirPath, exportDirPath);
+				FileBrowser.open(exportDirPath);
 
 			} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
 				Platform.runLater(() -> {
