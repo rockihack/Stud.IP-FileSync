@@ -17,6 +17,8 @@ import de.uni.hannover.studip.sync.models.Config;
  */
 public final class FileBrowser {
 
+	private static final Config CONFIG = Config.getInstance();
+
 	private FileBrowser() {
 		// Utility class.
 	}
@@ -117,7 +119,7 @@ public final class FileBrowser {
 	 * @return New filename
 	 */
 	public static String removeIllegalCharacters(final String fileName) {
-		return removeIllegalCharacters(fileName, Config.getInstance().getReplaceWhitespaces());
+		return removeIllegalCharacters(fileName, CONFIG.getReplaceWhitespaces());
 	}
 
 	/**

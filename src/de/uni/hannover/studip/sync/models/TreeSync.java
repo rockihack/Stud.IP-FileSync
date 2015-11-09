@@ -64,12 +64,11 @@ public class TreeSync extends TreeBuilder {
 		final long now = System.currentTimeMillis() / 1000L;
 		final String folderStructure = CONFIG.getFolderStructure();
 
-		isDirty = false;
-
 		/* Sync tree with multiple threads. */
+		isDirty = false;
 		for (final SemesterTreeNode semester : rootNode.semesters) {
 			/* If doAllSemesters is false we will only sync the current semester. */
-			if (doAllSemesters || (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)) {
+			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (final CourseTreeNode course : semester.courses) {
 					final Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);
 

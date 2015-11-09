@@ -201,16 +201,16 @@ public class UpdateDocumentsJob implements Runnable {
 
 			/* Update unix timestamp. */
 			courseNode.updateTime = now;
-			builder.setDirty();
+			builder.isDirty = true;
 
 		} catch (OAuthConnectionException e) {
 			/* Connection failed. */
-			builder.setStopPending();
+			builder.stopPending = true;
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
 			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
-			builder.setStopPending();
+			builder.stopPending = true;
 
 		} catch (ForbiddenException | NotFoundException e) {
 			/*
@@ -218,7 +218,7 @@ public class UpdateDocumentsJob implements Runnable {
 			 * or course does not exist.
 			 */
 			semesterNode.courses.remove(courseNode);
-			builder.setDirty();
+			builder.isDirty = true;
 
 			if (LOG.isLoggable(Level.WARNING)) {
 				LOG.warning("Removed course: " + courseNode.title);
@@ -228,13 +228,13 @@ public class UpdateDocumentsJob implements Runnable {
 			throw new IllegalStateException(e);
 
 		} catch (RejectedExecutionException e) {
-			if (!builder.isStopPending() && !Main.exitPending) {
+			if (!builder.stopPending && !Main.exitPending) {
 				throw new IllegalStateException(e);
 			}
 
 		} finally {
 			/* Job done. */
-			if (builder.isStopPending() || Main.exitPending) {
+			if (builder.stopPending || Main.exitPending) {
 				phaser.forceTermination();
 				builder.shutdownNow();
 			} else {

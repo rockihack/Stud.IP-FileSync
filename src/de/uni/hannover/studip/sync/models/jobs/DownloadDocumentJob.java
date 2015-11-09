@@ -96,12 +96,12 @@ public class DownloadDocumentJob implements Runnable {
 
 		} catch (OAuthConnectionException e) {
 			/* Connection failed. */
-			sync.setStopPending();
+			sync.stopPending = true;
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
 			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
-			sync.setStopPending();
+			sync.stopPending = true;
 
 		} catch (ForbiddenException | NotFoundException e) {
 			/*
@@ -109,7 +109,7 @@ public class DownloadDocumentJob implements Runnable {
 			 * or document does not exist.
 			 */
 			folderNode.documents.remove(documentNode);
-			sync.setDirty();
+			sync.isDirty = true;
 
 			if (LOG.isLoggable(Level.WARNING)) {
 				LOG.warning("Removed document: " + documentNode.fileName);
@@ -119,13 +119,13 @@ public class DownloadDocumentJob implements Runnable {
 			throw new IllegalStateException(e);
 
 		} catch (RejectedExecutionException e) {
-			if (!sync.isStopPending() && !Main.exitPending) {
+			if (!sync.stopPending && !Main.exitPending) {
 				throw new IllegalStateException(e);
 			}
 
 		} finally {
 			/* Job done. */
-			if (sync.isStopPending() || Main.exitPending) {
+			if (sync.stopPending || Main.exitPending) {
 				phaser.forceTermination();
 				sync.shutdownNow();
 			} else {

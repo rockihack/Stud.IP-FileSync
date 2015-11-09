@@ -32,11 +32,6 @@ public class TreeBuilder implements AutoCloseable {
 	protected static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
-	 * Time in seconds a semester will be updated after it's end date.
-	 */
-	protected static final long SEMESTER_THRESHOLD = 30 * 24 * 60 * 60;
-
-	/**
 	 * Thread pool.
 	 */
 	protected final ExecutorService threadPool;
@@ -44,12 +39,12 @@ public class TreeBuilder implements AutoCloseable {
 	/**
 	 * Flag to signal graceful shutdown of worker threads.
 	 */
-	protected volatile boolean stopPending;
+	public volatile boolean stopPending;
 
 	/**
-	 * Signals if the tree is dirty and needs to be written to disk.
+	 * Flag to signal if the tree is dirty and needs to be written to disk.
 	 */
-	protected volatile boolean isDirty;
+	public volatile boolean isDirty;
 
 	/**
 	 * Gui progress indicator.
@@ -62,14 +57,14 @@ public class TreeBuilder implements AutoCloseable {
 	private Label progressLabel;
 
 	/**
-	 * Start the threadpool.
+	 * Start threadpool.
 	 */
 	protected TreeBuilder() {
 		threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 	}
 
 	/**
-	 * Stops the threadpool.
+	 * Stop threadpool.
 	 */
 	@Override
 	public void close() {
@@ -91,7 +86,6 @@ public class TreeBuilder implements AutoCloseable {
 
 		/* Create empty root node. */
 		final SemestersTreeNode rootNode = new SemestersTreeNode();
-
 		final Phaser phaser = new Phaser(2); /* = self + first job. */
 
 		/* Build tree with multiple threads. */
@@ -136,11 +130,10 @@ public class TreeBuilder implements AutoCloseable {
 		final Phaser phaser = new Phaser(1); /* = self. */
 		final long now = System.currentTimeMillis() / 1000L;
 
-		isDirty = false;
-
 		/* Update tree with multiple threads. */
+		isDirty = false;
 		for (final SemesterTreeNode semester : rootNode.semesters) {
-			final int timeDelta = (now > semester.begin && now < semester.end + SEMESTER_THRESHOLD)
+			final int timeDelta = (now > semester.begin && now < semester.end)
 					? StudIPApiProvider.CACHE_TIME /* Current semester. */
 					: StudIPApiProvider.LARGE_CACHE_TIME; /* Old semester. */
 
@@ -174,21 +167,9 @@ public class TreeBuilder implements AutoCloseable {
 	public void execute(final Runnable job) {
 		threadPool.execute(job);
 	}
-	
+
 	public void shutdownNow() {
 		threadPool.shutdownNow();
-	}
-	
-	public void setStopPending() {
-		stopPending = true;
-	}
-	
-	public boolean isStopPending() {
-		return stopPending;
-	}
-
-	public void setDirty() {
-		isDirty = true;
 	}
 
 	/**
