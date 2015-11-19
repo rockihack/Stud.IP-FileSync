@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 import org.scribe.model.Token;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.uni.hannover.studip.sync.datamodel.SettingsFile;
 import de.uni.hannover.studip.sync.datamodel.OAuthFile;
@@ -20,6 +22,7 @@ import de.uni.hannover.studip.sync.datamodel.OAuthFile;
 public final class Config {
 
 	private static final Config INSTANCE = new Config();
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	private static final String CONFIG_DIR = ".studip-sync";
 	private static final String SETTINGS_FILE_NAME = "config.json";
@@ -36,6 +39,15 @@ public final class Config {
 	 */
 	public static Config getInstance() {
 		return INSTANCE;
+	}
+
+	/**
+	 * Jackson mapper instance getter.
+	 * 
+	 * @return
+	 */
+	public static ObjectMapper getMapper() {
+		return MAPPER;
 	}
 
 	/**

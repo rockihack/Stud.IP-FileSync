@@ -7,10 +7,11 @@ import java.util.Map;
 import org.scribe.model.Response;
 import org.scribe.model.Verb;
 
-import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 
 /**
  * Jackson request.
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JacksonRequest<T> {
 
 	private static final OAuth OAUTH = OAuth.getInstance();
+	private static final ObjectMapper MAPPER = Config.getMapper();
 
 	/**
 	 * Request method.
@@ -64,23 +66,26 @@ public class JacksonRequest<T> {
 	 * 
 	 * @param unwrap Unwrap datamodel
 	 * @return Response datamodel
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
-	public T parseResponse(final boolean unwrap) throws IOException {
-		final ObjectMapper mapper = new ObjectMapper();
-
-		/* Unwrap root value. */
-		if (unwrap) {
-			mapper.configure(DeserializationFeature.UNWRAP_ROOT_VALUE, true);
+	public T parseResponse() throws IOException {
+		ObjectReader reader = MAPPER.readerFor(datamodel).without(Feature.AUTO_CLOSE_SOURCE);
+		if (datamodel.isAnnotationPresent(JsonRootName.class)) {
+			reader = reader.with(DeserializationFeature.UNWRAP_ROOT_VALUE);
 		}
 
-		/*
-		 * Use getBody instead of getStream, otherwise keep alive doesn't work
-		 * and creating new ssl connections is expensive.
-		 */
-		return mapper.readValue(response.getBody(), datamodel);
+		try (final InputStream is = response.getStream()) {
+			final T result = reader.readValue(is);
+
+			/*
+			 * ObjectReader.readValue might not consume the entire inputstream,
+			 * we skip everything after the json root element.
+			 * This is needed for proper http connection reuse (keep alive).
+			 */
+			is.skip(Long.MAX_VALUE);
+
+			return result;
+		}
 	}
 
 	/**

@@ -6,8 +6,6 @@ import java.nio.file.Path;
 import java.util.concurrent.Phaser;
 import java.util.logging.Level;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.*;
 import de.uni.hannover.studip.sync.models.jobs.DownloadDocumentJob;
@@ -57,8 +55,8 @@ public class TreeSync extends TreeBuilder {
 		}
 
 		/* Read existing tree. */
-		final ObjectMapper mapper = new ObjectMapper();
-		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(tree), SemestersTreeNode.class);
+		final SemestersTreeNode rootNode = MAPPER.readerFor(SemestersTreeNode.class)
+				.readValue(Files.newInputStream(tree));
 
 		final Phaser phaser = new Phaser(1); /* = self. */
 		final long now = System.currentTimeMillis() / 1000L;
@@ -89,7 +87,8 @@ public class TreeSync extends TreeBuilder {
 		if (!stopPending && !Main.exitPending) {
 			if (isDirty) {
 				/* Serialize the tree to json and store it in the tree file. */
-				mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
+				MAPPER.writerFor(SemestersTreeNode.class)
+						.writeValue(Files.newOutputStream(tree), rootNode);
 			}
 
 			LOG.info("Sync done!");

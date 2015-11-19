@@ -39,6 +39,9 @@ import javafx.scene.input.MouseButton;
  */
 public class NewDocumentsController extends AbstractController {
 
+	private static final Config CONFIG = Config.getInstance();
+	private static final ObjectMapper MAPPER = Config.getMapper();
+
 	private final ObservableList<NewDocumentsModel> documentList = FXCollections.observableArrayList();
 
 	@FXML
@@ -77,14 +80,13 @@ public class NewDocumentsController extends AbstractController {
 			}
 
 			final Path rootDirectory = Paths.get(rootDir);
+			final String folderStructure = CONFIG.getFolderStructure();
 
 			/* Read existing tree. */
-			final ObjectMapper mapper = new ObjectMapper();
-			final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(Config.openTreeFile()), SemestersTreeNode.class);
+			final SemestersTreeNode rootNode = MAPPER.readerFor(SemestersTreeNode.class)
+					.readValue(Files.newInputStream(Config.openTreeFile()));
 
-			final String folderStructure = Config.getInstance().getFolderStructure();
-
-			// Build list of documents.
+			/* Build list of documents. */
 			for (final SemesterTreeNode semester : rootNode.semesters) {
 				for (final CourseTreeNode course : semester.courses) {
 					doFolder(semester, course, course.root, PathBuilder.toPath(folderStructure, rootDirectory, semester, course));

@@ -2,6 +2,7 @@ package de.uni.hannover.studip.sync.models;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -18,6 +19,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  * @param <T> Config datamodel
  */
 public final class ConfigFile<T> {
+
+	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	/**
 	 * Path to file.
@@ -59,11 +62,7 @@ public final class ConfigFile<T> {
 		datamodel = datamodelClass;
 		lock = new ReentrantReadWriteLock();
 
-		if (Files.exists(file)) {
-			read();
-		} else {
-			init();
-		}
+		read();
 	}
 
 	/**
@@ -94,10 +93,9 @@ public final class ConfigFile<T> {
 	public void read() throws IOException, InstantiationException, IllegalAccessException {
 		lock.writeLock().lock();
 		try {
-			final ObjectMapper mapper = new ObjectMapper();
-			data = mapper.readValue(Files.newBufferedReader(file), datamodel);
+			data = MAPPER.readerFor(datamodel).readValue(Files.newInputStream(file));
 
-		} catch (JsonParseException | JsonMappingException e) {
+		} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
 			// Invalid config file.
 			init();
 
@@ -114,8 +112,7 @@ public final class ConfigFile<T> {
 	public void write() throws IOException {
 		lock.writeLock().lock();
 		try {
-			final ObjectMapper mapper = new ObjectMapper();
-			mapper.writeValue(Files.newBufferedWriter(file), data);
+			MAPPER.writerFor(datamodel).writeValue(Files.newOutputStream(file), data);
 
 		} finally {
 			lock.writeLock().unlock();

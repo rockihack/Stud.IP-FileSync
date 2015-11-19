@@ -8,8 +8,6 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.datamodel.CourseTreeNode;
@@ -25,6 +23,9 @@ import de.uni.hannover.studip.sync.models.PathBuilder;
  *
  */
 public final class Export {
+
+	private static final Config CONFIG = Config.getInstance();
+	private static final ObjectMapper MAPPER = Config.getMapper();
 
 	private Export() {
 		// Utility class.
@@ -66,15 +67,14 @@ public final class Export {
 	 * 
 	 * @param rootDirectory
 	 * @param exportDirectory
-	 * @throws JsonParseException
-	 * @throws JsonMappingException
 	 * @throws IOException
 	 */
 	public static void exportMat(final Path rootDirectory, final Path exportDirectory) throws IOException {
+		final String folderStructure = CONFIG.getFolderStructure();
+
 		/* Read existing tree. */
-		final ObjectMapper mapper = new ObjectMapper();
-		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(Config.openTreeFile()), SemestersTreeNode.class);
-		final String folderStructure = Config.getInstance().getFolderStructure();
+		final SemestersTreeNode rootNode = MAPPER.readerFor(SemestersTreeNode.class)
+				.readValue(Files.newInputStream(Config.openTreeFile()));
 
 		for (final SemesterTreeNode semester : rootNode.semesters) {
 			for (final CourseTreeNode course : semester.courses) {

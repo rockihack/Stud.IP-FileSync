@@ -30,6 +30,7 @@ import de.uni.hannover.studip.sync.models.jobs.UpdateDocumentsJob;
 public class TreeBuilder implements AutoCloseable {
 
 	protected static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	protected static final ObjectMapper MAPPER = Config.getMapper();
 
 	/**
 	 * Thread pool.
@@ -98,8 +99,8 @@ public class TreeBuilder implements AutoCloseable {
 
 		if (!stopPending && !Main.exitPending) {
 			/* Serialize the tree to json and store it in the tree file. */
-			final ObjectMapper mapper = new ObjectMapper();
-			mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
+			MAPPER.writerFor(SemestersTreeNode.class)
+					.writeValue(Files.newOutputStream(tree), rootNode);
 
 			LOG.info("Build done!");
 		}
@@ -120,8 +121,8 @@ public class TreeBuilder implements AutoCloseable {
 		}
 
 		/* Read existing tree. */
-		final ObjectMapper mapper = new ObjectMapper();
-		final SemestersTreeNode rootNode = mapper.readValue(Files.newBufferedReader(tree), SemestersTreeNode.class);
+		final SemestersTreeNode rootNode = MAPPER.readerFor(SemestersTreeNode.class)
+				.readValue(Files.newInputStream(tree));
 
 		if (rootNode.semesters.isEmpty()) {
 			throw new JsonMappingException("No semesters found!");
@@ -155,7 +156,8 @@ public class TreeBuilder implements AutoCloseable {
 		if (!stopPending && !Main.exitPending) {
 			if (isDirty) {
 				/* Serialize the tree to json and store it in the tree file. */
-				mapper.writeValue(Files.newBufferedWriter(tree), rootNode);
+				MAPPER.writerFor(SemestersTreeNode.class)
+						.writeValue(Files.newOutputStream(tree), rootNode);
 			}
 
 			LOG.info("Update done!");
