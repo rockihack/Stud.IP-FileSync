@@ -154,6 +154,7 @@ public final class OAuth {
 	public Response sendRequest(final Verb method, final String url) {
 		final OAuthRequest request = new OAuthRequest(method, url);
 		request.setConnectTimeout(10, TimeUnit.SECONDS);
+		request.setReadTimeout(30, TimeUnit.SECONDS);
 		request.setConnectionKeepAlive(true);
 
 		lock.readLock().lock();
