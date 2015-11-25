@@ -28,10 +28,11 @@
               </columnConstraints>
               <rowConstraints>
                   <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="50.0" prefHeight="50.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="50.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="50.0" prefHeight="35.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="35.0" prefHeight="50.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="55.0" prefHeight="55.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="55.0" prefHeight="55.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="55.0" prefHeight="55.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
+                  <RowConstraints minHeight="35.0" prefHeight="35.0" vgrow="NEVER" />
                 <RowConstraints vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
@@ -43,8 +44,8 @@
                   </RadioButton>
                   <RadioButton fx:id="option2" mnemonicParsing="false" text="Alle Veranstaltungen einzeln (:semester/:course)" toggleGroup="$structureGroup" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <RadioButton fx:id="option3" mnemonicParsing="false" text="Materialsammlung (:lecture/:sem/:type)" toggleGroup="$structureGroup" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <RadioButton fx:id="option4" mnemonicParsing="false" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <TextField fx:id="structureField" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                  <RadioButton fx:id="option4" mnemonicParsing="false" toggleGroup="$structureGroup" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <TextField fx:id="structureField" GridPane.columnIndex="1" GridPane.rowIndex="5">
                      <GridPane.margin>
                         <Insets left="25.0" />
                      </GridPane.margin>
