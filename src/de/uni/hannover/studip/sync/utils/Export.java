@@ -15,6 +15,7 @@ import de.uni.hannover.studip.sync.datamodel.SemesterTreeNode;
 import de.uni.hannover.studip.sync.datamodel.SemestersTreeNode;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.PathBuilder;
+import de.uni.hannover.studip.sync.models.RenameMap;
 
 /**
  * Export helper.
@@ -23,6 +24,8 @@ import de.uni.hannover.studip.sync.models.PathBuilder;
  *
  */
 public final class Export {
+	
+	private static final RenameMap RENAMEMAP = RenameMap.getInstance();
 
 	private static final Config CONFIG = Config.getInstance();
 	private static final ObjectMapper MAPPER = Config.getMapper();
@@ -83,12 +86,14 @@ public final class Export {
 					continue;
 				}
 
-				final Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);
+				Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);
+				courseDirectory = rootDirectory.resolve(RENAMEMAP.checkPath(rootDirectory.relativize(courseDirectory).toString()));
 				if (!Files.isDirectory(courseDirectory)) {
 					continue;
 				}
 
-				final Path exportCourseDirectory = PathBuilder.toPath(":lecture/:sem/:type", exportDirectory, semester, course);
+				Path exportCourseDirectory = PathBuilder.toPath(":lecture/:sem/:type", exportDirectory, semester, course);
+				exportCourseDirectory = rootDirectory.resolve(RENAMEMAP.checkPath(rootDirectory.relativize(exportCourseDirectory).toString()));
 				if (!Files.isDirectory(exportCourseDirectory)) {
 					Files.createDirectories(exportCourseDirectory);
 				}

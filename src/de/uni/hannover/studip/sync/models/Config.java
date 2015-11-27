@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 
 import org.scribe.model.Token;
 
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.elanev.studip.android.app.backend.datamodel.User;
 import de.uni.hannover.studip.sync.datamodel.SettingsFile;
 import de.uni.hannover.studip.sync.datamodel.OAuthFile;
+import de.uni.hannover.studip.sync.datamodel.RenameMapFile;
 
 /**
  * Global config wrapper class.
@@ -28,9 +30,11 @@ public final class Config {
 	private static final String SETTINGS_FILE_NAME = "config.json";
 	private static final String OAUTH_FILE_NAME = "oauth.json";
 	private static final String TREE_FILE_NAME = "tree.json";
+	private static final String RENAME_HASH_MAP = "rename-map.json";
 
 	private final ConfigFile<SettingsFile> settings;
 	private final ConfigFile<OAuthFile> oauth;
+	private final ConfigFile<RenameMapFile> renameMap;	
 
 	/**
 	 * Singleton instance getter.
@@ -57,6 +61,12 @@ public final class Config {
 		try {
 			settings = new ConfigFile<SettingsFile>(CONFIG_DIR, SETTINGS_FILE_NAME, SettingsFile.class);
 			oauth = new ConfigFile<OAuthFile>(CONFIG_DIR, OAUTH_FILE_NAME, OAuthFile.class);
+			// TODO alternate or remove check
+			if(getFoldernameConfig()) {
+				renameMap = new ConfigFile<RenameMapFile>(CONFIG_DIR, RENAME_HASH_MAP, RenameMapFile.class);
+			} else {
+				renameMap = null;
+			}
 
 		} catch (InstantiationException | IllegalAccessException | IOException e) {
 			throw new IllegalStateException(e);
@@ -326,6 +336,56 @@ public final class Config {
 
 		} finally {
 			oauth.lock.writeLock().unlock();
+		}
+	}
+	
+	public boolean getFoldernameConfig() {
+		settings.lock.readLock().lock();
+		try {
+			return settings.data.folderConf;
+	
+		} finally {
+			settings.lock.readLock().unlock();
+		}
+	}
+
+	public void setFoldernameConfig(boolean value) throws IOException {
+		settings.lock.writeLock().lock();
+		try {
+			settings.data.folderConf = value;
+			settings.write();
+
+		} finally {
+			settings.lock.writeLock().unlock();
+		}
+	}
+
+	public ConfigFile<RenameMapFile> getRenameMap() {
+		return renameMap;
+	}
+	
+	public HashMap<String, String> readRenameMap() {
+		
+		if(!getFoldernameConfig()) {
+			return null;
+		}
+		
+		try {
+			renameMap.read();
+		} catch (InstantiationException | IllegalAccessException | IOException e) {
+			e.printStackTrace();
+			// TODO this is terrible - would possibly replace the renameMap
+			return new HashMap<String, String>();
+		}
+		return renameMap.data.renameMap;
+	}
+	
+	public void writeRenameMap(HashMap<String, String> map) {
+		renameMap.data.renameMap = map;
+		try {
+			renameMap.write();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
