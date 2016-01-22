@@ -7,8 +7,6 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Logger;
 
-import javafx.application.Platform;
-
 import org.scribe.exceptions.OAuthConnectionException;
 
 import de.elanev.studip.android.app.backend.datamodel.Document;
@@ -97,10 +95,8 @@ public class BuildDocumentsJob implements Runnable {
 				for (final DocumentFolder folder : folders.folders) {
 					/* Get folder index (merged folders use same index) and rename the folder if it's name already exists. */
 					final Set<String> folderFileIndex = TreeConflict.resolveFolderNameConflict(fileIndex, fileIndexMap, folder);
-
 					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
 
-					/* Add update files job (recursive). */
 					builder.execute(new BuildDocumentsJob(builder, phaser, courseNode, folderNode, folderFileIndex));
 
 					LOG.info(folderNode.name);
@@ -110,20 +106,19 @@ public class BuildDocumentsJob implements Runnable {
 				for (final Document document : folders.documents) {
 					/* Rename the document if it's filename already exists. */
 					TreeConflict.resolveFileNameConflict(fileIndex, document);
-
 					parentNode.documents.add(documentNode = new DocumentTreeNode(document));
 
 					LOG.info(documentNode.name);
 				}
 			}
 
-		} catch (OAuthConnectionException e) {
+		} catch (OAuthConnectionException | IOException | RejectedExecutionException e) {
 			/* Connection failed. */
 			builder.stopPending = true;
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
+			OAuth.getInstance().removeAccessToken();
 			builder.stopPending = true;
 
 		} catch (ForbiddenException | NotFoundException e) {
@@ -132,14 +127,6 @@ public class BuildDocumentsJob implements Runnable {
 			 * or folder does not exist.
 			 */
 			throw new IllegalStateException(e);
-
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-
-		} catch (RejectedExecutionException e) {
-			if (!builder.stopPending && !Main.exitPending) {
-				throw new IllegalStateException(e);
-			}
 
 		} finally {
 			/* Job done. */

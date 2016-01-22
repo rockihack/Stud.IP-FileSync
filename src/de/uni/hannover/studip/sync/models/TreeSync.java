@@ -69,7 +69,6 @@ public class TreeSync extends TreeBuilder {
 			if (doAllSemesters || (now > semester.begin && now < semester.end)) {
 				for (final CourseTreeNode course : semester.courses) {
 					final Path courseDirectory = PathBuilder.toPath(folderStructure, rootDirectory, semester, course);
-
 					if (!Files.isDirectory(courseDirectory)) {
 						Files.createDirectories(courseDirectory);
 					}
@@ -115,7 +114,6 @@ public class TreeSync extends TreeBuilder {
 			}
 
 			final Path folderDirectory = parentDirectory.resolve(FileBrowser.removeIllegalCharacters(folder.name));
-
 			if (!Files.isDirectory(folderDirectory)) {
 				Files.createDirectory(folderDirectory);
 			}
@@ -142,9 +140,8 @@ public class TreeSync extends TreeBuilder {
 		final Path documentFile = parentDirectory.resolve(originalFileName);
 
 		if (!Files.exists(documentFile)) {
-			phaser.register();
-
 			/* Download new file. */
+			phaser.register();
 			threadPool.execute(new DownloadDocumentJob(this, phaser, folderNode, documentNode, documentFile));
 
 			if (LOG.isLoggable(Level.INFO)) {
@@ -171,9 +168,8 @@ public class TreeSync extends TreeBuilder {
 				}
 			}
 
-			phaser.register();
-
 			/* Download modified file. */
+			phaser.register();
 			threadPool.execute(new DownloadDocumentJob(this, phaser, folderNode, documentNode, documentFile));
 
 			if (LOG.isLoggable(Level.WARNING)) {

@@ -2,8 +2,6 @@ package de.uni.hannover.studip.sync.models;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.scribe.model.Verb;
 
@@ -21,8 +19,6 @@ import de.uni.hannover.studip.sync.utils.FileDownload;
  *
  */
 public final class RestApi {
-
-	private static final Logger LOG = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	/**
 	 * Regex for studip id (MD5) validation.
@@ -51,15 +47,7 @@ public final class RestApi {
 
 		switch (request.getCode()) {
 		case 200:
-			final Courses courses = request.parseResponse();
-
-			if (LOG.isLoggable(Level.FINEST)) {
-				for (final Course course : courses.courses) {
-					LOG.finest(course.title + "\n" + course.description + "\n");
-				}
-			}
-
-			return courses;
+			return request.parseResponse();
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 404:
@@ -88,16 +76,7 @@ public final class RestApi {
 
 		switch (request.getCode()) {
 		case 200:
-			final Documents newDocuments = request.parseResponse();
-
-			if (LOG.isLoggable(Level.FINEST)) {
-				LOG.finest("Number of new documents: " + newDocuments.documents.size());
-				for (final Document document : newDocuments.documents) {
-					LOG.finest(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
-				}
-			}
-
-			return newDocuments;
+			return request.parseResponse();
 		case 400:
 			throw new NotFoundException("Not found!");
 		case 401:
@@ -132,21 +111,7 @@ public final class RestApi {
 
 		switch (request.getCode()) {
 		case 200:
-			final DocumentFolders documentFolders = request.parseResponse();
-
-			if (LOG.isLoggable(Level.FINEST)) {
-				LOG.finest("Number of subfolders: " + documentFolders.folders.size());
-				for (final DocumentFolder folder : documentFolders.folders) {
-					LOG.finest(folder.name + "\n" + folder.description + "\n FolderId: " + folder.folder_id + "\n");
-				}
-
-				LOG.finest("Number of documents: " + documentFolders.documents.size());
-				for (final Document document : documentFolders.documents) {
-					LOG.finest(document.name + "\n" + document.description + "\n DocumentId: " + document.document_id + "\n");
-				}
-			}
-
-			return documentFolders;
+			return request.parseResponse();
 		case 400: /* Range has no documents. */
 			return new DocumentFolders();
 		case 401:
@@ -180,7 +145,6 @@ public final class RestApi {
 		switch (request.getCode()) {
 		case 200:
 			return FileDownload.get(request.getStream(), documentFile);
-
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 403:
@@ -205,15 +169,7 @@ public final class RestApi {
 
 		switch (request.getCode()) {
 		case 200:
-			final Semesters semesters = request.parseResponse();
-
-			if (LOG.isLoggable(Level.FINEST)) {
-				for (final Semester semester : semesters.semesters) {
-					LOG.finest(semester.title + "\n");
-				}
-			}
-
-			return semesters;
+			return request.parseResponse();
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		default:
@@ -239,13 +195,7 @@ public final class RestApi {
 
 		switch (request.getCode()) {
 		case 200:
-			final User user = request.parseResponse();
-
-			if (LOG.isLoggable(Level.FINEST)) {
-				LOG.finest(user.username + "\n");
-			}
-
-			return user;
+			return request.parseResponse();
 		case 401:
 			throw new UnauthorizedException("Unauthorized!");
 		case 404:

@@ -7,10 +7,9 @@ import java.nio.file.Path;
 
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.Alert.AlertType;
 import javafx.stage.DirectoryChooser;
 
 /**
@@ -19,6 +18,8 @@ import javafx.stage.DirectoryChooser;
  *
  */
 public class SetupRootDirController extends AbstractController {
+
+	private static final Config CONFIG = Config.getInstance();
 
 	private File dir;
 
@@ -37,38 +38,26 @@ public class SetupRootDirController extends AbstractController {
 
 	@FXML
 	public void handleNext() {
+		if (dir == null) {
+			return;
+		}
+
+		final Path rootDir = dir.toPath();
+		if (!Files.isDirectory(rootDir)) {
+			SimpleAlert.error("Kein Ordner gewählt.");
+			return;
+		}
+		if (!Files.isReadable(rootDir) || !Files.isWritable(rootDir)) {
+			SimpleAlert.error("Keine Lese/Schreib Berechtigung.");
+			return;
+		}
+
 		try {
-			if (dir == null) {
-				return;
-			}
-
-			final Path rootDir = dir.toPath();
-
-			if (!Files.isDirectory(rootDir)) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Kein Ordner gewählt.");
-				alert.showAndWait();
-				return;
-			}
-
-			if (!Files.isReadable(rootDir) || !Files.isWritable(rootDir)) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Keine Lese/Schreib Berechtigung.");
-				alert.showAndWait();
-				return;
-			}
-
-			// Store root directory.
-			Config.getInstance().setRootDirectory(rootDir.toAbsolutePath().toString());
-
+			CONFIG.setRootDirectory(rootDir.toAbsolutePath().toString());
 			getMain().setView(Main.SETUP_STRUCTURE);
 
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			SimpleAlert.exception(e);
 		}
 	}
 }

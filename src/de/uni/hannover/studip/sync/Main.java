@@ -1,8 +1,6 @@
 package de.uni.hannover.studip.sync;
 	
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.LinkedList;
@@ -10,6 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import de.uni.hannover.studip.sync.views.AbstractController;
 import de.uni.hannover.studip.sync.views.RootLayoutController;
 import javafx.application.Application;
@@ -17,8 +16,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -77,7 +74,7 @@ public class Main extends Application {
 	private static ServerSocket globalAppMutex;
 
 	static {
-		/**
+		/*
 		 * Default Uncaught Exception Handler.
 		 */
 		Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
@@ -87,25 +84,22 @@ public class Main extends Application {
 			exitPending = true;
 
 			// Show stacktrace and terminate app.
-			final StringWriter writer = new StringWriter();
-			throwable.printStackTrace(new PrintWriter(writer));
-
 			Platform.runLater(() -> {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("UncaughtExceptionHandler");
-				alert.setHeaderText(throwable.getMessage());
-				alert.setContentText(writer.toString());
-				alert.setResizable(true);
-				alert.showAndWait();
-
+				SimpleAlert.exception(throwable);
 				Platform.exit();
 			});
 		});
 
-		/**
+		/*
 		 * Global log level.
 		 */
 		LOG.setLevel(Level.WARNING);
+
+		/*
+		 * Force java to use tls 1.2 / 1.1 (update default if jre 1.7 was installed before).
+		 * Fixes: SSLException: ssl peer shut down incorrectly.
+		 */
+		System.setProperty("https.protocols", "TLSv1.1,TLSv1.2");
 	}
 
 	/**
@@ -127,18 +121,11 @@ public class Main extends Application {
 			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
 
 			this.primaryStage = primaryStage;
-
 			initRootLayout();
-
 			setView(OVERVIEW);
 
 		} catch (IOException e) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("FileSync läuft bereits.");
-			alert.showAndWait();
-
+			SimpleAlert.error("FileSync läuft bereits.");
 			Platform.exit();
 		}
 	}
@@ -171,7 +158,6 @@ public class Main extends Application {
 			primaryStage.setOnCloseRequest(event -> {
 				// Signal worker threads to terminate gracefully.
 				exitPending = true;
-
 				Platform.exit();
 			});
 

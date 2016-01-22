@@ -81,12 +81,6 @@ public final class OAuth {
 
 		lock = new ReentrantReadWriteLock();
 		state = OAuthState.GET_REQUEST_TOKEN;
-
-		/*
-		 * Force java to use tls 1.2 / 1.1 (update default if jre 1.7 was installed before).
-		 * Fixes: SSLException: ssl peer shut down incorrectly.
-		 */
-		System.setProperty("https.protocols", "TLSv1.1,TLSv1.2");
 	}
 
 	/**
@@ -187,7 +181,8 @@ public final class OAuth {
 
 			return true;
 
-		} catch (IllegalStateException e) {
+		} catch (IllegalArgumentException e) {
+			/* Invalid access token. */
 			return false;
 
 		} finally {
@@ -199,10 +194,15 @@ public final class OAuth {
 	 * Remove access token.
 	 */
 	public void removeAccessToken() {
-		lock.writeLock().lock();
 		try {
 			CONFIG.initOAuthFile();
 
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+
+		lock.writeLock().lock();
+		try {
 			/*
 			 * We must not acquire a second request token until
 			 * we got a access token for the first one.
@@ -210,9 +210,6 @@ public final class OAuth {
 			if (state != OAuthState.GET_ACCESS_TOKEN) {
 				state = OAuthState.GET_REQUEST_TOKEN;
 			}
-
-		} catch (IOException | InstantiationException | IllegalAccessException e) {
-			throw new IllegalStateException(e);
 
 		} finally {
 			lock.writeLock().unlock();

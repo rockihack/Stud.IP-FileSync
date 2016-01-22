@@ -14,4 +14,5 @@ public class SetupSyncController extends SyncSettingsController {
 	public void handleNext() {
 		getMain().setView(Main.OVERVIEW);
 	}
+
 }

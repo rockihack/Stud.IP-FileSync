@@ -14,13 +14,12 @@ import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.TreeSync;
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.Alert.AlertType;
 
 /**
  * 
@@ -45,64 +44,57 @@ public class OverviewController extends AbstractController {
 	@FXML
 	public void handleSync() {
 		(new Thread(() -> {
+			if (!OAUTH.restoreAccessToken()) {
+				OAUTH.removeAccessToken();
+				Platform.runLater(() -> getMain().setView(Main.OAUTH));
+				return;
+			}
+
+			final String rootDir = CONFIG.getRootDirectory();
+			if (rootDir == null || rootDir.isEmpty()) {
+				SimpleAlert.error("Kein Ziel Ordner gewählt.");
+				return;
+			}
+
 			if (!Main.TREE_LOCK.tryLock()) {
 				return;
 			}
 
-			try {
+			try (final TreeSync tree = new TreeSync(Paths.get(rootDir))) {
 				Platform.runLater(() -> {
 					getMain().getRootLayoutController().getMenu().setDisable(true);
 					syncButton.setDisable(true);
 					syncButton.setText("Updating...");
 				});
 
-				if (!OAUTH.restoreAccessToken()) {
-					OAUTH.removeAccessToken();
-					Platform.runLater(() -> getMain().setView(Main.OAUTH));
-					return;
+				final Path treeFile = Config.openTreeFile();
+				int numberOfRequests;
+
+				tree.setProgress(progress, progressLabel);
+
+				/* Update documents. */
+				try {
+					numberOfRequests = tree.update(treeFile);
+
+				} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
+					/* Invalid tree file. */
+					numberOfRequests = tree.build(treeFile);
 				}
 
-				final String rootDir = CONFIG.getRootDirectory();
-				if (rootDir == null || rootDir.isEmpty()) {
-					throw new IOException("Kein Ziel Ordner gewählt.");
-				}
+				Platform.runLater(() -> {
+						progressLabel.setText("");
+						syncButton.setText("Downloading...");
+				});
 
-				try (TreeSync tree = new TreeSync(Paths.get(rootDir))) {
-					final Path treeFile = Config.openTreeFile();
-					int numberOfRequests;
+				/* Download documents. */
+				numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
 
-					tree.setProgress(progress, progressLabel);
-
-					/* Update documents. */
-					try {
-						numberOfRequests = tree.update(treeFile);
-
-					} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
-						/* Invalid tree file. */
-						numberOfRequests = tree.build(treeFile);
-					}
-
-					Platform.runLater(() -> {
-							progressLabel.setText("");
-							syncButton.setText("Downloading...");
-					});
-
-					/* Download documents. */
-					numberOfRequests += tree.sync(treeFile, CONFIG.isDownloadAllSemesters());
-
-					if (LOG.isLoggable(Level.INFO)) {
-						LOG.info("Number of requests: " + numberOfRequests);
-					}
+				if (LOG.isLoggable(Level.INFO)) {
+					LOG.info("Number of requests: " + numberOfRequests);
 				}
 
 			} catch (IOException e) {
-				Platform.runLater(() -> {
-					final Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Fehler");
-					alert.setHeaderText(null);
-					alert.setContentText(e.getMessage());
-					alert.showAndWait();
-				});
+				Platform.runLater(() -> SimpleAlert.exception(e));
 
 			} finally {
 				Platform.runLater(() -> {

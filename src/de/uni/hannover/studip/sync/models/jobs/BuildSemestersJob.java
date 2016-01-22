@@ -5,8 +5,6 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Logger;
 
-import javafx.application.Platform;
-
 import org.scribe.exceptions.OAuthConnectionException;
 
 import de.elanev.studip.android.app.backend.datamodel.Semester;
@@ -68,28 +66,19 @@ public class BuildSemestersJob implements Runnable {
 			for (final Semester semester : semesters.semesters) {
 				rootNode.semesters.add(semesterNode = new SemesterTreeNode(semester));
 
-				/* Add build courses job. */
 				builder.execute(new BuildCoursesJob(builder, phaser, semesterNode));
 
 				LOG.info(semesterNode.title);
 			}
 
-		} catch (OAuthConnectionException e) {
+		} catch (OAuthConnectionException | IOException | RejectedExecutionException e) {
 			/* Connection failed. */
 			builder.stopPending = true;
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
+			OAuth.getInstance().removeAccessToken();
 			builder.stopPending = true;
-
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-
-		} catch (RejectedExecutionException e) {
-			if (!builder.stopPending && !Main.exitPending) {
-				throw new IllegalStateException(e);
-			}
 
 		} finally {
 			/* Job done. */

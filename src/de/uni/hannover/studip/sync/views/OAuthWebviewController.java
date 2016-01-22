@@ -15,10 +15,9 @@ import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
@@ -63,22 +62,12 @@ public class OAuthWebviewController extends AbstractController {
 				webEngine.load(OAUTH.getAuthUrl());
 
 			} catch (OAuthConnectionException e) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Es konnte keine Verbindung zum Stud.IP Server hergestellt werden!");
-				alert.showAndWait();
-
+				SimpleAlert.error("Es konnte keine Verbindung zum Stud.IP Server hergestellt werden!");
 				getMain().setPrevView();
 
 			} catch (OAuthException e) {
 				// Invalid api key or secret.
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("OAuth Verbindung fehlgeschlagen!");
-				alert.showAndWait();
-
+				SimpleAlert.error("OAuth Verbindung fehlgeschlagen!");
 				Platform.exit();
 			}
 		});
@@ -112,11 +101,10 @@ public class OAuthWebviewController extends AbstractController {
 
 		} catch (OAuthException | UnauthorizedException | NotFoundException e) {
 			OAUTH.removeAccessToken();
-
 			getMain().setView(Main.OAUTH);
 
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			SimpleAlert.exception(e);
 		}
 	}
 }

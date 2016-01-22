@@ -58,7 +58,7 @@ public final class Config {
 			settings = new ConfigFile<SettingsFile>(CONFIG_DIR, SETTINGS_FILE_NAME, SettingsFile.class);
 			oauth = new ConfigFile<OAuthFile>(CONFIG_DIR, OAUTH_FILE_NAME, OAuthFile.class);
 
-		} catch (InstantiationException | IllegalAccessException | IOException e) {
+		} catch (IOException e) {
 			throw new IllegalStateException(e);
 		}
 	}
@@ -81,11 +81,9 @@ public final class Config {
 	/**
 	 * Init oauth config file.
 	 * 
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
 	 * @throws IOException
 	 */
-	public void initOAuthFile() throws IOException, InstantiationException, IllegalAccessException {
+	public void initOAuthFile() throws IOException {
 		oauth.init();
 	}
 
@@ -291,14 +289,11 @@ public final class Config {
 	 * Get the OAuth access token.
 	 * 
 	 * @see OAuth.restoreAccessToken()
+	 * @throws IllegalArgumentException 
 	 */
 	public Token getAccessToken() {
 		oauth.lock.readLock().lock();
 		try {
-			if (oauth.data.token == null || oauth.data.secret == null) {
-				throw new IllegalStateException("Access token not found!");
-			}
-
 			return new Token(oauth.data.token, oauth.data.secret);
 
 		} finally {

@@ -6,7 +6,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
-import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -18,16 +17,15 @@ import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.PathBuilder;
 import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
@@ -64,21 +62,17 @@ public class NewDocumentsController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
+		final String rootDir = CONFIG.getRootDirectory();
+		if (rootDir == null || rootDir.isEmpty()) {
+			SimpleAlert.error("Kein Ziel Ordner gewählt.");
+			return;
+		}
+
 		if (!Main.TREE_LOCK.tryLock()) {
 			return;
 		}
 
 		try {
-			final String rootDir = Config.getInstance().getRootDirectory();
-			if (rootDir == null || rootDir.isEmpty()) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Kein Ziel Ordner gewählt.");
-				alert.showAndWait();
-				return;
-			}
-
 			final Path rootDirectory = Paths.get(rootDir);
 			final String folderStructure = CONFIG.getFolderStructure();
 
@@ -106,47 +100,7 @@ public class NewDocumentsController extends AbstractController {
 			semesterColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.1));
 
 			// Table row factory.
-			tableView.setRowFactory(callback -> {
-				return new TableRow<NewDocumentsModel>() {
-					// Init.
-					{
-						// Click listener.
-						setOnMouseClicked(event -> {
-							final NewDocumentsModel selectedItem = getItem();
-
-							if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
-								final Path selectedFile = selectedItem.getDocumentFile();
-
-								try {
-									FileBrowser.open(selectedFile);
-
-								} catch (IOException e) {
-									final Alert alert = new Alert(AlertType.ERROR);
-									alert.setTitle("Fehler");
-									alert.setHeaderText(null);
-									alert.setContentText("Datei wurde nicht gefunden.\n" + selectedFile.toAbsolutePath());
-									alert.showAndWait();
-								}
-							}
-						});
-
-						// Tooltip.
-						final Tooltip tooltip = new Tooltip();
-						tooltip.setWrapText(true);
-						tooltip.setMaxWidth(600);
-						setTooltip(tooltip);
-					}
-
-					@Override
-					public void updateItem(final NewDocumentsModel item, final boolean empty) {
-						super.updateItem(item, empty);
-
-						if (item != null) {
-							getTooltip().setText(item.getDocumentDescription());
-						}
-					}
-				};
-			});
+			tableView.setRowFactory(callback -> new NewDocumentsTableRow());
 
 			// Set list items.
 			tableView.setItems(documentList);
@@ -156,13 +110,8 @@ public class NewDocumentsController extends AbstractController {
 
 		} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
 			Platform.runLater(() -> {
-				final Alert confirm = new Alert(AlertType.CONFIRMATION);
-				confirm.setTitle("Bestätigen");
-				confirm.setHeaderText(null);
-				confirm.setContentText("Keine Dokumente gefunden.\nMöchten Sie Ihre Dokumente jetzt synchronisieren?");
-				final Optional<ButtonType> result = confirm.showAndWait();
-
-				if (result.get() == ButtonType.OK) {
+				final ButtonType result = SimpleAlert.confirm("Keine Dokumente gefunden.\nMöchten Sie Ihre Dokumente jetzt synchronisieren?");
+				if (result == ButtonType.OK) {
 					// Redirect to overview.
 					getMain().setView(Main.OVERVIEW);
 
@@ -173,7 +122,7 @@ public class NewDocumentsController extends AbstractController {
 			});
 
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			SimpleAlert.exception(e);
 
 		} finally {
 			Main.TREE_LOCK.unlock();
@@ -198,6 +147,42 @@ public class NewDocumentsController extends AbstractController {
 
 		for (final DocumentTreeNode document : folderNode.documents) {
 			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, parentDirectory.resolve(FileBrowser.removeIllegalCharacters(document.fileName))));
+		}
+	}
+
+	/**
+	 * Table row model.
+	 */
+	private static class NewDocumentsTableRow extends TableRow<NewDocumentsModel> {
+		public NewDocumentsTableRow() {
+			super();
+
+			// Click listener.
+			setOnMouseClicked(event -> {
+				final NewDocumentsModel selectedItem = getItem();
+				if (selectedItem != null && event.getButton() == MouseButton.PRIMARY && event.getClickCount() >= 2) {
+					try {
+						FileBrowser.open(selectedItem.getDocumentFile());
+
+					} catch (IOException e) {
+						SimpleAlert.exception(e);
+					}
+				}
+			});
+
+			final Tooltip tooltip = new Tooltip();
+			tooltip.setWrapText(true);
+			tooltip.setMaxWidth(600);
+			setTooltip(tooltip);
+		}
+
+		@Override
+		public void updateItem(final NewDocumentsModel item, final boolean empty) {
+			super.updateItem(item, empty);
+
+			if (!empty && item != null) {
+				getTooltip().setText(item.getDocumentDescription());
+			}
 		}
 	}
 }

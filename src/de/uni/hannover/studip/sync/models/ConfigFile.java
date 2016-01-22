@@ -49,10 +49,8 @@ public final class ConfigFile<T> {
 	 * @param fileName File name
 	 * @param datamodelClass Datamodel class
 	 * @throws IOException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
 	 */
-	public ConfigFile(final String dirName, final String fileName, final Class<T> datamodelClass) throws IOException, InstantiationException, IllegalAccessException {
+	public ConfigFile(final String dirName, final String fileName, final Class<T> datamodelClass) throws IOException {
 		final Path dir = Paths.get(System.getProperty("user.home"), dirName);
 		if (!Files.isDirectory(dir)) {
 			Files.createDirectory(dir);
@@ -69,14 +67,15 @@ public final class ConfigFile<T> {
 	 * Init config file.
 	 * 
 	 * @throws IOException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
 	 */
-	public void init() throws IOException, InstantiationException, IllegalAccessException {
+	public void init() throws IOException {
 		lock.writeLock().lock();
 		try {
 			data = datamodel.newInstance();
 			write();
+
+		} catch(InstantiationException | IllegalAccessException e) {
+			throw new IllegalStateException(e);
 
 		} finally {
 			lock.writeLock().unlock();
@@ -87,10 +86,8 @@ public final class ConfigFile<T> {
 	 * Read config file.
 	 * 
 	 * @throws IOException
-	 * @throws InstantiationException
-	 * @throws IllegalAccessException
 	 */
-	public void read() throws IOException, InstantiationException, IllegalAccessException {
+	public void read() throws IOException {
 		lock.writeLock().lock();
 		try {
 			data = MAPPER.readerFor(datamodel).readValue(Files.newInputStream(file));

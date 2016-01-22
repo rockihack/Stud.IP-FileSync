@@ -9,8 +9,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javafx.application.Platform;
-
 import org.scribe.exceptions.OAuthConnectionException;
 
 import de.uni.hannover.studip.sync.Main;
@@ -94,13 +92,13 @@ public class DownloadDocumentJob implements Runnable {
 			 */
 			Files.setLastModifiedTime(documentFile, FileTime.fromMillis(documentNode.chDate * 1000L));
 
-		} catch (OAuthConnectionException e) {
+		} catch (OAuthConnectionException | IOException | RejectedExecutionException e) {
 			/* Connection failed. */
 			sync.stopPending = true;
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
+			OAuth.getInstance().removeAccessToken();
 			sync.stopPending = true;
 
 		} catch (ForbiddenException | NotFoundException e) {
@@ -113,14 +111,6 @@ public class DownloadDocumentJob implements Runnable {
 
 			if (LOG.isLoggable(Level.WARNING)) {
 				LOG.warning("Removed document: " + documentNode.fileName);
-			}
-
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-
-		} catch (RejectedExecutionException e) {
-			if (!sync.stopPending && !Main.exitPending) {
-				throw new IllegalStateException(e);
 			}
 
 		} finally {

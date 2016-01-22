@@ -31,14 +31,13 @@ public final class TreeConflict {
 	 * @param folder Current folder.
 	 */
 	public static Set<String> resolveFolderNameConflict(final Set<String> fileIndex, final Map<String, Set<String>> fileIndexMap, final DocumentFolder folder) {
-		/* Merge default folder with parent. */
 		if (StudIPApiProvider.DEFAULT_FOLDER.equals(folder.name.trim())) {
+			/* Merge default folder with parent. */
 			return fileIndex;
 		}
 
 		/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
 		String folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
-
 		if (!fileIndexMap.containsKey(folderName)) {
 			/* Folder does not exist yet. */
 			synchronized (fileIndex) {

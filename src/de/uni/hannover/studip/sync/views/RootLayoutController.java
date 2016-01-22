@@ -6,7 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -15,13 +14,11 @@ import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.utils.Export;
 import de.uni.hannover.studip.sync.utils.FileBrowser;
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.Alert.AlertType;
 import javafx.stage.DirectoryChooser;
 
 /**
@@ -59,29 +56,17 @@ public class RootLayoutController extends AbstractController {
 	public void handleOpenFolder() {
 		final String rootDir = Config.getInstance().getRootDirectory();
 		if (rootDir == null || rootDir.isEmpty()) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("Kein Ziel Ordner gewählt.");
-			alert.showAndWait();
+			SimpleAlert.error("Kein Ziel Ordner gewählt.");
 			return;
 		}
 
 		try {
 			if (!FileBrowser.open(Paths.get(rootDir))) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText("Ziel Ordner kann nicht geöffnet werden.");
-				alert.showAndWait();
+				SimpleAlert.error("Ziel Ordner kann nicht geöffnet werden.");
 			}
 
 		} catch (IOException e) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("Ziel Ordner wurde nicht gefunden.");
-			alert.showAndWait();
+			SimpleAlert.exception(e);
 		}
 	}
 
@@ -100,7 +85,6 @@ public class RootLayoutController extends AbstractController {
 	@FXML
 	public void handleExit() {
 		Main.exitPending = true;
-
 		Platform.exit();
 	}
 
@@ -111,11 +95,7 @@ public class RootLayoutController extends AbstractController {
 	public void handleHelp() {
 		// Redirect to help.
 		//getMain().setView(Main.HELP);
-		final Alert alert = new Alert(AlertType.INFORMATION);
-		alert.setTitle("Info");
-		alert.setHeaderText(null);
-		alert.setContentText("Keine Hilfe enthalten.");
-		alert.showAndWait();
+		SimpleAlert.error("Keine Hilfe enthalten.");
 	}
 
 	/**
@@ -126,11 +106,7 @@ public class RootLayoutController extends AbstractController {
 		/* Root directory. */
 		final String rootDir = Config.getInstance().getRootDirectory();
 		if (rootDir == null || rootDir.isEmpty()) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("Kein Ziel Ordner gewählt.");
-			alert.showAndWait();
+			SimpleAlert.error("Kein Ziel Ordner gewählt.");
 			return;
 		}
 
@@ -157,13 +133,8 @@ public class RootLayoutController extends AbstractController {
 
 			} catch (NoSuchFileException | JsonParseException | JsonMappingException e) {
 				Platform.runLater(() -> {
-					final Alert confirm = new Alert(AlertType.CONFIRMATION);
-					confirm.setTitle("Bestätigen");
-					confirm.setHeaderText(null);
-					confirm.setContentText("Keine Dokumente gefunden.\nMöchten Sie Ihre Dokumente jetzt synchronisieren?");
-					final Optional<ButtonType> result = confirm.showAndWait();
-
-					if (result.get() == ButtonType.OK) {
+					final ButtonType result = SimpleAlert.confirm("Keine Dokumente gefunden.\nMöchten Sie Ihre Dokumente jetzt synchronisieren?");
+					if (result == ButtonType.OK) {
 						// Redirect to overview.
 						getMain().setView(Main.OVERVIEW);
 
@@ -174,13 +145,7 @@ public class RootLayoutController extends AbstractController {
 				});
 
 			} catch (IOException e) {
-				Platform.runLater(() -> {
-					final Alert alert = new Alert(AlertType.ERROR);
-					alert.setTitle("Fehler");
-					alert.setHeaderText(null);
-					alert.setContentText(e.getMessage());
-					alert.showAndWait();
-				});
+				Platform.runLater(() -> SimpleAlert.exception(e));
 
 			} finally {
 				Main.TREE_LOCK.unlock();
@@ -193,20 +158,10 @@ public class RootLayoutController extends AbstractController {
 	 */
 	@FXML
 	public void handleUpdateSeminars() {
-		final Alert confirm = new Alert(AlertType.CONFIRMATION);
-		confirm.setTitle("Bestätigen");
-		confirm.setHeaderText(null);
-		confirm.setContentText("Diese Funktion sollte nur zu Beginn eines Semesters genutzt werden, "
+		final ButtonType result = SimpleAlert.confirm("Diese Funktion sollte nur zu Beginn eines Semesters genutzt werden, "
 				+ "nachdem Sie sich in neue Veranstaltungen eingeschrieben haben. "
 				+ "Möchten Sie fortfahren?");
-		confirm.getDialogPane().setPrefSize(400, 150);
-		final Button yesButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.OK);
-		yesButton.setDefaultButton(false);
-		final Button cancelButton = (Button) confirm.getDialogPane().lookupButton(ButtonType.CANCEL);
-		cancelButton.setDefaultButton(true);
-		final Optional<ButtonType> result = confirm.showAndWait();
-
-		if (result.get() == ButtonType.OK) {
+		if (result == ButtonType.OK) {
 			try {
 				// Signal the sync routine to rebuild the tree.
 				Files.deleteIfExists(Config.openTreeFile());
@@ -219,11 +174,7 @@ public class RootLayoutController extends AbstractController {
 				overview.handleSync();
 
 			} catch (IOException e) {
-				final Alert alert = new Alert(AlertType.ERROR);
-				alert.setTitle("Fehler");
-				alert.setHeaderText(null);
-				alert.setContentText(e.getMessage());
-				alert.showAndWait();
+				SimpleAlert.exception(e);
 			}
 		}
 	}

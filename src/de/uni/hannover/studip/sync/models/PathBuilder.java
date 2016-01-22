@@ -79,24 +79,25 @@ public final class PathBuilder {
 		case 99:
 			return "studiengruppe";
 		default:
-			final String courseTitleLowerCase = course.title.toLowerCase(Locale.GERMANY);
-			if (courseTitleLowerCase.contains("seminar")) {
-				return "seminar";
-			} else if (courseTitleLowerCase.contains("übung") || courseTitleLowerCase.contains("uebung")) {
-				return "uebung";
-			} else if (courseTitleLowerCase.contains("praktikum")) {
-				return "praktikum";
-			} else if (courseTitleLowerCase.contains("projekt")) {
-				return "projekt";
-			} else {
-				return "vorlesung";
-			}
+			return getCourseTypeByTitle(course);
 		}
 	}
 
-	/**
-	 * String.
-	 */
+	private static String getCourseTypeByTitle(final CourseTreeNode course) {
+		final String courseTitleLowerCase = course.title.toLowerCase(Locale.GERMANY);
+		if (courseTitleLowerCase.contains("seminar")) {
+			return "seminar";
+		} else if (courseTitleLowerCase.contains("übung") || courseTitleLowerCase.contains("uebung")) {
+			return "uebung";
+		} else if (courseTitleLowerCase.contains("praktikum")) {
+			return "praktikum";
+		} else if (courseTitleLowerCase.contains("projekt")) {
+			return "projekt";
+		} else {
+			return "vorlesung";
+		}
+	}
+
 	public static String toString(final String template, final SemesterTreeNode semester, final CourseTreeNode course) {
 		final StringBuilder str = new StringBuilder();
 		final StringTokenizer tokens = new StringTokenizer(template, "/");
@@ -127,11 +128,6 @@ public final class PathBuilder {
 		return str.toString();
 	}
 
-	/**
-	 * Path.
-	 * 
-	 * @return
-	 */
 	public static Path toPath(final String template, final Path rootDir, final SemesterTreeNode semester, final CourseTreeNode course) {
 		return rootDir.resolve(toString(template, semester, course));
 	}

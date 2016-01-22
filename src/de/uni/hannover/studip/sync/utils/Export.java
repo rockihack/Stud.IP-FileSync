@@ -43,7 +43,6 @@ public final class Export {
 			@Override
 			public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
 				final Path destDir = destination.resolve(source.relativize(dir));
-
 				if (!Files.isDirectory(destDir)) {
 					Files.createDirectory(destDir);
 				}

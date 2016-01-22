@@ -12,8 +12,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javafx.application.Platform;
-
 import org.scribe.exceptions.OAuthConnectionException;
 
 import de.elanev.studip.android.app.backend.datamodel.Document;
@@ -92,8 +90,8 @@ public class UpdateDocumentsJob implements Runnable {
 	 */
 	private static void buildFolderIndex(final Map<String, DocumentFolderTreeNode> folderIndex, final Map<String, DocumentFolderTreeNode> parentIndex, final DocumentFolderTreeNode parentFolder) {
 		for (final DocumentFolderTreeNode folder : parentFolder.folders) {
-			parentIndex.put(folder.folderId, parentFolder);
 			buildFolderIndex(folderIndex, parentIndex, folder);
+			parentIndex.put(folder.folderId, parentFolder);
 		}
 
 		folderIndex.put(parentFolder.folderId, parentFolder);
@@ -190,9 +188,8 @@ public class UpdateDocumentsJob implements Runnable {
 					 */
 					removeDocument(folderNode, document);
 
-					resolveFileNameConflict(parentIndex, folderNode, document);
-
 					/* Add document to existing folder. */
+					resolveFileNameConflict(parentIndex, folderNode, document);
 					folderNode.documents.add(documentNode = new DocumentTreeNode(document));
 
 					LOG.info(documentNode.name);
@@ -203,13 +200,13 @@ public class UpdateDocumentsJob implements Runnable {
 			courseNode.updateTime = now;
 			builder.isDirty = true;
 
-		} catch (OAuthConnectionException e) {
+		} catch (OAuthConnectionException | IOException | RejectedExecutionException e) {
 			/* Connection failed. */
 			builder.stopPending = true;
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
+			OAuth.getInstance().removeAccessToken();
 			builder.stopPending = true;
 
 		} catch (ForbiddenException | NotFoundException e) {
@@ -222,14 +219,6 @@ public class UpdateDocumentsJob implements Runnable {
 
 			if (LOG.isLoggable(Level.WARNING)) {
 				LOG.warning("Removed course: " + courseNode.title);
-			}
-
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-
-		} catch (RejectedExecutionException e) {
-			if (!builder.stopPending && !Main.exitPending) {
-				throw new IllegalStateException(e);
 			}
 
 		} finally {

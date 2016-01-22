@@ -13,7 +13,7 @@ public class SetupStructureController extends StructureSettingsController {
 	@FXML
 	public void handleNext() {
 		handleSave();
-
 		getMain().setView(Main.SETUP_SYNC);
 	}
+
 }

@@ -142,7 +142,6 @@ public class TreeBuilder implements AutoCloseable {
 				/* Request caching. */
 				if (now - course.updateTime > timeDelta) {
 					phaser.register();
-
 					threadPool.execute(new UpdateDocumentsJob(this, phaser, semester, course, now));
 				}
 			}

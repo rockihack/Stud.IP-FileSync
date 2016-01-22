@@ -5,17 +5,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
-import java.util.Optional;
 
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.Alert.AlertType;
 import javafx.stage.DirectoryChooser;
 
 /**
@@ -69,13 +67,8 @@ public class SettingsController extends AbstractController {
 
 	@FXML
 	public void handleLogout() {
-		final Alert confirm = new Alert(AlertType.CONFIRMATION);
-		confirm.setTitle("Bestätigen");
-		confirm.setHeaderText(null);
-		confirm.setContentText("Möchten Sie sich wirklich ausloggen?");
-		final Optional<ButtonType> result = confirm.showAndWait();
-
-		if (result.get() == ButtonType.OK) {
+		final ButtonType result = SimpleAlert.confirm("Möchten Sie sich wirklich ausloggen?");
+		if (result == ButtonType.OK) {
 			// Delete access token and update oauth config file.
 			OAUTH.removeAccessToken();
 
@@ -96,22 +89,12 @@ public class SettingsController extends AbstractController {
 		}
 
 		final Path rootDir = dir.toPath();
-
 		if (!Files.isDirectory(rootDir)) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("Kein Ordner.");
-			alert.showAndWait();
+			SimpleAlert.error("Kein Ordner gewählt.");
 			return;
 		}
-
 		if (!Files.isReadable(rootDir) || !Files.isWritable(rootDir)) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			alert.setTitle("Fehler");
-			alert.setHeaderText(null);
-			alert.setContentText("Keine Lese/Schreib Berechtigung.");
-			alert.showAndWait();
+			SimpleAlert.error("Keine Lese/Schreib Berechtigung.");
 			return;
 		}
 
@@ -120,7 +103,7 @@ public class SettingsController extends AbstractController {
 			setRootDirLabel(CONFIG.getRootDirectory());
 
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			SimpleAlert.exception(e);
 		}
 	}
 

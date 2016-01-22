@@ -6,8 +6,6 @@ import java.util.concurrent.Phaser;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Logger;
 
-import javafx.application.Platform;
-
 import org.scribe.exceptions.OAuthConnectionException;
 
 import de.elanev.studip.android.app.backend.datamodel.Course;
@@ -66,36 +64,27 @@ public class BuildCoursesJob implements Runnable {
 			/* Get subscribed courses. */
 			final Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semesterId);
 			phaser.bulkRegister(courses.courses.size());
-			
+
 			for (final Course course : courses.courses) {
 				semesterNode.courses.add(courseNode = new CourseTreeNode(course));
-				
-				/* Add build documents job. */
+
 				builder.execute(new BuildDocumentsJob(builder, phaser, courseNode, courseNode.root, new HashSet<String>()));
-				
+
 				LOG.info(courseNode.title);
 			}
 
-		} catch (OAuthConnectionException e) {
+		} catch (OAuthConnectionException | IOException | RejectedExecutionException e) {
 			/* Connection failed. */
 			builder.stopPending = true;
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
+			OAuth.getInstance().removeAccessToken();
 			builder.stopPending = true;
 
 		} catch (NotFoundException e) {
 			/* Course does not exist. */
 			throw new IllegalStateException(e);
-
-		} catch (IOException e) {
-			throw new IllegalStateException(e);
-
-		} catch (RejectedExecutionException e) {
-			if (!builder.stopPending && !Main.exitPending) {
-				throw new IllegalStateException(e);
-			}
 
 		} finally {
 			/* Job done. */

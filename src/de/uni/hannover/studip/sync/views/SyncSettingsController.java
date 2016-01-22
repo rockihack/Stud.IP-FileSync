@@ -17,10 +17,10 @@ public class SyncSettingsController extends AbstractController {
 	private static final Config CONFIG = Config.getInstance();
 
 	@FXML
-	private ChoiceBox<String> overwriteChoicebox;
+	private ChoiceBox<String> downloadAllSemestersChoicebox;
 
 	@FXML
-	private ChoiceBox<String> downloadAllSemestersChoicebox;
+	private ChoiceBox<String> overwriteChoicebox;
 
 	@FXML
 	private ChoiceBox<String> replaceWhitespacesChoicebox;
@@ -30,43 +30,37 @@ public class SyncSettingsController extends AbstractController {
 	 */
 	@FXML
 	public void initialize() {
-		overwriteChoicebox.getSelectionModel().select(CONFIG.isOverwriteFiles() ? 0 : 1);
 		downloadAllSemestersChoicebox.getSelectionModel().select(CONFIG.isDownloadAllSemesters() ? 0 : 1);
+		overwriteChoicebox.getSelectionModel().select(CONFIG.isOverwriteFiles() ? 0 : 1);
 		replaceWhitespacesChoicebox.getSelectionModel().select(CONFIG.getReplaceWhitespaces());
-
-		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(
-			(observableValue, oldValue, newValue) -> {
-				if (!oldValue.equals(newValue)) {
-					try {
-						CONFIG.setOverwriteFiles(newValue.intValue() == 0);
-
-					} catch (IOException e) {
-						throw new IllegalStateException(e);
-					}
-				}
-			});
 
 		downloadAllSemestersChoicebox.getSelectionModel().selectedIndexProperty().addListener(
 			(observableValue, oldValue, newValue) -> {
-				if (!oldValue.equals(newValue)) {
-					try {
-						CONFIG.setDownloadAllSemesters(newValue.intValue() == 0);
+				try {
+					CONFIG.setDownloadAllSemesters(newValue.intValue() == 0);
 
-					} catch (IOException e) {
-						throw new IllegalStateException(e);
-					}
+				} catch (IOException e) {
+					downloadAllSemestersChoicebox.getSelectionModel().selectPrevious();
+				}
+			});
+
+		overwriteChoicebox.getSelectionModel().selectedIndexProperty().addListener(
+			(observableValue, oldValue, newValue) -> {
+				try {
+					CONFIG.setOverwriteFiles(newValue.intValue() == 0);
+
+				} catch (IOException e) {
+					overwriteChoicebox.getSelectionModel().selectPrevious();
 				}
 			});
 
 		replaceWhitespacesChoicebox.getSelectionModel().selectedIndexProperty().addListener(
 			(observableValue, oldValue, newValue) -> {
-				if (!oldValue.equals(newValue)) {
-					try {
-						CONFIG.setReplaceWhitespaces(newValue.intValue());
+				try {
+					CONFIG.setReplaceWhitespaces(newValue.intValue());
 
-					} catch (IOException e) {
-						throw new IllegalStateException(e);
-					}
+				} catch (IOException e) {
+					replaceWhitespacesChoicebox.getSelectionModel().selectPrevious();
 				}
 			});
 	}

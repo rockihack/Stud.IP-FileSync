@@ -8,6 +8,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import de.uni.hannover.studip.sync.models.Config;
+import de.uni.hannover.studip.sync.utils.SimpleAlert;
 
 /**
  * 
@@ -72,9 +73,9 @@ public class StructureSettingsController extends AbstractController {
 
 	@FXML
 	public void handleSave() {
-		try {
-			final RadioButton selected = (RadioButton) structureGroup.getSelectedToggle();
+		final RadioButton selected = (RadioButton) structureGroup.getSelectedToggle();
 
+		try {
 			if (option1.equals(selected)) {
 				CONFIG.setFolderStructure(":semester/:lecture/:type");
 				structureField.setText(":semester/:lecture/:type");
@@ -90,7 +91,7 @@ public class StructureSettingsController extends AbstractController {
 			}
 
 		} catch (IOException e) {
-			throw new IllegalStateException(e);
+			SimpleAlert.exception(e);
 		}
 	}
 }
