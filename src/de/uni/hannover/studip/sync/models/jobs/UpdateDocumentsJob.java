@@ -169,8 +169,8 @@ public class UpdateDocumentsJob implements Runnable {
 			final Documents newDocuments = RestApi.getNewDocumentsByCourseId(courseNode.courseId, courseNode.updateTime);
 			if (!newDocuments.documents.isEmpty()) {
 				/* Build a folder index for this course, so we can easily access the folders. */
-				final Map<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
-				final Map<String, DocumentFolderTreeNode> parentIndex = new HashMap<String, DocumentFolderTreeNode>();
+				final HashMap<String, DocumentFolderTreeNode> folderIndex = new HashMap<String, DocumentFolderTreeNode>();
+				final HashMap<String, DocumentFolderTreeNode> parentIndex = new HashMap<String, DocumentFolderTreeNode>();
 				buildFolderIndex(folderIndex, parentIndex, courseNode.root);
 
 				for (final Document document : newDocuments.documents) {
