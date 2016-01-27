@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.Alert.AlertType;
 
 /**
@@ -30,9 +31,20 @@ public final class SimpleAlert {
 	}
 
 	public static void exception(final Throwable t) {
+		final Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle("Exception");
+		alert.setHeaderText(null);
+		alert.setContentText("Upps, da ist etwas schief gelaufen.");
+		alert.setResizable(true);
+
 		final StringWriter writer = new StringWriter();
 		t.printStackTrace(new PrintWriter(writer));
-		alert(AlertType.ERROR, "Exception", null, writer.toString());
+
+		final TextArea textArea = new TextArea(writer.toString());
+		textArea.setEditable(false);
+
+		alert.getDialogPane().setExpandableContent(textArea);
+		alert.showAndWait();
 	}
 
 	public static void error(final String content) {
