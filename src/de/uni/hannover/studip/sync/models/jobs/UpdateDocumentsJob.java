@@ -134,23 +134,22 @@ public class UpdateDocumentsJob implements Runnable {
 
 		/* Merge default folder with parent. */
 		if (StudIPApiProvider.DEFAULT_FOLDER.equals(folderNode.name.trim())) {
-			for (final DocumentTreeNode doc : parentNode.documents) {
-				fileIndex.add(FileBrowser.removeIllegalCharacters(doc.fileName).toLowerCase(Locale.GERMANY));
-			}
 			for (final DocumentFolderTreeNode folder : parentNode.folders) {
 				fileIndex.add(FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY));
+			}
+			for (final DocumentTreeNode doc : parentNode.documents) {
+				fileIndex.add(FileBrowser.removeIllegalCharacters(doc.fileName).toLowerCase(Locale.GERMANY));
 			}
 		}
 
 		/* Build file index for merged folders. */
 		final String folderName = FileBrowser.removeIllegalCharacters(folderNode.name);
-
-		for (final DocumentFolderTreeNode folder : parentNode.folders) {
-			if (folderName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(folder.name))) {
-				for (final DocumentFolderTreeNode folder2 : folder.folders) {
-					fileIndex.add(FileBrowser.removeIllegalCharacters(folder2.name).toLowerCase(Locale.GERMANY));
+		for (final DocumentFolderTreeNode sibling : parentNode.folders) {
+			if (folderName.equalsIgnoreCase(FileBrowser.removeIllegalCharacters(sibling.name))) {
+				for (final DocumentFolderTreeNode folder : sibling.folders) {
+					fileIndex.add(FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY));
 				}
-				for (final DocumentTreeNode doc : folder.documents) {
+				for (final DocumentTreeNode doc : sibling.documents) {
 					fileIndex.add(FileBrowser.removeIllegalCharacters(doc.fileName).toLowerCase(Locale.GERMANY));
 				}
 			}

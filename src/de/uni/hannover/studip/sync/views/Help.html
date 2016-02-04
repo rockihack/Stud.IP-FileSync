@@ -1,0 +1,114 @@
+<html>
+
+<head>
+	<style type="text/css">
+		body {
+			background-color: #F4F4F4;
+			font-family: Verdana, Arial, Helvetica, sans-serif;
+			font-size: 14px;
+		}
+		#wrapper {
+			width: 500px;
+		}
+		a {
+			color: #3d71b8;
+			text-decoration: none;
+		}
+		a:hover {
+			text-decoration: underline;
+		}
+		hr {
+			border: 0;
+			background-color: #CCC;
+			height: 1px;
+		}
+		li {
+			margin: 20px 0px;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="wrapper">
+		<h2>Hilfe</h2>
+
+		<a href="#" id="beschreibung"></a>
+		<h4>Beschreibung</h4>
+		<p>Die Stud.IP-FileSync Anwendung l&auml;dt alle Dokumente Ihrer Stud.IP Veranstaltungen in einen Ordner auf Ihrem Computer herunter.<br />
+			Dabei bleibt die Ordnerstruktur der Veranstaltungen erhalten.</p>
+		<hr />
+
+		<a href="#" id="ersteschritte"></a>
+		<h4>Erste Schritte</h4>
+		<p>
+			<ol>
+				<li>Starten Sie die Stud.IP-FileSync Anwendung und klicken Sie auf <i>"Sync"</i>. Wenn Sie sich noch nicht eingeloggt haben, werden Sie zum Login weitergeleitet.</li>
+				<li>Es erscheint eine kurze Beschreibung des Loginvorgangs, mit einem Klick auf <i>"Weiter"</i> wird die Stud.IP Login-Seite geladen.</li>
+				<li>Melden Sie sich nun mit Ihren Accountdaten an und best&auml;tigen Sie den Zugriff auf Ihre Veranstaltungen, danach werden Sie automatisch zum Setup weitergeleitet.</li>
+				<li>F&uuml;r eine ausf&uuml;hrliche Beschreibung lesen Sie den Abschnitt <a href="#einstellungen">Einstellungen</a>.</li>
+				<li>Nach der Einrichtung klicken Sie erneut auf <i>"Sync"</i>, um das Herunterladen zu starten.</li>
+			</ol>
+		</p>
+		<hr />
+
+		<a href="#" id="sync"></a>
+		<h4>Sync</h4>
+		<ul>
+			<li>Die Synchronisation l&auml;uft in zwei Schritten ab.<br />
+				Zuerst wird nach neuen und ge&auml;nderten Dokumenten gesucht, die empfangenen Informationen werden in einer lokalen Datei gespeichert. Danach beginnt das Herunterladen der Veranstaltungsdokumente.</li>
+			<li>M&ouml;chten Sie die Aktualisierung bzw. das Herunterladen abbrechen, k&ouml;nnen Sie die Anwendung einfach beenden. Beim Herunterladen werden aktive Downloads zuerst abgeschlossen.</li>
+			<li>Nachdem Sie sich am Anfang eines Semesters in neue Stud.IP Veranstaltungen eingetragen haben, muss mit der Anwendung einmalig nach neuen Veranstaltungen gesucht werden. Klicken Sie hierf&uuml;r auf <i>"Hilfe"</i> und dann <i>"Neue Veranstaltungen suchen"</i>.</li>
+		</ul>
+		<hr />
+
+		<a href="#" id="neuedokumente"></a>
+		<h4>Neue Dokumente</h4>
+		<p>Im Men&uuml; <i>"Datei"</i> unter <i>"Neue Dokumente"</i> finden Sie eine &Uuml;bersicht aller Dokumente. Mit einem Doppelklick auf einen Eintrag wird das Dokument ge&ouml;ffnet.</p>
+		<hr />
+
+		<a href="#" id="export"></a>
+		<h4>Export Materialsammlung</h4>
+		<p>Beim Exportieren werden alle Veranstaltungsordner in ein Exportordner mit Materialsammlungsstruktur kopiert. Sobald das Kopieren fertig ist, wird der Exportordner ge&ouml;ffnet.</p>
+		<hr />
+
+		<a href="#" id="einstellungen"></a>
+		<h4>Einstellungen</h4>
+		<p>Die Einstellungen k&ouml;nnen jederzeit im Men&uuml; <i>"Datei"</i> unter <i>"Einstellungen"</i> ge&auml;ndert werden.</p>
+		<p>
+			<ol>
+				<li><i>Ziel Ordner:</i> Alle Dokumente werden in diesem Ordner gespeichert. Am besten erstellen Sie einen neuen Ordner z.B. <i>"FileSync"</i>.</li>
+
+				<li><i>Ordnerstruktur:</i> Diese Einstellung gibt an welche Struktur beim Erstellen der Veranstaltungsordner benutzt werden soll. Sie k&ouml;nnen eine vordefinierte Struktur w&auml;hlen oder Ihre eigene eintragen.</li>
+				<ul>
+					<li><i>Vorlesung und &Uuml;bung zusammenf&uuml;hren:</i><br />
+							Es wird versucht Vorlesungen und &Uuml;bungen anhand ihres Namens in einem gemeinsamen Veranstaltungsordner mit dem Namen der Vorlesung zu speichern.<br />
+							In diesem Ordner wird f&uuml;r jeden Veranstaltungstyp ein Unterordner erstellt ("vorlesung", "uebung", usw.). Sollte dies nicht m&ouml;glich sein, werden die Veranstaltungen einzeln gespeichert.<br /><br />
+							<i>Beispiel:<br />
+								SoSe 2015/Analysis A/vorlesung und SoSe 2015/Analysis A/uebung</i></li>
+					<li><i>Alle Veranstaltungen einzeln:</i><br />
+							Jede Veranstaltung (Vorlesung, &Uuml;bung usw.) wird in einem eigenem Veranstaltungsordner gespeichert.<br /><br />
+							<i>Beispiel:<br />
+								SoSe 2015/Analysis A und SoSe 2015/&Uuml;bung: Analysis A</i></li>
+					<li><i>Materialsammlung:</i><br />
+							Veranstaltungen werden nach ihrem Namen, dem jeweiligen Semester und dem Typ sortiert.<br /><br />
+							<i>Beispiel:<br />
+								Analysis A/15ss/vorlesung und Analysis A/15ss/uebung</i></li>
+				</ul>
+
+				<li><i>Semester:</i> Sie k&ouml;nnen ausw&auml;hlen, ob nur die Dokumente des aktuellen Semesters oder aller &uuml;ber Stud.IP sichtbaren Semester heruntergeladen werden sollen.</li>
+
+				<li><i>Ge&auml;nderte Dateien:</i> Werden Dateien in Stud.IP ge&auml;ndert / aktualisiert kann die alte Version durch die neue ersetzt oder umbenannt werden. Die aktuellste Version tr&auml;gt immer den urspr&uuml;nglichen Namen. Alte Versionen werden durch eine fortlaufende Nummerierung gekennzeichnet.</li>
+
+				<li><i>Leerzeichen ersetzen:</i> Es k&ouml;nnen automatisch in Datei- und Ordnernamen auftretende Leerzeichen durch einen Binde- oder Unterstrich ersetzt werden. Diese Option soll den Zugriff &uuml;ber die Konsole vereinfachen.</li>
+			</ol>
+		</p>
+		<hr />
+
+		<a href="#" id="deinstallieren"></a>
+		<h4>Deinstallieren / Einstellungen l&ouml;schen</h4>
+		<p>Die Stud.IP-FileSync Anwendung legt einen (versteckten) Ordner <i>".studip-sync"</i> in Ihrem Benutzerverzeichnis an. Dieser Ordner enth&auml;lt alle Einstellungen und Logininformationen (OAuth-Token). Ihr Passwort wird <b>nicht</b> gespeichert.</p>
+		<hr />
+	</div>
+</body>
+
+</html>
