@@ -82,8 +82,8 @@ public class OverviewController extends AbstractController {
 				}
 
 				Platform.runLater(() -> {
-						progressLabel.setText("");
-						syncButton.setText("Downloading...");
+					progressLabel.setText("");
+					syncButton.setText("Downloading...");
 				});
 
 				/* Download documents. */

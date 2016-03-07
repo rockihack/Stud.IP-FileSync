@@ -45,13 +45,15 @@ public class OAuthWebviewController extends AbstractController {
 
 		// On status change event.
 		webEngine.setOnStatusChanged(event -> {
-			final String url = webEngine.getLocation();
+			if (event.getEventType() == WebEvent.STATUS_CHANGED) {
+				final String url = webEngine.getLocation();
+				if (url.contains("oauth_verifier")) {
+					getOAuthVerifier(url);
+					webEngine.load(StudIPApiProvider.LOGOUT);
 
-			if (event.getEventType() == WebEvent.STATUS_CHANGED && url.contains("oauth_verifier")) {
-				getOAuthVerifier(url);
-
-				// End login session.
-				webEngine.load(StudIPApiProvider.LOGOUT);
+				} else if (!url.contains("oauth_token") && !url.contains("logout")) {
+					webEngine.load(OAUTH.getAuthUrl());
+				}
 			}
 		});
 
