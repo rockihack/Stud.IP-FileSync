@@ -8,6 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.uni.hannover.studip.sync.utils.Cli;
 import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import de.uni.hannover.studip.sync.views.AbstractController;
 import de.uni.hannover.studip.sync.views.RootLayoutController;
@@ -108,7 +109,17 @@ public class Main extends Application {
 	 * @param args
 	 */
 	public static void main(final String[] args) {
-		launch(args);
+		try {
+			// Acquire system wide app mutex to allow only one running instance.
+			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
+
+			Cli.handleArgs(args);
+			launch(args);
+
+		} catch (IOException e) {
+			System.out.println("FileSync läuft bereits.");
+			System.exit(1);
+		}
 	}
 
 	/**
@@ -116,18 +127,9 @@ public class Main extends Application {
 	 */
 	@Override
 	public void start(final Stage primaryStage) {
-		try {
-			// Acquire system wide app mutex to allow only one running instance.
-			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
-
-			this.primaryStage = primaryStage;
-			initRootLayout();
-			setView(OVERVIEW);
-
-		} catch (IOException e) {
-			SimpleAlert.error("FileSync läuft bereits.");
-			Platform.exit();
-		}
+		this.primaryStage = primaryStage;
+		initRootLayout();
+		setView(OVERVIEW);
 	}
 
 	/**
