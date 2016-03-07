@@ -23,6 +23,7 @@ import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeBuilder;
 import de.uni.hannover.studip.sync.models.TreeConflict;
+import javafx.application.Platform;
 
 /**
  * Build files job.
@@ -118,7 +119,7 @@ public class BuildDocumentsJob implements Runnable {
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			OAuth.getInstance().removeAccessToken();
+			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 			builder.stopPending = true;
 
 		} catch (ForbiddenException | NotFoundException e) {

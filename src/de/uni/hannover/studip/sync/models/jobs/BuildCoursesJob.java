@@ -18,6 +18,7 @@ import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeBuilder;
+import javafx.application.Platform;
 
 /**
  * Build courses job.
@@ -79,7 +80,7 @@ public class BuildCoursesJob implements Runnable {
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			OAuth.getInstance().removeAccessToken();
+			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 			builder.stopPending = true;
 
 		} catch (NotFoundException e) {

@@ -20,6 +20,7 @@ import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeSync;
+import javafx.application.Platform;
 
 /**
  * Download document job.
@@ -98,7 +99,7 @@ public class DownloadDocumentJob implements Runnable {
 
 		} catch (UnauthorizedException e) {
 			/* Invalid oauth access token. */
-			OAuth.getInstance().removeAccessToken();
+			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 			sync.stopPending = true;
 
 		} catch (ForbiddenException | NotFoundException e) {
