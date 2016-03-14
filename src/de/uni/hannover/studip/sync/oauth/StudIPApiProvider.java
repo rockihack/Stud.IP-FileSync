@@ -13,17 +13,17 @@ public final class StudIPApiProvider extends DefaultApi10a
 	/**
 	 * Studip rest api plugin base url.
 	 */
-	public static final String BASE_URL = "https://elearning.uni-hannover.de/plugins.php/restipplugin";
+	public static final String BASE_URL = "https://studip.uni-hannover.de/plugins.php/restipplugin";
 
 	/**
 	 * OAuth service callback address.
 	 */
-	public static final String API_CALLBACK = "https://elearning.uni-hannover.de/dispatch.php/start";
+	public static final String API_CALLBACK = "https://studip.uni-hannover.de/dispatch.php/start";
 
 	/**
 	 * Logout address.
 	 */
-	public static final String LOGOUT = "https://elearning.uni-hannover.de/logout.php";
+	public static final String LOGOUT = "https://studip.uni-hannover.de/logout.php";
 
 	/**
 	 * OAuth consumer key.
