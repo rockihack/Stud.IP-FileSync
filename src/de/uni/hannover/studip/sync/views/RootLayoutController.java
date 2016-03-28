@@ -161,20 +161,24 @@ public class RootLayoutController extends AbstractController {
 				+ "nachdem Sie sich in neue Veranstaltungen eingeschrieben haben. "
 				+ "Möchten Sie fortfahren?");
 		if (result == ButtonType.OK) {
+			Main.TREE_LOCK.lock();
 			try {
 				// Signal the sync routine to rebuild the tree.
 				Files.deleteIfExists(Config.openTreeFile());
 
-				// Redirect to overview.
-				getMain().setView(Main.OVERVIEW);
-
-				// Start the sync.
-				final OverviewController overview = (OverviewController) getMain().getController();
-				overview.handleSync();
-
 			} catch (IOException e) {
 				SimpleAlert.exception(e);
+
+			} finally {
+				Main.TREE_LOCK.unlock();
 			}
+
+			// Redirect to overview.
+			getMain().setView(Main.OVERVIEW);
+
+			// Start the sync.
+			final OverviewController overview = (OverviewController) getMain().getController();
+			overview.handleSync();
 		}
 	}
 
