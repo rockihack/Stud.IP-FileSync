@@ -29,7 +29,6 @@ public class Document {
 	@JsonProperty("protected")
 	public Boolean file_protected;
 	public String mime_type;
-	public String icon;
 
 	public Document() {
 	}
@@ -46,12 +45,11 @@ public class Document {
 	 * @param downloads
 	 * @param file_protected
 	 * @param mime_type
-	 * @param icon
 	 */
 	public Document(String document_id, String folder_id, String user_id,
 			String name, String description, Long mkdate, Long chdate,
 			String filename, Long filesize, Integer downloads,
-			Boolean file_protected, String mime_type, String icon) {
+			Boolean file_protected, String mime_type) {
 		this.document_id = document_id;
 		this.folder_id = folder_id;
 		this.user_id = user_id;
@@ -64,6 +62,5 @@ public class Document {
 		this.downloads = downloads;
 		this.file_protected = file_protected;
 		this.mime_type = mime_type;
-		this.icon = icon;
 	}
 }
