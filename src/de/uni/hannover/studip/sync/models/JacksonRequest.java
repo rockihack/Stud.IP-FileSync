@@ -69,7 +69,9 @@ public class JacksonRequest<T> {
 	 * @throws IOException
 	 */
 	public T parseResponse() throws IOException {
-		ObjectReader reader = MAPPER.readerFor(datamodel).without(Feature.AUTO_CLOSE_SOURCE);
+		ObjectReader reader = MAPPER.readerFor(datamodel)
+				.without(Feature.AUTO_CLOSE_SOURCE)
+				.with(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
 		if (datamodel.isAnnotationPresent(JsonRootName.class)) {
 			reader = reader.with(DeserializationFeature.UNWRAP_ROOT_VALUE);
 		}

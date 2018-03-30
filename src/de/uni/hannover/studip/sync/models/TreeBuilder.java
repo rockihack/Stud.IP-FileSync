@@ -13,14 +13,11 @@ import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import de.uni.hannover.studip.sync.Main;
 import de.uni.hannover.studip.sync.datamodel.*;
-import de.uni.hannover.studip.sync.oauth.StudIPApiProvider;
 import de.uni.hannover.studip.sync.models.jobs.BuildSemestersJob;
-import de.uni.hannover.studip.sync.models.jobs.UpdateDocumentsJob;
 
 /**
  * Semester/Course/Folder/Document tree builder.
@@ -116,53 +113,8 @@ public class TreeBuilder implements AutoCloseable {
 	 * @throws IOException
 	 */
 	public synchronized int update(final Path tree) throws IOException {
-		if (stopPending || Main.exitPending) {
-			return 0;
-		}
-
-		/* Read existing tree. */
-		final SemestersTreeNode rootNode = MAPPER.readerFor(SemestersTreeNode.class)
-				.readValue(Files.newInputStream(tree));
-
-		if (rootNode.semesters.isEmpty()) {
-			throw new JsonMappingException("No semesters found!");
-		}
-
-		final Phaser phaser = new Phaser(1); /* = self. */
-		final long now = System.currentTimeMillis() / 1000L;
-
-		/* Update tree with multiple threads. */
-		isDirty = false;
-		for (final SemesterTreeNode semester : rootNode.semesters) {
-			final int timeDelta = (now > semester.begin && now < semester.end)
-					? StudIPApiProvider.CACHE_TIME /* Current semester. */
-					: StudIPApiProvider.LARGE_CACHE_TIME; /* Old semester. */
-
-			for (final CourseTreeNode course : semester.courses) {
-				/* Request caching. */
-				if (now - course.updateTime > timeDelta) {
-					phaser.register();
-					threadPool.execute(new UpdateDocumentsJob(this, phaser, semester, course, now));
-				}
-			}
-		}
-
-		startProgressAnimation(phaser);
-
-		/* Wait until all jobs are done. */
-		phaser.arriveAndAwaitAdvance();
-
-		if (!stopPending && !Main.exitPending) {
-			if (isDirty) {
-				/* Serialize the tree to json and store it in the tree file. */
-				MAPPER.writerFor(SemestersTreeNode.class)
-						.writeValue(Files.newOutputStream(tree), rootNode);
-			}
-
-			LOG.info("Update done!");
-		}
-
-		return phaser.getRegisteredParties() - 1;
+		// TODO
+		return build(tree);
 	}
 
 	public void execute(final Runnable job) {

@@ -111,7 +111,7 @@ public class DownloadDocumentJob implements Runnable {
 			sync.isDirty = true;
 
 			if (LOG.isLoggable(Level.WARNING)) {
-				LOG.warning("Removed document: " + documentNode.fileName);
+				LOG.warning("Removed document: " + documentNode.name);
 			}
 
 		} finally {

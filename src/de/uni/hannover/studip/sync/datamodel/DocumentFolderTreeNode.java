@@ -29,7 +29,7 @@ public class DocumentFolderTreeNode {
 	}
 
 	public DocumentFolderTreeNode(final DocumentFolder folder) {
-		this.folderId = folder.folder_id;
+		this.folderId = folder.id;
 		this.userId = folder.user_id;
 		this.name = folder.name;
 		this.mkDate = folder.mkdate;

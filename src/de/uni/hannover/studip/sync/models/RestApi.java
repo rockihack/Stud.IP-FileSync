@@ -37,13 +37,13 @@ public final class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static Courses getAllCoursesBySemesterId(final String semesterId) throws UnauthorizedException, NotFoundException, IOException {
+	public static Courses getAllCoursesBySemesterId(final String userId, final String semesterId) throws UnauthorizedException, NotFoundException, IOException {
 		if (!semesterId.matches(STUDIP_ID_REGEX)) {
 			throw new IllegalArgumentException("Invalid semester id!");
 		}
 
 		final JacksonRequest<Courses> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/api/courses/semester/" + semesterId, Courses.class);
+				StudIPApiProvider.BASE_URL + "/user/" + userId + "/courses?semester=" + semesterId, Courses.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -52,37 +52,6 @@ public final class RestApi {
 			throw new UnauthorizedException("Unauthorized!");
 		case 404:
 			throw new NotFoundException("Not found!");
-		default:
-			throw new IllegalStateException("Statuscode: " + request.getCode());
-		}
-	}
-
-	/**
-	 * Liefert die neuen Dateien einer Veranstaltung zurück. 
-	 * 
-	 * @return
-	 * @throws UnauthorizedException 
-	 * @throws ForbiddenException 
-	 * @throws NotFoundException 
-	 * @throws IOException 
-	 */
-	public static Documents getNewDocumentsByCourseId(final String courseId, final long timestamp) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
-		if (!courseId.matches(STUDIP_ID_REGEX)) {
-			throw new IllegalArgumentException("Invalid range id!");
-		}
-
-		final JacksonRequest<Documents> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/api/documents/" + courseId + "/new/" + timestamp, Documents.class);
-
-		switch (request.getCode()) {
-		case 200:
-			return request.parseResponse();
-		case 400:
-			throw new NotFoundException("Not found!");
-		case 401:
-			throw new UnauthorizedException("Unauthorized!");
-		case 403:
-			throw new ForbiddenException("Forbidden!");
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
@@ -101,13 +70,15 @@ public final class RestApi {
 		if (!rangeId.matches(STUDIP_ID_REGEX)) {
 			throw new IllegalArgumentException("Invalid range id!");
 		}
-
 		if (folderId != null && !folderId.matches(STUDIP_ID_REGEX)) {
 			throw new IllegalArgumentException("Invalid folder id!");
 		}
 
 		final JacksonRequest<DocumentFolders> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId == null ? "" : "/" + folderId), DocumentFolders.class);
+				folderId == null
+				? StudIPApiProvider.BASE_URL + "/course/" + rangeId + "/top_folder"
+				: StudIPApiProvider.BASE_URL + "/folder/" + folderId,
+				DocumentFolders.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -140,7 +111,7 @@ public final class RestApi {
 		}
 
 		final JacksonRequest<Object> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
+				StudIPApiProvider.BASE_URL + "/file/" + documentId + "/download", Object.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -165,7 +136,7 @@ public final class RestApi {
 	 */
 	public static Semesters getAllSemesters() throws UnauthorizedException, IOException {
 		final JacksonRequest<Semesters> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/api/courses/semester", Semesters.class);
+				StudIPApiProvider.BASE_URL + "/semesters", Semesters.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -185,13 +156,9 @@ public final class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static User getUserById(final String userId) throws UnauthorizedException, NotFoundException, IOException {
-		if (userId != null && !userId.matches(STUDIP_ID_REGEX)) {
-			throw new IllegalArgumentException("Invalid user id!");
-		}
-
+	public static User getUserById() throws UnauthorizedException, NotFoundException, IOException {
 		final JacksonRequest<User> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/api/user" + (userId == null ? "" : "/" + userId), User.class);
+				StudIPApiProvider.BASE_URL + "/user", User.class);
 
 		switch (request.getCode()) {
 		case 200:

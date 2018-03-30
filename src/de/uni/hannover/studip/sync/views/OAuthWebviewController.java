@@ -50,9 +50,6 @@ public class OAuthWebviewController extends AbstractController {
 				if (url.contains("oauth_verifier")) {
 					getOAuthVerifier(url);
 					webEngine.load(StudIPApiProvider.LOGOUT);
-
-				} else if (!url.contains("oauth_token") && !url.contains("logout")) {
-					webEngine.load(OAUTH.getAuthUrl());
 				}
 			}
 		});
@@ -83,7 +80,7 @@ public class OAuthWebviewController extends AbstractController {
 	private void getOAuthVerifier(final String url) {
 		try {
 			// Parse oauth verifier.
-			final Pattern pattern = Pattern.compile("oauth_verifier=(.+)");
+			final Pattern pattern = Pattern.compile("oauth_verifier=([^&]+)");
 			final Matcher matcher = pattern.matcher(url);
 
 			if (!matcher.find()) {
@@ -94,7 +91,7 @@ public class OAuthWebviewController extends AbstractController {
 			final Token accessToken = OAUTH.getAccessToken(matcher.group(1));
 
 			// Test if access token is valid.
-			final User currentUser = RestApi.getUserById(null);
+			final User currentUser = RestApi.getUserById();
 
 			// Store access token.
 			CONFIG.setAccessToken(accessToken, currentUser);

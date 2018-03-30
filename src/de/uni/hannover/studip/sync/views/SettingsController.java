@@ -51,7 +51,9 @@ public class SettingsController extends AbstractController {
 			final String lastName = CONFIG.getLastName();
 			final String userName = CONFIG.getUserName();
 			if (firstName != null && lastName != null && userName != null) {
-				userLabel.setText(String.format(Locale.GERMANY, "Eingeloggt als %s %s, %s", firstName, lastName, userName));
+				// FIXME
+				//userLabel.setText(String.format(Locale.GERMANY, "Eingeloggt als %s %s, %s", firstName, lastName, userName));
+				userLabel.setText(String.format(Locale.GERMANY, "Eingeloggt als %s", userName));
 			}
 
 		} else {

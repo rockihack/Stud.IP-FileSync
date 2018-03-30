@@ -47,7 +47,7 @@ public final class TreeConflict {
 						LOG.warning("Folder/file name conflict: " + folderName);
 					}
 
-					folder.name = FileBrowser.appendFilename(folder.name, "_" + folder.folder_id);
+					folder.name = FileBrowser.appendFilename(folder.name, "_" + folder.id);
 					folderName = FileBrowser.removeIllegalCharacters(folder.name).toLowerCase(Locale.GERMANY);
 				}
 
@@ -77,7 +77,7 @@ public final class TreeConflict {
 	 */
 	public static void resolveFileNameConflict(final Set<String> fileIndex, final Document document) {
 		/* Use lowercase name because Windows and MacOS filesystems are case insensitive. */
-		String fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
+		String fileName = FileBrowser.removeIllegalCharacters(document.name).toLowerCase(Locale.GERMANY);
 
 		synchronized (fileIndex) {
 			if (fileIndex.contains(fileName)) {
@@ -86,25 +86,17 @@ public final class TreeConflict {
 					LOG.warning("File name conflict: " + fileName);
 				}
 
-				/* 1. Append Stud.IP name. */
-				if (!document.name.isEmpty() && !document.name.equals(document.filename)) {
-					document.filename = FileBrowser.appendFilename(document.filename, "_(" + document.name + ")");
-					fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
-				}
+				final Date chDate = new Date(document.chdate * 1000L);
+				final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.GERMANY);
+
+				/* 1. Append change date.*/
+				document.name = FileBrowser.appendFilename(document.name, "_" + format.format(chDate));
+				fileName = FileBrowser.removeIllegalCharacters(document.name).toLowerCase(Locale.GERMANY);
 
 				if (fileIndex.contains(fileName)) {
-					final Date chDate = new Date(document.chdate * 1000L);
-					final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.GERMANY);
-
-					/* 2. Append change date.*/
-					document.filename = FileBrowser.appendFilename(document.filename, "_" + format.format(chDate));
-					fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
-
-					if (fileIndex.contains(fileName)) {
-						/* 3. Append Stud.IP document id. */
-						document.filename = FileBrowser.appendFilename(document.filename, "_" + document.document_id);
-						fileName = FileBrowser.removeIllegalCharacters(document.filename).toLowerCase(Locale.GERMANY);
-					}
+					/* 2. Append Stud.IP document id. */
+					document.name = FileBrowser.appendFilename(document.name, "_" + document.file_id);
+					fileName = FileBrowser.removeIllegalCharacters(document.name).toLowerCase(Locale.GERMANY);
 				}
 
 				if (LOG.isLoggable(Level.WARNING)) {

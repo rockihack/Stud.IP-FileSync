@@ -146,7 +146,7 @@ public class NewDocumentsController extends AbstractController {
 		}
 
 		for (final DocumentTreeNode document : folderNode.documents) {
-			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, parentDirectory.resolve(FileBrowser.removeIllegalCharacters(document.fileName))));
+			documentList.add(new NewDocumentsModel(semesterNode, courseNode, document, parentDirectory.resolve(FileBrowser.removeIllegalCharacters(document.name))));
 		}
 	}
 

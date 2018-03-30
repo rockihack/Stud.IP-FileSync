@@ -46,8 +46,8 @@ public class CourseTreeNode {
 	public CourseTreeNode(final Course course) {
 		this.courseId = course.courseId;
 		this.title = course.title;
-		this.startTime = course.startTime;
-		this.durationTime = course.durationTime;
+		this.startTime = 0L; // FIXME
+		this.durationTime = Long.MAX_VALUE; // FIXME
 		this.type = course.type;
 		this.updateTime = System.currentTimeMillis() / 1000L;
 	}

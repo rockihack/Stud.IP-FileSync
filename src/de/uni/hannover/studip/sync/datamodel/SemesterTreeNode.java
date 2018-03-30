@@ -29,7 +29,7 @@ public class SemesterTreeNode {
 	}
 
 	public SemesterTreeNode(final Semester semester) {
-		this.semesterId = semester.semester_id;
+		this.semesterId = semester.id;
 		this.title = semester.title;
 		this.begin = semester.begin;
 		this.end = semester.end;

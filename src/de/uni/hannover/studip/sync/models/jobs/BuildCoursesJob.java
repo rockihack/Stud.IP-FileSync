@@ -15,6 +15,7 @@ import de.uni.hannover.studip.sync.datamodel.CourseTreeNode;
 import de.uni.hannover.studip.sync.datamodel.SemesterTreeNode;
 import de.uni.hannover.studip.sync.exceptions.NotFoundException;
 import de.uni.hannover.studip.sync.exceptions.UnauthorizedException;
+import de.uni.hannover.studip.sync.models.Config;
 import de.uni.hannover.studip.sync.models.OAuth;
 import de.uni.hannover.studip.sync.models.RestApi;
 import de.uni.hannover.studip.sync.models.TreeBuilder;
@@ -63,10 +64,14 @@ public class BuildCoursesJob implements Runnable {
 			CourseTreeNode courseNode;
 
 			/* Get subscribed courses. */
-			final Courses courses = RestApi.getAllCoursesBySemesterId(semesterNode.semesterId);
-			phaser.bulkRegister(courses.courses.size());
+			final Courses courses = RestApi.getAllCoursesBySemesterId(Config.getInstance().getUserId(), semesterNode.semesterId);
+			if (courses.collection == null) {
+				// Empty collection
+				return;
+			}
+			phaser.bulkRegister(courses.collection.size());
 
-			for (final Course course : courses.courses) {
+			for (final Course course : courses.collection.values()) {
 				semesterNode.courses.add(courseNode = new CourseTreeNode(course));
 
 				builder.execute(new BuildDocumentsJob(builder, phaser, courseNode, courseNode.root, new HashSet<String>()));

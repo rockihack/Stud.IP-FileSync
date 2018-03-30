@@ -90,10 +90,10 @@ public class BuildDocumentsJob implements Runnable {
 				 * If parent node is the root course folder the folder id is null.
 				 */
 				final DocumentFolders folders = RestApi.getAllDocumentsByRangeAndFolderId(courseNode.courseId, parentNode.folderId);
-				phaser.bulkRegister(folders.folders.size());
+				phaser.bulkRegister(folders.subfolders.size());
 
 				/* Folders. */
-				for (final DocumentFolder folder : folders.folders) {
+				for (final DocumentFolder folder : folders.subfolders) {
 					/* Get folder index (merged folders use same index) and rename the folder if it's name already exists. */
 					final Set<String> folderFileIndex = TreeConflict.resolveFolderNameConflict(fileIndex, fileIndexMap, folder);
 					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
@@ -104,7 +104,7 @@ public class BuildDocumentsJob implements Runnable {
 				}
 
 				/* Documents. */
-				for (final Document document : folders.documents) {
+				for (final Document document : folders.file_refs) {
 					/* Rename the document if it's filename already exists. */
 					TreeConflict.resolveFileNameConflict(fileIndex, document);
 					parentNode.documents.add(documentNode = new DocumentTreeNode(document));

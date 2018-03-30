@@ -136,7 +136,7 @@ public class TreeSync extends TreeBuilder {
 	 * @throws IOException 
 	 */
 	private void doDocument(final Phaser phaser, final DocumentFolderTreeNode folderNode, final DocumentTreeNode documentNode, final Path parentDirectory) throws IOException {
-		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.fileName);
+		final String originalFileName = FileBrowser.removeIllegalCharacters(documentNode.name);
 		final Path documentFile = parentDirectory.resolve(originalFileName);
 
 		if (!Files.exists(documentFile)) {
