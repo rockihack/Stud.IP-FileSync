@@ -1,6 +1,7 @@
 package de.uni.hannover.studip.sync.models;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -71,10 +72,10 @@ public final class ConfigFile<T> {
 	public void init() throws IOException {
 		lock.writeLock().lock();
 		try {
-			data = datamodel.newInstance();
+			data = datamodel.getDeclaredConstructor().newInstance();
 			write();
 
-		} catch(InstantiationException | IllegalAccessException e) {
+		} catch(InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new IllegalStateException(e);
 
 		} finally {

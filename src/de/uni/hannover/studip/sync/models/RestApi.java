@@ -42,7 +42,7 @@ public final class RestApi {
 			throw new IllegalArgumentException("Invalid semester id!");
 		}
 
-		final JacksonRequest<Courses> request = new JacksonRequest<Courses>(Verb.GET,
+		final JacksonRequest<Courses> request = new JacksonRequest<>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/api/courses/semester/" + semesterId, Courses.class);
 
 		switch (request.getCode()) {
@@ -71,7 +71,7 @@ public final class RestApi {
 			throw new IllegalArgumentException("Invalid range id!");
 		}
 
-		final JacksonRequest<Documents> request = new JacksonRequest<Documents>(Verb.GET,
+		final JacksonRequest<Documents> request = new JacksonRequest<>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/api/documents/" + courseId + "/new/" + timestamp, Documents.class);
 
 		switch (request.getCode()) {
@@ -106,7 +106,7 @@ public final class RestApi {
 			throw new IllegalArgumentException("Invalid folder id!");
 		}
 
-		final JacksonRequest<DocumentFolders> request = new JacksonRequest<DocumentFolders>(Verb.GET,
+		final JacksonRequest<DocumentFolders> request = new JacksonRequest<>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/api/documents/" + rangeId + "/folder" + (folderId == null ? "" : "/" + folderId), DocumentFolders.class);
 
 		switch (request.getCode()) {
@@ -139,7 +139,7 @@ public final class RestApi {
 			throw new IllegalArgumentException("Invalid document id!");
 		}
 
-		final JacksonRequest<Object> request = new JacksonRequest<Object>(Verb.GET,
+		final JacksonRequest<Object> request = new JacksonRequest<>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/api/documents/" + documentId + "/download", Object.class);
 
 		switch (request.getCode()) {
@@ -164,7 +164,7 @@ public final class RestApi {
 	 * @throws IOException 
 	 */
 	public static Semesters getAllSemesters() throws UnauthorizedException, IOException {
-		final JacksonRequest<Semesters> request = new JacksonRequest<Semesters>(Verb.GET,
+		final JacksonRequest<Semesters> request = new JacksonRequest<>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/api/courses/semester", Semesters.class);
 
 		switch (request.getCode()) {
@@ -190,7 +190,7 @@ public final class RestApi {
 			throw new IllegalArgumentException("Invalid user id!");
 		}
 
-		final JacksonRequest<User> request = new JacksonRequest<User>(Verb.GET,
+		final JacksonRequest<User> request = new JacksonRequest<>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/api/user" + (userId == null ? "" : "/" + userId), User.class);
 
 		switch (request.getCode()) {

@@ -1,6 +1,7 @@
 package de.uni.hannover.studip.sync.models;
 
 import java.nio.file.Path;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -30,8 +31,8 @@ public final class PathBuilder {
 		calendar.setTimeInMillis(semester.begin * 1000L);
 
 		final StringBuilder str = new StringBuilder();
-		str.append(calendar.get(GregorianCalendar.YEAR) % 100)
-			.append(calendar.get(GregorianCalendar.MONTH) < 6 ? "ss" : "ws");
+		str.append(calendar.get(Calendar.YEAR) % 100)
+			.append(calendar.get(Calendar.MONTH) < 6 ? "ss" : "ws");
 
 		return str.toString();
 	}

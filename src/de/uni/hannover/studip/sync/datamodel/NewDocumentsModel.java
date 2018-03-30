@@ -35,7 +35,7 @@ public class NewDocumentsModel {
 		semesterTitle = new SimpleStringProperty(semesterNode.title);
 		courseTitle = new SimpleStringProperty(courseNode.title);
 
-		documentChDate = new SimpleObjectProperty<Date>(new Date(documentNode.chDate * 1000L) {
+		documentChDate = new SimpleObjectProperty<>(new Date(documentNode.chDate * 1000L) {
 			private static final long serialVersionUID = 1L;
 
 			@Override

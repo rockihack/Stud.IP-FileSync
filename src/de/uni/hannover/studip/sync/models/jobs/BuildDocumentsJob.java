@@ -83,7 +83,7 @@ public class BuildDocumentsJob implements Runnable {
 				DocumentFolderTreeNode folderNode;
 				DocumentTreeNode documentNode;
 
-				final HashMap<String, Set<String>> fileIndexMap = new HashMap<String, Set<String>>();
+				final HashMap<String, Set<String>> fileIndexMap = new HashMap<>();
 
 				/*
 				 * Get course folder content.

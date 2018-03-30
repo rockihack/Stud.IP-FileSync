@@ -54,7 +54,7 @@ public class Main extends Application {
 	/**
 	 * Keep track of previous views.
 	 */
-	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<String>();
+	private static final LinkedList<String> VIEW_HISTORY = new LinkedList<>();
 
 	/**
 	 * Global tree file lock.

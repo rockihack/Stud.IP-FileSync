@@ -55,8 +55,8 @@ public final class Config {
 	 */
 	private Config() {
 		try {
-			settings = new ConfigFile<SettingsFile>(CONFIG_DIR, SETTINGS_FILE_NAME, SettingsFile.class);
-			oauth = new ConfigFile<OAuthFile>(CONFIG_DIR, OAUTH_FILE_NAME, OAuthFile.class);
+			settings = new ConfigFile<>(CONFIG_DIR, SETTINGS_FILE_NAME, SettingsFile.class);
+			oauth = new ConfigFile<>(CONFIG_DIR, OAUTH_FILE_NAME, OAuthFile.class);
 
 		} catch (IOException e) {
 			throw new IllegalStateException(e);
