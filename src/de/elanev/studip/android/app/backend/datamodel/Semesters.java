@@ -10,7 +10,8 @@
  */
 package de.elanev.studip.android.app.backend.datamodel;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -21,9 +22,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Semesters {
 
-	public ArrayList<Semester> semesters;
+	public Map<String, Semester> collection;
 
 	public Semesters() {
-		this.semesters = new ArrayList<Semester>();
+		this.collection = new HashMap<String, Semester>();
 	}
 }

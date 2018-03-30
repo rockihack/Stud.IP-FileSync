@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentFolder {
-	public String folder_id;
+	public String id;
 	public String user_id;
 	public String name;
     //TODO Back to Long, when the "Themenbezogener Dateiordner"-Bug in the
@@ -23,7 +23,6 @@ public class DocumentFolder {
 	public String mkdate;
 	public Long chdate;
 	public String description;
-	public Permissions permissions;
 
 	public DocumentFolder() {
 	}
@@ -38,21 +37,12 @@ public class DocumentFolder {
 	 * @param permissions
 	 */
 	public DocumentFolder(String folder_id, String user_id, String name,
-			String mkdate, Long chdate, String description,
-			Permissions permissions) {
-		this.folder_id = folder_id;
+			String mkdate, Long chdate, String description) {
+		this.id = folder_id;
 		this.user_id = user_id;
 		this.name = name;
 		this.mkdate = mkdate;
 		this.chdate = chdate;
 		this.description = description;
-		this.permissions = permissions;
-	}
-
-	public static class Permissions {
-		public Boolean visible;
-		public Boolean writable;
-		public Boolean readable;
-		public Boolean extendable;
 	}
 }

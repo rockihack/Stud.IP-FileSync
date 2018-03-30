@@ -17,16 +17,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentFolders {
-	public ArrayList<DocumentFolder> folders;
-	public ArrayList<Document> documents;
+	public ArrayList<DocumentFolder> subfolders;
+	public ArrayList<Document> file_refs;
 
 	public DocumentFolders() {
-		folders = new ArrayList<DocumentFolder>();
-		documents = new ArrayList<Document>();
+		subfolders = new ArrayList<DocumentFolder>();
+		file_refs = new ArrayList<Document>();
 	}
 
 	public DocumentFolders(ArrayList<DocumentFolder> folders) {
-		this.folders = folders;
-		documents = new ArrayList<Document>();
+		subfolders = folders;
+		file_refs = new ArrayList<Document>();
 	}
 }

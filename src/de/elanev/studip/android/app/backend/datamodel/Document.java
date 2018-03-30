@@ -8,7 +8,6 @@
 package de.elanev.studip.android.app.backend.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author joern
@@ -16,18 +15,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Document {
-	public String document_id;
+	public String file_id;
 	public String folder_id;
 	public String user_id;
 	public String name;
 	public String description;
 	public Long mkdate;
 	public Long chdate;
-	public String filename;
-	public Long filesize;
+	public Long size;
 	public Integer downloads;
-	@JsonProperty("protected")
-	public Boolean file_protected;
 	public String mime_type;
 
 	public Document() {
@@ -46,21 +42,19 @@ public class Document {
 	 * @param file_protected
 	 * @param mime_type
 	 */
-	public Document(String document_id, String folder_id, String user_id,
+	public Document(String file_id, String folder_id, String user_id,
 			String name, String description, Long mkdate, Long chdate,
 			String filename, Long filesize, Integer downloads,
 			Boolean file_protected, String mime_type) {
-		this.document_id = document_id;
+		this.file_id = file_id;
 		this.folder_id = folder_id;
 		this.user_id = user_id;
 		this.name = name;
 		this.description = description;
 		this.mkdate = mkdate;
 		this.chdate = chdate;
-		this.filename = filename;
-		this.filesize = filesize;
+		this.size = filesize;
 		this.downloads = downloads;
-		this.file_protected = file_protected;
 		this.mime_type = mime_type;
 	}
 }

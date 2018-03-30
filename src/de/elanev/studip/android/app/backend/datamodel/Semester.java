@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Semester {
 
-  public String semester_id;
+  public String id;
   public String title;
   public String description;
   public long begin;
@@ -45,7 +45,7 @@ public class Semester {
       long end,
       long seminars_begin,
       long seminars_end) {
-    this.semester_id = semester_id;
+    this.id = semester_id;
     this.title = title;
     this.description = description;
     this.begin = begin;

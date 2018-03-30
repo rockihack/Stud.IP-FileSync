@@ -12,7 +12,8 @@ package de.elanev.studip.android.app.backend.datamodel;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * POJO class that stores a list of Course objects.
@@ -21,13 +22,13 @@ import java.util.ArrayList;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Courses {
-  public ArrayList<Course> courses;
+  public Map<String, Course> collection;
 
   /**
    * Default constructor that creates an empty courses ArrayList
    */
   public Courses() {
-    courses = new ArrayList<Course>();
+	  collection = new HashMap<String, Course>();
   }
 
 }
