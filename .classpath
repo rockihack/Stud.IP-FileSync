@@ -11,17 +11,17 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jackson-annotations-2.6.3.jar">
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.9.4.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jackson-core-2.6.3.jar">
+	<classpathentry kind="lib" path="lib/jackson-core-2.9.4.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/jackson-databind-2.6.3.jar">
+	<classpathentry kind="lib" path="lib/jackson-databind-2.9.4.jar">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
