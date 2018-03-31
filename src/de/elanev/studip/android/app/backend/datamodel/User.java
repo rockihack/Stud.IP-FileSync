@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class User {
 	public String user_id;
 	public String username;
+	public Name name;
 
 	/**
 	 * Default constructor
@@ -27,34 +28,17 @@ public class User {
 	public User() {
 	}
 
-	/**
-	 * @param user_id
-	 * @param username
-	 * @param perms
-	 * @param title_pre
-	 * @param forename
-	 * @param lastname
-	 * @param title_post
-	 * @param email
-	 * @param avatar_small
-	 * @param avatar_medium
-	 * @param avatar_normal
-	 * @param phone
-	 * @param homepage
-	 * @param privadr
-	 * @param role
-	 */
-	public User(String user_id, String username) {
-		this.user_id = user_id;
-		this.username = username;
-	}
+	@JsonIgnoreProperties(ignoreUnknown = true)
+	public class Name {
+		public String family;
+		public String given;
+		public String prefix;
+		public String suffix;
+		public String formatted;
 
-	public String getFullName() {
-		return this.username; // TODO
-	}
+		public Name() {
+		}
 
-	public String getName() {
-		return this.username; // TODO
 	}
 
 }

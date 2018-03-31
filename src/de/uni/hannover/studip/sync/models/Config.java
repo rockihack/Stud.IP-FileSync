@@ -311,8 +311,8 @@ public final class Config {
 	public void setAccessToken(final Token accessToken, final User currentUser) throws IOException {
 		oauth.lock.writeLock().lock();
 		try {
-			oauth.data.firstName = ""; // FIXME
-			oauth.data.lastName = ""; // FIXME
+			oauth.data.firstName = currentUser.name.given;
+			oauth.data.lastName = currentUser.name.family;
 			oauth.data.userName = currentUser.username;
 			oauth.data.userId = currentUser.user_id;
 			oauth.data.token = accessToken.getToken();

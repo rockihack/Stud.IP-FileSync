@@ -109,7 +109,6 @@ public class TreeBuilder implements AutoCloseable {
 	 * Update existing semester/course/folder/document tree.
 	 * 
 	 * @param tree Path to tree file
-	 * @param doAllSemesters If true all semesters will be updated, otherwise only the current semester
 	 * @throws IOException
 	 */
 	public synchronized int update(final Path tree) throws IOException {
