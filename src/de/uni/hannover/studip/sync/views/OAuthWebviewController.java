@@ -91,7 +91,7 @@ public class OAuthWebviewController extends AbstractController {
 			final Token accessToken = OAUTH.getAccessToken(matcher.group(1));
 
 			// Test if access token is valid.
-			final User currentUser = RestApi.getUserById();
+			final User currentUser = RestApi.getCurrentUser();
 
 			// Store access token.
 			CONFIG.setAccessToken(accessToken, currentUser);

@@ -43,7 +43,7 @@ public final class RestApi {
 		}
 
 		final JacksonRequest<Courses> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/user/" + userId + "/courses?semester=" + semesterId, Courses.class);
+				StudIPApiProvider.BASE_URL + "/user/" + userId + "/courses?semester=" + semesterId + "&limit=1000", Courses.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -76,8 +76,8 @@ public final class RestApi {
 
 		final JacksonRequest<DocumentFolders> request = new JacksonRequest<>(Verb.GET,
 				folderId == null
-				? StudIPApiProvider.BASE_URL + "/course/" + rangeId + "/top_folder"
-				: StudIPApiProvider.BASE_URL + "/folder/" + folderId,
+				? StudIPApiProvider.BASE_URL + "/course/" + rangeId + "/top_folder?limit=1000"
+				: StudIPApiProvider.BASE_URL + "/folder/" + folderId + "?limit=1000",
 				DocumentFolders.class);
 
 		switch (request.getCode()) {
@@ -136,7 +136,7 @@ public final class RestApi {
 	 */
 	public static Semesters getAllSemesters() throws UnauthorizedException, IOException {
 		final JacksonRequest<Semesters> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/semesters", Semesters.class);
+				StudIPApiProvider.BASE_URL + "/semesters?limit=1000", Semesters.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -156,7 +156,7 @@ public final class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static User getUserById() throws UnauthorizedException, NotFoundException, IOException {
+	public static User getCurrentUser() throws UnauthorizedException, NotFoundException, IOException {
 		final JacksonRequest<User> request = new JacksonRequest<>(Verb.GET,
 				StudIPApiProvider.BASE_URL + "/user", User.class);
 
