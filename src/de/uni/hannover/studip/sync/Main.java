@@ -95,12 +95,6 @@ public class Main extends Application {
 		 * Global log level.
 		 */
 		LOG.setLevel(Level.WARNING);
-
-		/*
-		 * Force java to use tls 1.2 / 1.1 (update default if jre 1.7 was installed before).
-		 * Fixes: SSLException: ssl peer shut down incorrectly.
-		 */
-		System.setProperty("https.protocols", "TLSv1.1,TLSv1.2");
 	}
 
 	/**
