@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane minHeight="400.0" minWidth="600.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.RootLayoutController">
+<BorderPane minHeight="400.0" minWidth="600.0" stylesheets="@/de/uni/hannover/studip/sync/views/style.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.uni.hannover.studip.sync.views.RootLayoutController">
    <top>
       <MenuBar fx:id="menu" BorderPane.alignment="CENTER">
         <menus>

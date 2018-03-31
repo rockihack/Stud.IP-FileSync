@@ -29,7 +29,7 @@
             </BorderPane>
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="4">
                <center>
-                  <Button fx:id="next" disable="true" mnemonicParsing="false" onAction="#handleNext" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Weiter" BorderPane.alignment="CENTER">
+                  <Button fx:id="next" disable="true" mnemonicParsing="false" onAction="#handleNext" prefWidth="150.0" styleClass="blue-button" text="Weiter" BorderPane.alignment="CENTER">
                   </Button>
                </center>
             </BorderPane>

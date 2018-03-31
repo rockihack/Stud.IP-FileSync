@@ -70,7 +70,7 @@
             </GridPane>
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button mnemonicParsing="false" onAction="#handlePrev" prefWidth="150.0" styleClass="blue-button" stylesheets="@style.css" text="Zurück" BorderPane.alignment="CENTER">
+                  <Button mnemonicParsing="false" onAction="#handlePrev" prefWidth="150.0" styleClass="blue-button" text="Zurück" BorderPane.alignment="CENTER">
                   </Button>
                </center>
             </BorderPane>

@@ -19,10 +19,10 @@
           <RowConstraints minHeight="0.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ProgressIndicator fx:id="progress" progress="0.0" styleClass="sync-indicator" stylesheets="@style.css" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <ProgressIndicator fx:id="progress" progress="0.0" styleClass="sync-indicator" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="2">
                <center>
-                  <Button fx:id="syncButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSync" prefWidth="200.0" styleClass="blue-button" stylesheets="@style.css" text="Sync" BorderPane.alignment="CENTER">
+                  <Button fx:id="syncButton" defaultButton="true" mnemonicParsing="false" onAction="#handleSync" prefWidth="200.0" styleClass="blue-button" text="Sync" BorderPane.alignment="CENTER">
                   </Button>
                </center>
                <bottom>
