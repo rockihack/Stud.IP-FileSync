@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Document {
-	public String file_id;
+	public String id;
 	public String folder_id;
 	public String user_id;
 	public String name;
@@ -42,11 +42,11 @@ public class Document {
 	 * @param file_protected
 	 * @param mime_type
 	 */
-	public Document(String file_id, String folder_id, String user_id,
+	public Document(String id, String folder_id, String user_id,
 			String name, String description, Long mkdate, Long chdate,
 			String filename, Long filesize, Integer downloads,
 			Boolean file_protected, String mime_type) {
-		this.file_id = file_id;
+		this.id = id;
 		this.folder_id = folder_id;
 		this.user_id = user_id;
 		this.name = name;

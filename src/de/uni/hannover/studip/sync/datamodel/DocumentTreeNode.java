@@ -23,7 +23,7 @@ public class DocumentTreeNode {
 	}
 
 	public DocumentTreeNode(final Document document) {
-		this.documentId = document.file_id;
+		this.documentId = document.id;
 		this.userId = document.user_id;
 		this.name = document.name;
 		this.description = document.description;

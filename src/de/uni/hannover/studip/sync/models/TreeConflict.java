@@ -95,7 +95,7 @@ public final class TreeConflict {
 
 				if (fileIndex.contains(fileName)) {
 					/* 2. Append Stud.IP document id. */
-					document.name = FileBrowser.appendFilename(document.name, "_" + document.file_id);
+					document.name = FileBrowser.appendFilename(document.name, "_" + document.id);
 					fileName = FileBrowser.removeIllegalCharacters(document.name).toLowerCase(Locale.GERMANY);
 				}
 
