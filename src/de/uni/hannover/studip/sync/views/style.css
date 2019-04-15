@@ -12,6 +12,7 @@
 .sync-indicator {
 	/* LUH blau. */
 	-fx-progress-color: #3d71b8;
+	-fx-accent: #3d71b8;
 }
 
 .scroll-pane:focused,

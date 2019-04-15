@@ -43,7 +43,7 @@ public final class RestApi {
 		}
 
 		final JacksonRequest<Courses> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/user/" + userId + "/courses?semester=" + semesterId + "&limit=1000", Courses.class);
+				StudIPApiProvider.BASE_URL + "/user/" + userId + "/courses?semester=" + semesterId + "&limit=1000&cancel_login=1", Courses.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -76,8 +76,8 @@ public final class RestApi {
 
 		final JacksonRequest<DocumentFolders> request = new JacksonRequest<>(Verb.GET,
 				folderId == null
-				? StudIPApiProvider.BASE_URL + "/course/" + rangeId + "/top_folder?limit=1000"
-				: StudIPApiProvider.BASE_URL + "/folder/" + folderId + "?limit=1000",
+				? StudIPApiProvider.BASE_URL + "/course/" + rangeId + "/top_folder?limit=1000&cancel_login=1"
+				: StudIPApiProvider.BASE_URL + "/folder/" + folderId + "?limit=1000&cancel_login=1",
 				DocumentFolders.class);
 
 		switch (request.getCode()) {
@@ -111,7 +111,7 @@ public final class RestApi {
 		}
 
 		final JacksonRequest<Object> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/file/" + documentId + "/download", Object.class);
+				StudIPApiProvider.BASE_URL + "/file/" + documentId + "/download?cancel_login=1", Object.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -136,7 +136,7 @@ public final class RestApi {
 	 */
 	public static Semesters getAllSemesters() throws UnauthorizedException, IOException {
 		final JacksonRequest<Semesters> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/semesters?limit=1000", Semesters.class);
+				StudIPApiProvider.BASE_URL + "/semesters?limit=1000&cancel_login=1", Semesters.class);
 
 		switch (request.getCode()) {
 		case 200:
@@ -158,7 +158,7 @@ public final class RestApi {
 	 */
 	public static User getCurrentUser() throws UnauthorizedException, NotFoundException, IOException {
 		final JacksonRequest<User> request = new JacksonRequest<>(Verb.GET,
-				StudIPApiProvider.BASE_URL + "/user", User.class);
+				StudIPApiProvider.BASE_URL + "/user?cancel_login=1", User.class);
 
 		switch (request.getCode()) {
 		case 200:

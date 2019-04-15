@@ -7,4 +7,4 @@ Stud.IP RestApi FileSync
 
 1. Stud.IP 4.0
 2. Api Key and Secret
-3. Java 9 SDK
+3. Java 11 SDK

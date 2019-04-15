@@ -94,6 +94,12 @@ public class BuildDocumentsJob implements Runnable {
 
 				/* Folders. */
 				for (final DocumentFolder folder : folders.subfolders) {
+					if (folder.id == null || folder.name == null) {
+						/* Folder not readable! */
+						phaser.arrive();
+						continue;
+					}
+
 					/* Get folder index (merged folders use same index) and rename the folder if it's name already exists. */
 					final Set<String> folderFileIndex = TreeConflict.resolveFolderNameConflict(fileIndex, fileIndexMap, folder);
 					parentNode.folders.add(folderNode = new DocumentFolderTreeNode(folder));
