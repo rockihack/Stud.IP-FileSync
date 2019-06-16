@@ -121,8 +121,10 @@ public class TreeSync extends TreeBuilder {
 			doFolder(phaser, folder, folderDirectory);
 		}
 
-		for (final DocumentTreeNode document : folderNode.documents) {
-			doDocument(phaser, folderNode, document, parentDirectory);
+		synchronized (folderNode.documents) {
+			for (final DocumentTreeNode document : folderNode.documents) {
+				doDocument(phaser, folderNode, document, parentDirectory);
+			}
 		}
 	}
 
