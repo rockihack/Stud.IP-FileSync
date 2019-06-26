@@ -1,14 +1,11 @@
 package de.uni.hannover.studip.sync;
 	
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import de.uni.hannover.studip.sync.utils.Cli;
 import de.uni.hannover.studip.sync.utils.SimpleAlert;
 import de.uni.hannover.studip.sync.views.AbstractController;
 import de.uni.hannover.studip.sync.views.RootLayoutController;
@@ -71,9 +68,6 @@ public class Main extends Application {
 	private RootLayoutController rootLayoutController;
 	private AbstractController currentController;
 
-	@SuppressWarnings("unused")
-	private static ServerSocket globalAppMutex;
-
 	static {
 		/*
 		 * Default Uncaught Exception Handler.
@@ -95,25 +89,6 @@ public class Main extends Application {
 		 * Global log level.
 		 */
 		LOG.setLevel(Level.WARNING);
-	}
-
-	/**
-	 * Main method.
-	 * 
-	 * @param args
-	 */
-	public static void main(final String[] args) {
-		try {
-			// Acquire system wide app mutex to allow only one running instance.
-			globalAppMutex = new ServerSocket(9001, 10, InetAddress.getLoopbackAddress());
-
-			Cli.handleArgs(args);
-			launch(args);
-
-		} catch (IOException e) {
-			System.out.println("FileSync läuft bereits.");
-			System.exit(1);
-		}
 	}
 
 	/**
