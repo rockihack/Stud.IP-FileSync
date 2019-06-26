@@ -107,7 +107,9 @@ public class DownloadDocumentJob implements Runnable {
 			 * User does not have the required permissions
 			 * or document does not exist.
 			 */
-			folderNode.documents.remove(documentNode);
+			synchronized (folderNode.documents) {
+				folderNode.documents.remove(documentNode);
+			}
 			sync.isDirty = true;
 
 			if (LOG.isLoggable(Level.WARNING)) {
