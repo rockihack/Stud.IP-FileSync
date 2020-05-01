@@ -9,6 +9,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import de.uni.hannover.studip.sync.exceptions.ServerErrorException;
 import org.scribe.exceptions.OAuthConnectionException;
 
 import de.uni.hannover.studip.sync.Main;
@@ -102,7 +103,7 @@ public class DownloadDocumentJob implements Runnable {
 			Platform.runLater(() -> OAuth.getInstance().removeAccessToken());
 			sync.stopPending = true;
 
-		} catch (ForbiddenException | NotFoundException e) {
+		} catch (ForbiddenException | NotFoundException | ServerErrorException e) {
 			/*
 			 * User does not have the required permissions
 			 * or document does not exist.
