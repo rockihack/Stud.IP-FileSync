@@ -105,7 +105,7 @@ public final class RestApi {
 	 * @throws NotFoundException 
 	 * @throws IOException 
 	 */
-	public static long downloadDocumentById(final String documentId, final Path documentFile) throws UnauthorizedException, ForbiddenException, NotFoundException, IOException {
+	public static long downloadDocumentById(final String documentId, final Path documentFile) throws UnauthorizedException, ForbiddenException, NotFoundException, ServerErrorException, IOException {
 		if (!documentId.matches(STUDIP_ID_REGEX)) {
 			throw new IllegalArgumentException("Invalid document id!");
 		}
@@ -122,6 +122,8 @@ public final class RestApi {
 			throw new ForbiddenException("Forbidden!");
 		case 404:
 			throw new NotFoundException("Not found!");
+		case 500:
+			throw new ServerErrorException("Server error!");
 		default:
 			throw new IllegalStateException("Statuscode: " + request.getCode());
 		}
