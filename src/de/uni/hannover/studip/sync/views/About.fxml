@@ -18,7 +18,7 @@
           <RowConstraints minHeight="100.0" prefHeight="100.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <Label alignment="CENTER" text="Stud.IP FileSync&#10;&#10;Version: 1.1.0&#10;Release Date: 16.04.2019&#10;Revision: 0e9121e9f9&#10;&#10;GitHub:&#10;https://github.com/rockihack/Stud.IP-FileSync&#10;&#10;Developer:&#10;Lennart Glauer &lt;lennart.glauer@stud.uni-hannover.de&gt;" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
+            <Label alignment="CENTER" text="Stud.IP FileSync&#10;&#10;Version: 1.1.2&#10;Release Date: 23.01.2021&#10;Revision: bd968f21cd&#10;&#10;GitHub:&#10;https://github.com/rockihack/Stud.IP-FileSync&#10;&#10;Developer:&#10;Lennart Glauer &lt;mail@lennart-glauer.de&gt;" textAlignment="CENTER" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1">
             </Label>
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="3">
                <center>
